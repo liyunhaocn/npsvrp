@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     done = False
 
+    print(f"slover_cmd:{solver_cmd}")
     # Start subprocess and interact with it
     with subprocess.Popen(solver_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True) as p:
 
