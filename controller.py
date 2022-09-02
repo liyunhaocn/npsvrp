@@ -8,6 +8,13 @@ import numpy as np
 import threading
 from environment import VRPEnvironment
 
+def log(obj, newline=True, flush=False):
+    # Write logs to stderr since program uses stdout to communicate with controller
+    sys.stderr.write(str(obj))
+    if newline:
+        sys.stderr.write('\n')
+    if flush:
+        sys.stderr.flush()
 
 if __name__ == "__main__":
 
@@ -35,7 +42,6 @@ if __name__ == "__main__":
 
     done = False
 
-    print(f"slover_cmd:{solver_cmd}")
     # Start subprocess and interact with it
     with subprocess.Popen(solver_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True) as p:
 
@@ -47,6 +53,9 @@ if __name__ == "__main__":
         for line in p.stdout:
             line = line.strip()
             request = json.loads(line)
+            
+            log(f"request:{request}")
+
             if request['action'] == 'step':
                 solution = [np.array(route) for route in request['data']]
                 observation, reward, done, info = env.step(solution)
@@ -67,6 +76,7 @@ if __name__ == "__main__":
             else:
                 raise Exception("Invalid request")
             
+            # log(f"response:{response}")
             response_str = tools.json_dumps_np(response)
             p.stdin.write(response_str)
             p.stdin.write('\n')
