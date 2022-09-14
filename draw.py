@@ -43,8 +43,6 @@ def draw_customers(path):
         name="depot",
     ))
 
-
-
     inst_name = path.split('/')[1].split('.')[0]
 
     fig.update_layout(title= inst_name,
@@ -59,7 +57,8 @@ if __name__ == "__main__":
     path = r'instances'
     for filename in os.listdir(path):
         pt = os.path.join(path, filename)
-        print(f"draw instance:{pt}")
+        pt = pt.replace("\\", '/')
+        print(f"pt:{pt}")
         draw_customers(path=pt)
 
     # path = 'instances/ORTEC-VRPTW-ASYM-0bdff870-d1-n458-k35.txt'

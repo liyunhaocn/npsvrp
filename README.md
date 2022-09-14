@@ -11,7 +11,7 @@ The complete description of the problem setting is provided on the [main webpage
 This repository provides all the necessary code to start the competition. It includes a simple baseline method based on HGS-VRPTW as a static solver, along with examples of the use of the controller code designed to evaluate the algorithms.
 
 # Stay updated!
-Note: we will keep updating this repository with additional baselines, tools, information about code submission etc. to help you get most out of this competition! To stay updated, check back regularly, [follow us on Twitter](https://twitter.com/EuroNeuripsVRP) and join the [Slack workspace](https://join.slack.com/t/euro-neurips-vrp-2022/shared_invite/zt-1bfifn8ye-~azqWWXts1cR0YVURZNBmw), which is also the place to ask questions! Don't forget to [register your team](https://euro-neurips-vrp-2022.challenges.ortec.com/#registration)!
+Note: we will keep updating this repository with additional baselines, tools, information about code submission etc. to help you get most out of this competition! To stay updated, check back regularly, [follow us on Twitter](https://twitter.com/EuroNeuripsVRP) and join the [Slack workspace](https://join.slack.com/t/euro-neurips-vrp-2022/shared_invite/zt-1dldr119v-lV7FMmuxhRdkfXr07Mzgfw), which is also the place to ask questions! Don't forget to [register your team](https://euro-neurips-vrp-2022.challenges.ortec.com/#registration)!
 
 # Installation
 
@@ -47,7 +47,9 @@ It uses the time-window evaluation strategies as in [3], along with an additiona
 
 It is important to note that all the vehicle routing variants covered with HGS until now were static, i.e., all information was known at the start of the solution process. The EURO Meets NeurIPS 2022 Vehicle Routing Competition goes beyond this scope, as the delivery requests are revealed dynamically in the dynamic problem variant. Extending a static solver to deal with dynamic requests is a significant challenge. The baseline request dispatch strategies provided in this quickstart provide initial starting strategies to do this extension, but many additional strategies and improvements are likely possible.
 
-The implemented baseline strategies are *greedy*, *lazy* and *random*. Greedy will dispatch all requests in each epoch, while lazy will dispatch only must-go requests. Random will dispatch the must-go requests, and will dispatch each of the other requests with 50% probability (independently). Additionally, we provide an *oracle* 'baseline' that solves the problem in hindsight, i.e. it uses future information (by resetting the environment), to solve the problem offline in hindsight, using HGS with an extra constraint to respect the release times for requests. This oracle is NOT a valid strategy, as the solver should not reset the environment, but it can be used e.g. for imitation learning. Note that the oracle is not always better than the other baselines, as the hindsight problem is quite large and difficult to optimize, while the HGS algorithm was not specifically designed for this purpose.
+The heuristic baseline strategies are *greedy*, *lazy* and *random*. Greedy will dispatch all requests in each epoch, while lazy will dispatch only must-go requests. Random will dispatch the must-go requests, and will dispatch each of the other requests with 50% probability (independently). Additionally, we provide an *oracle* 'baseline' that solves the problem in hindsight, i.e. it uses future information (by resetting the environment), to solve the problem offline in hindsight, using HGS with an extra constraint to respect the release times for requests. This oracle is NOT a valid strategy, as the solver should not reset the environment, but it can be used e.g. for imitation learning. Note that the oracle is not always better than the other baselines, as the hindsight problem is quite large and difficult to optimize, while the HGS algorithm was not specifically designed for this purpose.
+
+We also provide two machine learning baselines for the dispatching strategy: [supervised](baselines/supervised) and [DQN](baselines/dqn) which can be used as a starting point for machine learning based strategies. For both methods we provide pretrained models for quick testing, but these have not been trained for very long and the performance can likely be improved (the DQN model actually learned the greedy policy). For more info on how to train and test the machine learning baselines, read [baselines/supervised/README.md](baselines/supervised/README.md) or [baselines/dqn/README.md](baselines/dqn/README.md).
 
 * [1] [Vidal et al., Operations Research, 60(3), 611-624, (2012)](https://www.cirrelt.ca/DocumentsTravail/CIRRELT-2011-05.pdf) 
 * [2] [Vidal, Computers & Operations Research, 140, 105643, (2022)](https://arxiv.org/pdf/2012.10384.pdf) 
@@ -63,7 +65,7 @@ The implemented baseline strategies are *greedy*, *lazy* and *random*. Greedy wi
 * `run.sh` is the script that should contain the command to run the actual solver, which will be used for every instance on the code submission platform.
 * `install.sh` (optional) is the script that installs the solver, which will be used once on the code submission platform.
 * `run_parallel_solver.sh` is a simple script that can be used to run the solver for multiple instances in parallel.
-
+* `create_submission.sh` is a simple example script that can be used to create a submission zip file (see [Submitting your solver](#submitting-your-solver)).
 ## Other files
 * `metadata` is a file that needs to be included when submitting your solver on the CodaLab submission platform (see below)
 * `requirements.txt` specifies the Python requirements for your solver, make sure necessary dependencies are included and installed through the install.sh script.
@@ -103,16 +105,25 @@ READ THESE INSTUCTIONS CAREFULLY. Every team must register their team on CodaLab
 * Note: Teams with multiple accounts or missing or unregistered team names will be removed from the competition!
 
 ## 2. Create a submission zip file
-
 To submit your solver, you must package everything that is needed in a zip file and submit it using the [CodaLab Competition](https://codalab.lisn.upsaclay.fr/competitions/6627) platform. The following files are required in the root of the zip file:
 * `metadata`: this file should be include to indicate a code submission. There is no need to change it.
 * `install.sh`: (optional) script to compile your solver and/or install required dependencies *through pip*. This will be executed once for each submission.
 * `run.sh`: the entrypoint script for your solver. It should NOT use any arguments.
 * All other files needed to run your solver.
 
-Make sure that everything your solver needs is included or installed through `install.sh`. For convenience, we provide the `create_submission.sh` script that can do this for you: it creates a `tmp` folder in the folder `submissions` with only the necessary files, for which it will create a zip. Make sure to add your dependencies to the script if you use it.
+Make sure that everything your solver needs is included or installed through `install.sh`. For convenience, we provide the `create_submission.sh` script that can do this for you: it creates a `tmp` folder in the folder `submissions` with only the necessary files, for which it will create a zip. Make sure to add your dependencies to the script if you use it. For the supervised and dqn baselines, you can run `baselines/supervised/create_submission.sh` and `baselines/dqn/create_submission.sh` from the root of the repository.
 
 Note that you can include `environment.py`, `tools.py` etc. in your submission, so these can be used inside your solver, and you are free to modify these files as well. You can even include a `controller.py` script, but it will be ignored. The code submission platform will use its own controller and environment to evaluate your submission.
+
+Before you submit your solver, you can test your submission locally by going to the `submissions/tmp` folder and running the install script and controller from there:
+```
+# First create a fresh tmp folder in submissions
+./create_submission.sh
+# Test the submission to see if all dependencies where packed correctly
+cd submissions/tmp
+./install.sh && python ../../controller.py --instance ../../instances/ORTEC-VRPTW-ASYM-0bdff870-d1-n458-k35.txt --epoch_tlim 5 -- ./run.sh
+cd ../..
+```
 
 ## 3. Submit your solver on CodaLab
 * On the CodaLab platform, navigate to [Participate -> Submit / View Results](https://codalab.lisn.upsaclay.fr/competitions/6627#participate-submit_results).
@@ -122,14 +133,14 @@ Note that you can include `environment.py`, `tools.py` etc. in your submission, 
 * If your submission fails, you can use the output/error files to troubleshout your submission. Most likely, errors will be in the 'ingestion error log' (the ingestion step runs your submission).
 * If there are any problems, you may also try to run your submission locally inside the Singularity/Apptainer computational environment (see below).
 * Note that processing time of your submission may vary depending on the availability of the compute workers and submission load. If your submission does not show status 'running' within a few hours, it may help to submit an extra test submission to trigger a compute worker.
-* Contact us on [Slack](https://join.slack.com/t/euro-neurips-vrp-2022/shared_invite/zt-1bfifn8ye-~azqWWXts1cR0YVURZNBmw) if you are unable to solve your problem.
+* Contact us on [Slack](https://join.slack.com/t/euro-neurips-vrp-2022/shared_invite/zt-1dldr119v-lV7FMmuxhRdkfXr07Mzgfw) if you are unable to solve your problem.
 
 The competition has three 'phases':
 * The *test* 'phase' is not really a phase (it overlaps the other phases) but can be used to test if your solver can be evaluated correctly by the CodaLab platform. It will install your solver and test it using a single static and a dynamic instance with a short time limit. The standard output/error of the install script, and the controller running your solver can be inspected to troubleshout problems. 
 * The *qualification* phase is were you should submit your final solver, AFTER it has succesfully been evaluated in the test phase. You can make a submission *at most once per day* (therefore, first test your submission using the test phase). Your best submission will be visible on the leaderboard. Your last submission of this phase will be used for final evaluation, if you are within the top 10 on the leaderboard on October 31st. Important: while the leaderboard shows your BEST submission, your LAST submission will be used in the final phase. Make sure to submit your final solution before the deadline (October 31st).
 * The *final (hidden)* phase is hidden. The top 10 solutions from the qualification phase will be automatically evaluated during this phase. It is NOT possible to provide a new submission.
 
-For more details about the phases (time limits etc.), read the [rules](https://euro-neurips-vrp-2022.challenges.ortec.com/#rules) document.
+For more details about the phases (time limits etc.), read the [rules](https://euro-neurips-vrp-2022.challenges.ortec.com/#rules) document. To encourage active participation on the public leaderboard, prizes will be awarded to the number 1/2/3 on the leaderboard every week. For more info, see the [prizes](https://euro-neurips-vrp-2022.challenges.ortec.com/#prizes).
 
 Important: the code submission platform will compute two ranks for all solvers: one based on the average performance (minimizing total route driving duration) on the static variant, and one based on the average performance on the dynamic variant. It is NOT possible to submit a solver for just one of the variants. The overall rank will be determined by the average of the rank for the static variant and the dynamic variant (with the overal average performance as tie-braker), so you should make sure your solver performs well for both problem variants.
 
@@ -146,7 +157,31 @@ To test your submission locally in the same environment, you can install [Apptai
 For Windows/Mac you need an Ubuntu virtual machine (VM), see [here](https://apptainer.org/docs/admin/main/installation.html#installation-on-windows-or-mac). Inside the VM you can use the steps above (which are simpler than the official installation instructions).
 
 ### Use of commercial software
-Note: it is your responsibility to ensure appropriate licenses such that your solver can run on the code submission platform. If you want to use a commercial MIP solver, we recommend using [Gurobi](https://www.gurobi.com/), which has agreed to provide licenses for the code submission platform (this is NOT available yet). If you require a Gurobi license for developing your solver (and you cannot use an [academic license](https://www.gurobi.com/academia/academic-program-and-licenses/)), contact us or [request an evaluation license](https://www.gurobi.com/downloads/request-an-evaluation-license/). Contact us on [Slack](https://join.slack.com/t/euro-neurips-vrp-2022/shared_invite/zt-1bfifn8ye-~azqWWXts1cR0YVURZNBmw) if you have questions about using commercial software.
+Note: it is your responsibility to ensure appropriate licenses such that your solver can run on the code submission platform. If you want to use a commercial MIP solver, we recommend using [Gurobi](https://www.gurobi.com/), which has agreed to provide licenses for the code submission platform (this is NOT available yet). If you require a Gurobi license for developing your solver (and you cannot use an [academic license](https://www.gurobi.com/academia/academic-program-and-licenses/)), contact us or [request an evaluation license](https://www.gurobi.com/downloads/request-an-evaluation-license/). Contact us on [Slack](https://join.slack.com/t/euro-neurips-vrp-2022/shared_invite/zt-1dldr119v-lV7FMmuxhRdkfXr07Mzgfw) if you have questions about using commercial software.
+
+#### Using Gurobi
+From python, you can simply import Gurobi, however when running inside the controller, you must avoid Gurobi writing to stdout, for example by redirecting to stderr:
+```
+import sys
+from contextlib import redirect_stdout
+import gurobipy as gp
+
+with redirect_stdout(sys.stderr):
+    m = gp.Model()
+    m.addVars(...)
+    ...
+    m.optimize()
+```
+Alternatively, you can turn off Gurobi output for the model, but you must still wrap the creation of the model to avoid all output:
+```
+with redirect_stdout(sys.stderr):
+    m = gp.Model()
+    
+m.Params.OutputFlag = 0  # Don't print anything
+m.addVars(...)
+...
+m.optimize()
+``` 
 
 # Possible ideas
 To encourage participation in the competition, we provide some suggestions on various ways to participate in this competition using machine learning techniques.
