@@ -16,59 +16,113 @@
     <Filter Include="src">
       <UniqueIdentifier>{a8c3dd0c-bdda-4de7-b12e-fc6ad7690e28}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\hgs">
+      <UniqueIdentifier>{5af78b3b-5084-428e-a99e-23016c6670ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\smart">
+      <UniqueIdentifier>{812d1eff-7eea-478e-95d9-ffdc65de3887}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\CircleSector.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\CircleSector.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\commandline.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\commandline.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Genetic.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\Genetic.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Individual.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\Individual.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\LocalSearch.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\LocalSearch.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Matrix.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\Matrix.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Params.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\Params.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Population.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\Population.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Split.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\Split.h">
+      <Filter>src\hgs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\xorshift128.h">
-      <Filter>src</Filter>
+    <ClInclude Include="..\..\src\hgs\xorshift128.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Arr2D.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Configuration.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\EAX.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Exception.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Flag.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Goal.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Math.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Problem.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Solver.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Utility.h">
+      <Filter>src\smart</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\Genetic.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\..\src\hgs\Genetic.cpp">
+      <Filter>src\hgs</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\Individual.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\..\src\hgs\Individual.cpp">
+      <Filter>src\hgs</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\LocalSearch.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="..\..\src\hgs\LocalSearch.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\Params.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\Population.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\Split.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Configuration.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\EAX.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Flag.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Goal.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Problem.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Solver.cpp">
+      <Filter>src\smart</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\Params.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\Population.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\Split.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

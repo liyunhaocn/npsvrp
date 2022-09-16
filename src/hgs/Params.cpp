@@ -72,6 +72,7 @@ Params::Params(const CommandLine& cl)
 
 			// Create a vector where all information on the Clients can be stored and loop over all information in the file
 			cli = std::vector<Client>(1001);
+
 			nbClients = 0;
 			while (inputFile >> node)
 			{
@@ -331,6 +332,14 @@ Params::Params(const CommandLine& cl)
 			{
 				throw std::string("Vehicle capacity is undefined");
 			}
+		}
+		
+		if (cli.size() < nbClients * 3 + 3) {
+			cli.resize(nbClients * 3 + 3);
+		}
+		for (int i = nbClients + 1; i < cli.size(); ++i) {
+			cli[i] = cli[0];
+			cli[i].custNum = i;
 		}
 	}
 	else {

@@ -46,7 +46,9 @@ public:
 	// Destructor
 	~Genetic();
 
-private:
+//private:
+// TODO[lyh]:
+public:
 	// The number of new potential offspring created from one individual
 	static const int numberOfCandidateOffsprings = 4;
 

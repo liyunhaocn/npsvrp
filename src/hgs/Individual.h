@@ -56,7 +56,7 @@ public:
 	std::vector<int> predecessors;												// For each node, the predecessor in the solution (can be the depot 0). Size is nbClients+1
 	std::multiset<std::pair<double, Individual*>> indivsPerProximity;			// The other individuals in the population (can not be the depot 0), ordered by increasing proximity (the set container follows a natural ordering based on the value of the first pair)
 	bool isFeasible;															// Feasibility status of the individual
-	double biasedFitness;														// Biased fitness of the solution
+	double biasedFitness;														// 用于淘汰个体的指标Biased fitness of the solution
 
 	// Measuring cost of a solution from the information of chromR
 	void evaluateCompleteCost();
