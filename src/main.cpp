@@ -34,7 +34,7 @@ namespace hust {
 
 		globalCfg->show();
 
-		// TODO[lyh][0]:一定要记得globalCfg用cusCnt合法化一下
+		// TODO[lyh][0]:一锟斤拷要锟角碉拷globalCfg锟斤拷cusCnt锟较凤拷锟斤拷一锟斤拷
 		globalCfg->repairByCusCnt(globalInput->custCnt);
 
 		yearTable = new hust::util::Array2D<int>(globalInput->custCnt + 1, globalInput->custCnt + 1, 0);
@@ -60,7 +60,7 @@ namespace hust {
 
 }//namespace hust
 
-#if 1
+#if 0
 
 int main(int argc, char* argv[])
 {

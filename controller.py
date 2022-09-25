@@ -1,4 +1,5 @@
 # Controller has an environment and tests it against a dynamic solver program
+import csv
 import subprocess
 import argparse
 import tools
@@ -85,3 +86,7 @@ if __name__ == "__main__":
     print(f"Cost of solution: {sum(env.final_costs.values())}")
     print("Solution:")
     print(tools.json_dumps_np(env.final_solutions))
+
+    # TODO[lyh][0]: write results in csv file
+    # csv.writer()
+    # args.instance

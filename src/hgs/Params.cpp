@@ -43,7 +43,7 @@ Params::Params(const CommandLine& cl)
 	
 	// Read INPUT dataset
 	//std::ifstream inputFile(config.pathInstance);
-	freopen(cl.config.pathInstance.data(), "r", stdin);
+//	freopen(cl.config.pathInstance.data(), "r", stdin);
 
 	if (true)
 	{

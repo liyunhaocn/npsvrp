@@ -23,6 +23,7 @@
 #include <ctime>
 #include <cmath>
 #include <sstream>
+#include <climits>
 
 #include "Flag.h"
 
