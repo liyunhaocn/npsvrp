@@ -12,6 +12,7 @@ static_cmds = []
 def get_tlim_of_static(path_path):
     # "ORTEC-VRPTW-ASYM-00c5356f-d1-n258-k12.txt"
     customers_num = path_path.split("-")[5].replace("n", "")
+    # print(f"num:{customers_num}")
     customers_num = int(customers_num)
 
     # print(customers_num)
@@ -25,22 +26,22 @@ def get_tlim_of_static(path_path):
 
 def get_all_instances_paths():
 
-    path = r"./instances" #文件夹目录
+    path = r"./instances/" #文件夹目录
     ret = []
-    for file_path in glob.glob(path + r"\*.txt"):
+    for file_path in glob.glob(path + r"*.txt"):
         file_path = file_path.replace("\\", "/")
         ret.append(file_path)
     return ret
 
 def get_all_static_cmds():
 
-    all_names = get_all_instances_paths()
+    all_paths = get_all_instances_paths()
     cmds = []
-    for instance_path in all_names:
+    for instance_path in all_paths:
         cmds.append(f"python controller.py --instance {instance_path} "
-                    + f"--static --epoch_tlim {get_tlim_of_static(instance_name)} -- ./run.sh")
-    for cmd in cmds:
-        print(cmd)
+                    + f"--static --epoch_tlim {get_tlim_of_static(instance_path)} -- ./run.sh")
+    # for cmd in cmds:
+    #     print(cmd)
     return cmds
 
 if __name__ == "__main__":
