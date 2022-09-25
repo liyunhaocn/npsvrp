@@ -13,15 +13,30 @@ Input::Input(Params& para):datas(para.cli),para(para) {
 
 	this->custCnt = para.nbClients;
 	this->example = para.instanceName;
+	this->vehicleCnt = para.nbVehicles;
+	this->Q = para.vehicleCapacity;
 
-	//initInput();
-	//initDetail();
+	//int eq = 0;
+	//int neq = 0;
+	//for (int i = 0; i <= custCnt; ++i) {
+	//	for (int j = 0; j <= custCnt; ++j) {
+	//		auto dis1 = para.timeCost.get(i,j);
+	//		auto dis2 = para.timeCost.get(j,i);
+	//		if (dis1 == dis2) {
+	//			++eq;
+	//		}
+	//		else {
+	//			++neq;
+	//			INFO("dis1!=dis2:", "abs(dis1-dis2)", abs(dis1 - dis2));
+	//		}
+	//	}
+	//}
+	//INFO(" eq:",eq);
+	//INFO("neq:",neq);
+
 }
 
 bool Input::initInput() {
-
-	//readDimacsInstance(globalCfg->inputPath);
-	//readDimacsBKS();
 
 	P = Vec<int>(custCnt + 1, 1);
 
@@ -110,7 +125,8 @@ bool Input::initInput() {
 			int aLinkv = canLinkNode(a, v);
 			int bLinkv = canLinkNode(b, v);
 			if ((aLinkv && bLinkv) || (!aLinkv && !bLinkv)) {
-				return getDisof2(a, v) < getDisof2(b, v);
+				//return getDisof2(a, v) < getDisof2(b, v);
+				return getDisof2(v, a) < getDisof2(v, b);
 			}
 			else {
 				return aLinkv ? true : false;
@@ -158,82 +174,6 @@ bool Input::initInput() {
 	}
 
 	return true;
-}
-
-#if 0
-bool Input::readDimacsInstance(std::string& instanciaPath) {
-
-	//debug(instanciaPath.c_str());
-	FILE* file = fopen(instanciaPath.c_str(), "r");
-
-	if (!file) {
-		std::cout << instanciaPath << "ERROR: Instance path wrong." << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	char name[64];
-	
-	fscanf(file, "%s\n", name);
-	this->example = std::string(name);
-	fscanf(file, "%*[^\n]\n");
-	fscanf(file, "%*[^\n]\n");
-	fscanf(file, "%d %lld\n", &this->vehicleCnt, &this->Q);
-	fscanf(file, "%*[^\n]\n");
-	fscanf(file, "%*[^\n]\n");
-
-	this->Q *= disMul;
-	std::string line = "";
-
-	this->datas = Vec<Data>(303);
-
-	int index = 0;
-	int id = -1, coordx = -1, coordy = -1, demand = -1;
-	int ready_time = -1, due_date = -1, service_time = -1;
-	int readArgNum = 0;
-	while ((readArgNum = fscanf(file, "%d %d %d %d %d %d %d\n", &id, &coordx, &coordy, &demand, &ready_time, &due_date, &service_time)) == 7) {
-
-		if (index >= datas.size()) {
-			int newSize = datas.size() + datas.size() / 2;
-			datas.resize(newSize);
-		}
-
-		this->datas[index].CUSTNO = id;
-		this->datas[index].XCOORD = coordx * disMul;
-		this->datas[index].YCOORD = coordy * disMul;
-		this->datas[index].demand = demand * disMul;
-		this->datas[index].earliestArrival = ready_time * disMul;
-		this->datas[index].latestArrival = due_date * disMul;
-		this->datas[index].serviceDuration = service_time * disMul;
-
-		if (index > 0) {
-			auto& dt = datas[index];
-			dt.polarAngle = CircleSector::positive_mod
-			(32768. * atan2(dt.YCOORD - datas[0].YCOORD, dt.XCOORD - datas[0].XCOORD) / PI_1);
-		}
-		++index;
-	}
-	custCnt = index - 1;
-	fclose(file);
-	return true;
-}
-#endif //0
-
-int Input::partition(int* arr, int start, int end, std::function<bool(int, int)>cmp) {
-	//int index = ( [start, end] (void)  //我试图利用随机法，但是这不是快排，外部输入不能保证end-start!=0，所以可能发生除零异常
-	//              {return random()%(end-start)+start;} )(); 
-	//std::swap(arr[start], arr[end]);
-
-	int small = start - 1;
-	for (int index = start; index < end; ++index) {
-		if (cmp(arr[index] , arr[end])) {
-			++small;
-			if (small != index)
-				std::swap(arr[small], arr[index]);
-		}
-	}
-	++small;
-	std::swap(arr[small], arr[end]);
-	return small;
 }
 
 }

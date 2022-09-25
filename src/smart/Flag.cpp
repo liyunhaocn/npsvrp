@@ -6,8 +6,6 @@
 namespace hust {
 
 extern int IntInf = INT_MAX/10;
-//extern long long int LLInf = 0x3f3f3f3f3f3f3f3f / 4;
-//extern long long int LLInf = LLONG_MAX / 4 - 1;
 extern long long int LLInf = LLONG_MAX / 10;
 
 extern double PI_1 = 3.14159265359;

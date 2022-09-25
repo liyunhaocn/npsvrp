@@ -179,8 +179,6 @@ int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 			}
 #endif // CHECKING
 
-			
-
 			doTwoKindEAX(pa, pb, 0);
 		}
 		
@@ -342,22 +340,6 @@ int Goal::callSimulatedannealing() {
 	bks->updateBKSAndPrint(st,"Simulatedannealing(1, 1000, 20.0, globalCfg->ruinC_)");
 
 	//saveSlnFile();
-	return true;
-}
-
-bool Goal::test() {
-	
-	Solver sol;
-	sol.initSolution(0);
-
-	sol.adjustRN(sol.rts.cnt + 10);
-
-	for (;;) {
-		globalCfg->ruinLmax = globalInput->custCnt / sol.rts.cnt;
-		//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
-		sol.Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
-		sol.patternAdjustment(100);
-	}
 	return true;
 }
 
@@ -736,6 +718,39 @@ int Goal::TwoAlgCombine() {
 	gloalTimer->disp();
 
 	return true;
+}
+
+void Goal::test() {
+	for (int i = 0; i < 100; ++i) {
+
+		Solver pa;
+		Solver pb;
+		pa.initSolution(myRand->pick(4));
+		pb.initSolution(myRand->pick(4));
+		if (pb.rts.cnt != pa.rts.cnt) {
+			pb.adjustRN(pa.rts.cnt);
+		}
+
+		Solver pc = pa;
+		int eaxState = 0;
+		EAX eax(pa, pb);
+		eax.generateCycles();
+
+		if (eax.abCycleSet.size() <= 1) {
+			return;
+		}
+#if CHECKING
+		if (pa.verify() < 0) {
+			ERROR("pa.verify():", pa.verify())
+		}
+		if (pb.verify() < 0) {
+			ERROR("pb.verify():", pb.verify())
+		}
+#endif // CHECKING
+		eaxState = eax.doNaEAX(pa, pb, pc);
+		pc = pa;
+		eaxState = eax.doPrEAX(pa, pb, pc);
+	}
 }
 
 }

@@ -38,13 +38,13 @@ struct Goal {
 
 	int callSimulatedannealing();
 
-	bool test();
-
 	bool experOnMinRN();
 
 	int TwoAlgCombine();
 
 	void getTheRangeMostHope();
+
+	void test();
 };
 
 

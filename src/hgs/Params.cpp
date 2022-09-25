@@ -13,7 +13,7 @@
 #include "commandline.h"
 #include "CircleSector.h"
 
-
+#pragma warning(disable:4996)
 
 
 Params::Params(const CommandLine& cl)
@@ -42,17 +42,20 @@ Params::Params(const CommandLine& cl)
 	isDurationConstraint = false;
 	
 	// Read INPUT dataset
-	std::ifstream inputFile(config.pathInstance);
-	if (inputFile.is_open())
+	//std::ifstream inputFile(config.pathInstance);
+	freopen(cl.config.pathInstance.data(), "r", stdin);
+
+	if (true)
 	{
 		// Read the instance name from the first line and remove \r
-		getline(inputFile, content);
+		getline(std::cin, content);
+		
 		instanceName = content;
 		instanceName.erase( std::remove(instanceName.begin(), instanceName.end(), '\r'), instanceName.end());
 
 		// Read the next lines
-		getline(inputFile, content);	// "Empty line" or "NAME : {instance_name}"
-		getline(inputFile, content);	// VEHICLE or "COMMENT: {}"
+		getline(std::cin, content);	// "Empty line" or "NAME : {instance_name}"
+		getline(std::cin, content);	// VEHICLE or "COMMENT: {}"
 
 		// Check if the next line has "VEHICLE"
 		if (content.substr(0, 7) == "VEHICLE")
@@ -61,24 +64,24 @@ Params::Params(const CommandLine& cl)
 			isTimeWindowConstraint = true;
 
 			// Get the number of vehicles and the capacity of the vehicles
-			getline(inputFile, content);  // NUMBER    CAPACITY
-			inputFile >> nbVehicles >> vehicleCapacity;
+			getline(std::cin, content);  // NUMBER    CAPACITY
+			std::cin >> nbVehicles >> vehicleCapacity;
 
 			// Skip the next four lines
-			getline(inputFile, content);
-			getline(inputFile, content);
-			getline(inputFile, content);
-			getline(inputFile, content);
+			getline(std::cin, content);
+			getline(std::cin, content);
+			getline(std::cin, content);
+			getline(std::cin, content);
 
 			// Create a vector where all information on the Clients can be stored and loop over all information in the file
 			cli = std::vector<Client>(1001);
 
 			nbClients = 0;
-			while (inputFile >> node)
+			while (std::cin >> node)
 			{
 				// Store all the information of the next client
 				cli[nbClients].custNum = node;
-				inputFile >> cli[nbClients].coordX >> cli[nbClients].coordY >> cli[nbClients].demand >> cli[nbClients].earliestArrival >> cli[nbClients].latestArrival >> cli[nbClients].serviceDuration;
+				std::cin >> cli[nbClients].coordX >> cli[nbClients].coordY >> cli[nbClients].demand >> cli[nbClients].earliestArrival >> cli[nbClients].latestArrival >> cli[nbClients].serviceDuration;
 				
 				// Scale coordinates by factor 10, later the distances will be rounded so we optimize with 1 decimal distances
 				cli[nbClients].coordX *= 10;
@@ -116,19 +119,19 @@ Params::Params(const CommandLine& cl)
 		else
 		{
 			// CVRP or VRPTW according to VRPLib format
-			for (inputFile >> content; content != "EOF"; inputFile >> content)
+			for (std::cin >> content; content != "EOF"; std::cin >> content)
 			{
 				// Read the dimension of the problem (the number of clients)
 				if (content == "DIMENSION")
 				{
 					// Need to substract the depot from the number of nodes
-					inputFile >> content2 >> nbClients;
+					std::cin >> content2 >> nbClients;
 					nbClients--;
 				}
 				// Read the type of edge weights
 				else if (content == "EDGE_WEIGHT_TYPE")
 				{
-					inputFile >> content2 >> content3;
+					std::cin >> content2 >> content3;
 					if (content3 == "EXPLICIT")
 					{
 						isExplicitDistanceMatrix = true;
@@ -136,7 +139,7 @@ Params::Params(const CommandLine& cl)
 				}
 				else if (content == "EDGE_WEIGHT_FORMAT")
 				{
-					inputFile >> content2 >> content3;
+					std::cin >> content2 >> content3;
 					if (!isExplicitDistanceMatrix)
 					{
 						throw std::string("EDGE_WEIGHT_FORMAT can only be used with EDGE_WEIGHT_TYPE : EXPLICIT");
@@ -149,28 +152,28 @@ Params::Params(const CommandLine& cl)
 				}
 				else if (content == "CAPACITY")
 				{
-					inputFile >> content2 >> vehicleCapacity;
+					std::cin >> content2 >> vehicleCapacity;
 				}
 				else if (content == "VEHICLES" || content == "SALESMAN")
 				{
                     // Set vehicle count from instance only if not specified on CLI.
-                    inputFile >> content2;
+					std::cin >> content2;
                     if(nbVehicles == INT_MAX) {
-                        inputFile >> nbVehicles;
+						std::cin >> nbVehicles;
                     } else {
                         // Discard vehicle count
                         int _;
-                        inputFile >> _;
+						std::cin >> _;
                     }
 				}
 				else if (content == "DISTANCE")
 				{
-					inputFile >> content2 >> durationLimit; isDurationConstraint = true;
+					std::cin >> content2 >> durationLimit; isDurationConstraint = true;
 				}
 				// Read the data on the service time (used when the service time is constant for all clients)
 				else if (content == "SERVICE_TIME")
 				{
-					inputFile >> content2 >> serviceTimeData;
+					std::cin >> content2 >> serviceTimeData;
 				}
 				// Read the edge weights of an explicit distance matrix
 				else if (content == "EDGE_WEIGHT_SECTION")
@@ -187,7 +190,7 @@ Params::Params(const CommandLine& cl)
 						{
 							// Keep track of the largest distance between two clients (or the depot)
 							int cost;
-							inputFile >> cost;
+							std::cin >> cost;
 							if (cost > maxDist)
 							{
 								maxDist = cost;
@@ -202,7 +205,7 @@ Params::Params(const CommandLine& cl)
 					cli = std::vector<Client>(nbClients + 1);
 					for (int i = 0; i <= nbClients; i++)
 					{
-						inputFile >> cli[i].custNum >> cli[i].coordX >> cli[i].coordY;
+						std::cin >> cli[i].custNum >> cli[i].coordX >> cli[i].coordY;
 						
 						// Check if the clients are in order
 						if (cli[i].custNum != i + 1)
@@ -220,7 +223,7 @@ Params::Params(const CommandLine& cl)
 					for (int i = 0; i <= nbClients; i++)
 					{
 						int clientNr = 0;
-						inputFile >> clientNr >> cli[i].demand;
+						std::cin >> clientNr >> cli[i].demand;
 
 						// Check if the clients are in order
 						if (clientNr != i + 1)
@@ -243,7 +246,7 @@ Params::Params(const CommandLine& cl)
 				}
 				else if (content == "DEPOT_SECTION")
 				{
-					inputFile >> content2 >> content3;
+					std::cin >> content2 >> content3;
 					if (content2 != "1")
 					{
 						throw std::string("Expected depot index 1 instead of " + content2);
@@ -254,7 +257,7 @@ Params::Params(const CommandLine& cl)
 					for (int i = 0; i <= nbClients; i++)
 					{
 						int clientNr = 0;
-						inputFile >> clientNr >> cli[i].serviceDuration;
+						std::cin >> clientNr >> cli[i].serviceDuration;
 
 						// Check if the clients are in order
 						if (clientNr != i + 1)
@@ -274,7 +277,7 @@ Params::Params(const CommandLine& cl)
 					for (int i = 0; i <= nbClients; i++)
 					{
 						int clientNr = 0;
-						inputFile >> clientNr >> cli[i].releaseTime;
+						std::cin >> clientNr >> cli[i].releaseTime;
 
 						// Check if the clients are in order
 						if (clientNr != i + 1)
@@ -295,7 +298,7 @@ Params::Params(const CommandLine& cl)
 					for (int i = 0; i <= nbClients; i++)
 					{
 						int clientNr = 0;
-						inputFile >> clientNr >> cli[i].earliestArrival >> cli[i].latestArrival;
+						std::cin >> clientNr >> cli[i].earliestArrival >> cli[i].latestArrival;
 
 						// Check if the clients are in order
 						if (clientNr != i + 1)

@@ -1,4 +1,3 @@
-
 #ifndef CN_HUST_LYH_PROBLEM_H
 #define CN_HUST_LYH_PROBLEM_H
 
@@ -15,6 +14,10 @@
 
 namespace hust {
 
+// Data structure to represent circle sectors
+// Angles are measured in [0,65535] instead of [0,359], in such a way that modulo operations are much faster (since 2^16 = 65536)
+// Credit to Fabian Giesen at "https://web.archive.org/web/20200912191950/https://fgiesen.wordpress.com/2015/09/24/intervals-in-modular-arithmetic/"
+// for useful implementation tips regarding interval overlaps in modular arithmetics 
 struct CircleSector
 {
 	int start = 0;
@@ -70,27 +73,6 @@ struct CircleSector
 
 };
 
-//struct Data {
-//
-//	int CUSTNO = -1;
-//	DisType XCOORD = -1;
-//	DisType YCOORD = -1;
-//	DisType 
-// 
-// 
-// 
-// 
-// 
-// 
-//  = -1;
-//	DisType 
-//  = -1;
-//	DisType 
-//  = -1;
-//	DisType 
-//  = -1;
-//	int polarAngle = 0;
-//};
 
 struct Customer {
 public:
@@ -166,10 +148,6 @@ struct Input {
 
 	bool initInput();
 
-	bool readDimacsInstance(std::string& instanciaPath);
-
-	int partition(int* arr, int start, int end, std::function<bool(int, int)>cmp);
-
 	inline DisType getDisof2(int a, int b) {
 
 		auto reCusNo = [=](int x) -> int {
@@ -177,7 +155,10 @@ struct Input {
 		};
 		a = reCusNo(a);
 		b = reCusNo(b);
-
+		//double d = std::sqrt((datas[a].coordX - datas[b].coordX) * (datas[a].coordX - datas[b].coordX) 
+		//	+ (datas[a].coordY - datas[b].coordY) * (datas[a].coordY - datas[b].coordY));
+		//DisType cost = static_cast<int>(d);
+		//return cost;
 		return para.timeCost.get(a,b);
 	}
 };

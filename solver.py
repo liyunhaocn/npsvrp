@@ -12,6 +12,90 @@ import tools
 from environment import VRPEnvironment, ControllerEnvironment
 from baselines.strategies import STRATEGIES
 
+
+def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True):
+    # LKH/VRP does not take floats (HGS seems to do)
+
+    coords = instance['coords']
+    demands = instance['demands']
+    is_depot = instance['is_depot']
+    duration_matrix = instance['duration_matrix']
+    capacity = instance['capacity']
+    assert (np.diag(duration_matrix) == 0).all()
+    assert (demands[~is_depot] > 0).all()
+
+    my_stdin.write("\n".join([
+        "{} : {}".format(k, v)
+        for k, v in [
+                        ("NAME", name),
+                        ("COMMENT", "ORTEC"),  # For HGS we need an extra row...
+                        ("TYPE", "CVRP"),
+                        ("DIMENSION", len(coords)),
+                        ("EDGE_WEIGHT_TYPE", "EUC_2D" if euclidean else "EXPLICIT"),
+                    ] + ([] if euclidean else [
+            ("EDGE_WEIGHT_FORMAT", "FULL_MATRIX")
+        ]) + [("CAPACITY", capacity)]
+    ]))
+    my_stdin.write("\n")
+
+    if not euclidean:
+        my_stdin.write("EDGE_WEIGHT_SECTION\n")
+        for row in duration_matrix:
+            my_stdin.write("\t".join(map(str, row)))
+            my_stdin.write("\n")
+
+    my_stdin.write("NODE_COORD_SECTION\n")
+    my_stdin.write("\n".join([
+        "{}\t{}\t{}".format(i + 1, x, y)
+        for i, (x, y) in enumerate(coords)
+    ]))
+    my_stdin.write("\n")
+
+    my_stdin.write("DEMAND_SECTION\n")
+    my_stdin.write("\n".join([
+        "{}\t{}".format(i + 1, d)
+        for i, d in enumerate(demands)
+    ]))
+    my_stdin.write("\n")
+
+    my_stdin.write("DEPOT_SECTION\n")
+    for i in np.flatnonzero(is_depot):
+        my_stdin.write(f"{i + 1}\n")
+    my_stdin.write("-1\n")
+
+    if is_vrptw:
+
+        service_t = instance['service_times']
+        timewi = instance['time_windows']
+
+        # Following LKH convention
+        my_stdin.write("SERVICE_TIME_SECTION\n")
+        my_stdin.write("\n".join([
+            "{}\t{}".format(i + 1, s)
+            for i, s in enumerate(service_t)
+        ]))
+        my_stdin.write("\n")
+
+        my_stdin.write("TIME_WINDOW_SECTION\n")
+        my_stdin.write("\n".join([
+            "{}\t{}\t{}".format(i + 1, l, u)
+            for i, (l, u) in enumerate(timewi)
+        ]))
+        my_stdin.write("\n")
+
+        if 'release_times' in instance:
+            release_times = instance['release_times']
+
+            my_stdin.write("RELEASE_TIME_SECTION\n")
+            my_stdin.write("\n".join([
+                "{}\t{}".format(i + 1, s)
+                for i, s in enumerate(release_times)
+            ]))
+            my_stdin.write("\n")
+
+    my_stdin.write("EOF\n")
+    my_stdin.flush()
+
 def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, initial_solution=None):
 
     # Prevent passing empty instances to the static solver, e.g. when
@@ -28,7 +112,8 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, initial
 
     os.makedirs(tmp_dir, exist_ok=True)
     instance_filename = os.path.join(tmp_dir, "problem.vrptw")
-    tools.write_vrplib(instance_filename, instance, is_vrptw=True)
+
+    # tools.write_vrplib(instance_filename, instance, is_vrptw=True)
 
     executable = os.path.join('dev', 'SmartRouter')
     # On windows, we may have genvrp.exe
@@ -46,7 +131,10 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, initial
         initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
     if initial_solution is not None:
         hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
-    with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, text=True) as p:
+
+    with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
+        write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
+
         routes = []
         for line in p.stdout:
             line = line.strip()

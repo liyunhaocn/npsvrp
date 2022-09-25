@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>../instances/ORTEC-VRPTW-ASYM-00c5356f-d1-n258-k12.txt 30 -seed 1 -veh -1 -useWallClockTime 10</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>../instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt 30 -seed 1 -veh -1 -useWallClockTime 10</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)..\dev</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>../instances/ORTEC-VRPTW-ASYM-00c5356f-d1-n258-k12.txt 30 -seed 1 -veh -1 -useWallClockTime 10</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>../instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt 30 -seed 1 -veh -1 -useWallClockTime 10</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)..\dev</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

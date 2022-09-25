@@ -427,7 +427,7 @@ Solver::Position EAX::findBestPosRemoveSubtour(Solver& pc, int w, int wj, DisTyp
 
 			DisType cost = 
 				pc.input.getDisof2(v,wj) + pc.input.getDisof2(w,vj)
-				- pc.input.getDisof2(v,vj) -pc.input.getDisof2(w,wj);
+				- pc.input.getDisof2(v,vj) - pc.input.getDisof2(w,wj);
 			//int year = (*yearTable)[reCusNo(w)][reCusNo(v)] + (*yearTable)[reCusNo(w)][reCusNo(vj)];
 			//year >>= 1;
 
@@ -640,6 +640,12 @@ int EAX::doNaEAX(Solver& pa, Solver& pb, Solver& pc) {
 	
 	if (pc.repair()) {
 
+#if CHECKING
+		if (pc.verify() < 0) {
+			ERROR("pc.verify():", pc.verify())
+		}
+#endif // CHECKING
+
 		bks->updateBKSAndPrint(pc,"doNaEAX after repair");
 		if (pc.RoutesCost == pa.RoutesCost) {
 				
@@ -746,6 +752,11 @@ int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
 
 	if (pc.repair()) {
 
+#if CHECKING
+		if (pc.verify() < 0) {
+			ERROR("pc.verify():", pc.verify())
+		}
+#endif // CHECKING
 		bks->updateBKSAndPrint(pc, "doPrEAX after repair");
 
 		//++probc.data[numABCyUsed-2];

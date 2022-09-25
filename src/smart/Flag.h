@@ -12,7 +12,7 @@
 #include "Arr2D.h"
 
 #define DIMACSGO 0
-#define CHECKING 0
+#define CHECKING 1
 
 #define lyhCheckTrue(x) {				\
 	if(!(x) ){							\

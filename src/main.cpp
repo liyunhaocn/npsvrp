@@ -10,41 +10,20 @@
 #include "hgs/Individual.h"
 
 #include "smart/Solver.h"
+#include "smart/Goal.h"
 #include "smart/Problem.h"
 #include "smart/Flag.h"
 
 namespace hust {
 
-	bool allocGlobalMem() {
+	bool allocGlobalMem( hust::LL seed ) {
 		//bool allocGlobalMem(std::string inpath) {
 
-			// ../Instances/Homberger/R2_8_9.txt
-			// ../Instances/Homberger/RC1_10_1.txt
-			// ../Instances/Homberger/RC1_10_5.txt
-			// ../Instances/Solomon/R103.txt
-			// ../Instances/Solomon/R210.txt
-			// ../Instances/Homberger/RC2_6_6.txt
-			// ../Instances/Homberger/R1_6_8.txt
-			// ../Instances/Homberger/R1_2_2.txt
-			// ../Instances/Homberger/RC2_6_4.txt
-			// ../Instances/Homberger/RC2_10_5.txt
-			//../Instances/Solomon/R204.txt
-			//../Instances/Solomon/R210.txt
-			//../Instances/Homberger/R2_2_4.txt 
-			//../Instances/Homberger/RC1_8_1.txt 
-			//../Instances/Homberger/C1_10_6.txt 
-			//../Instances/Homberger/C2_10_6.txt 
-			//../Instances/Homberger/RC1_8_5.txt
-			//../Instances/Homberger/RC2_10_1.txt
-
 		globalCfg = new hust::Configuration();
-
 		//globalCfg->solveCommandLine(argc, argv);
+		globalCfg->seed = seed;
 
-		if (globalCfg->seed == -1) {
-			globalCfg->seed = (std::time(0) % INT_MAX + std::clock() % INT_MAX) % INT_MAX;
-		}
-
+		//globalCfg->seed = 1645192521;
 		//globalCfg->seed = 1645192521;
 		//globalCfg->seed = 1645199481;
 
@@ -93,15 +72,34 @@ int main(int argc, char* argv[])
 		// Reading the data file and initializing some data structures
 		std::cout << "----- READING DATA SET FROM: " << commandline.config.pathInstance << std::endl;
 		Params params(commandline);
+		//std::cout << "111111" << commandline.config.pathInstance << std::endl;
 
 		// Creating the Split and Local Search structures
 		Split split(&params);
 		LocalSearch localSearch(&params);
 
 		hust::globalInput = new hust::Input(params);
-		hust::allocGlobalMem();
+
+		hust::allocGlobalMem(params.config.seed);
 		hust::globalInput->initInput();
 		
+		hust::Solver smartSolver;
+		//smartSolver.initSolution(0);
+		//smartSolver.minimizeRN(2);
+		//smartSolver.mRLLocalSearch(0, {});
+
+		hust::Goal goal;
+
+		goal.test();
+		//goal.callSimulatedannealing();
+		//goal.TwoAlgCombine();
+
+		//goal.experOnMinRN();
+
+		hust::deallocGlobalMem();
+
+		return 0;
+ 
 		// Initial population
 		std::cout << "----- INSTANCE LOADED WITH " << params.nbClients << " CLIENTS AND " << params.nbVehicles << " VEHICLES" << std::endl;
 		std::cout << "----- BUILDING INITIAL POPULATION" << std::endl;
@@ -111,13 +109,15 @@ int main(int argc, char* argv[])
 		std::cout << "----- STARTING GENETIC ALGORITHM" << std::endl;
 		Genetic solver(&params, &split, &population, &localSearch);
 		
-		Individual* offspring = solver.bestOfSREXAndOXCrossovers(population.getNonIdenticalParentsBinaryTournament());
+		//Individual* offspring = solver.bestOfSREXAndOXCrossovers(population.getNonIdenticalParentsBinaryTournament());
+		//Individual* offspring = population.getBestFound();
 
-		hust::Solver smartSolver;
-		smartSolver.initByArr2(offspring->chromR);
-		smartSolver.mRLLocalSearch(0, {});
+		//hust::Solver smartSolver;
+		//smartSolver.initByArr2(offspring->chromR);
+		////smartSolver.initSolution(0);
+		//smartSolver.mRLLocalSearch(0, {});
 
-		return 0;
+		//return 0;
 
 		solver.run(commandline.config.nbIter, commandline.config.timeLimit);
 		std::cout << "----- GENETIC ALGORITHM FINISHED, TIME SPENT: " << params.getTimeElapsedSeconds() << std::endl;

@@ -166,12 +166,12 @@ struct RTS {
 			posOf[cnt_1_id] = index;
 			posOf[id] = -1;
 			ve[index] = ve[cnt - 1];
-			cnt--;
+			--cnt;
 		}
 		else {
 			int id = ve[index].routeID;
 			posOf[id] = -1;
-			cnt--;
+			--cnt;
 		}
 		
 		return true;
@@ -285,7 +285,7 @@ struct ConfSet {
 		pos[val] = -1;
 
 		ve[index] = ve[cnt - 1];
-		cnt--;
+		--cnt;
 		return true;
 	}
 
@@ -391,7 +391,7 @@ struct NextPermutation {
 			ve[k] = ve[k - 1] + 1;
 		}
 		else if (ve[k] == N) {
-			k--;
+			--k;
 			++ve[k];
 		}
 		else if (k == Kmax && ve[k] < N) {
@@ -604,12 +604,6 @@ public:
 	bool initMaxRoute();
 
 	bool initByArr2(Vec < Vec<int>> arr2);
-
-	#if 0
-	bool initBySolFile(std::string bksPath);
-	bool initByDimacsBKS();
-	bool initByLKHBKS();
-	#endif // 0
 
 	bool initSolution(int kind);
 

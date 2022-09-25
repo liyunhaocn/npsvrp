@@ -171,6 +171,7 @@ bool Population::addIndividual(const Individual* indiv, bool updateFeasible)
 	SubPopulation& subpop = (indiv->isFeasible) ? feasibleSubpopulation : infeasibleSubpopulation;
 
 	// Create a copy of the individual and update the proximity structures calculating inter-individual distances
+	// 创建个体的副本并更新计算个体间距离的邻近结构
 	Individual* myIndividual = new Individual(*indiv);
 	for (Individual* myIndividual2 : subpop)
 	{
