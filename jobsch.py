@@ -46,4 +46,7 @@ if __name__ == "__main__":
         os.system("chmod 777 ./dev/SmartRouter")
 
     jobs = test_all.get_all_static_cmds()
-    run(jobs)
+    for job in jobs:
+        print(job)
+
+    # run(jobs)
