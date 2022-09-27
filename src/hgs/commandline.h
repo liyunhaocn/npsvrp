@@ -29,7 +29,7 @@ SOFTWARE.*/
 #include <limits.h>
 
 #include "Params.h"
-
+#include "../smart/Utility.h"
 // Class interacting with the command line
 // Parameters can be read from the command line and information can be written to the command line
 class CommandLine
@@ -47,10 +47,11 @@ public:
 	CommandLine(int argc, char* argv[])
 	{
 		// Check if the number of arguments is odd and at least three, since the three paths should at least be given
-		if (argc % 2 != 1 || argc % 2 == 0 || argc < 3)
+		if (argc % 2 != 0 || argc % 2 == 1 || argc < 2)
 		{
 			// Output error message and help menu to the command line
-			std::cout << "----- NUMBER OF COMMANDLINE ARGUMENTS IS INCORRECT: " << argc << std::endl;
+			ERROR("----- NUMBER OF COMMANDLINE ARGUMENTS IS INCORRECT: ", argc);
+			ERROR("argv error");
 			display_help();
 			throw std::string("Incorrect line of command");
 		}
@@ -58,21 +59,29 @@ public:
 		{
 			// Get the paths of the instance and the solution
 			config.pathInstance = std::string(argv[1]);
-			config.pathSolution = std::string(argv[2]);
+			//config.pathSolution = std::string(argv[2]);
 			// If the pathSolution is a number, this is the time limit and the path the the solution is config.pathInstance + ".sol"
 			// This was only used for the DIMACS Challenge
-			if (is_number(config.pathSolution))
-			{
-				// Get time limit from controller (will also be terminated externally)
-				config.timeLimit = atoi(argv[2]);
-				config.pathSolution = config.pathInstance + ".sol";
-				config.isDimacsRun = true;
-				std::cout << "----- RUNNING " << config.pathInstance << " WITHIN DIMACS CONTROLLER WITH TIME LIMIT " << config.timeLimit << std::endl;
+			//if (is_number(config.pathSolution))
+			//{
+			// Get time limit from controller (will also be terminated externally)
+			//config.timeLimit = atoi(argv[2]);
+			if (config.isNpsRun == false) {
+				//../instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1
+				int pos = config.pathInstance.find("/ORTEC");
+				if (pos != -1) {
+					config.pathSolution = "../results" + config.pathInstance.substr(pos) + ".sol";
+				}
 			}
+
+			//config.isDimacsRun = true;
+			//}
 			// Go over all possible command line arguments and store their values
 			// Explanations per command line argument can be found at their variable declaration, as well as in display_help()
-			for (int i = 3; i < argc; i += 2)
+			for (int i = 2; i < argc; i += 2)
 			{
+				if (std::string(argv[i]) == "-pathSolution")
+					config.pathSolution = std::string(argv[i + 1]);
 				if (std::string(argv[i]) == "-t")
 					config.timeLimit = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-useWallClockTime")
@@ -87,6 +96,8 @@ public:
 					config.nbVeh = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-isDimacsRun")
 					config.isDimacsRun = atoi(argv[i + 1]) != 0;
+				else if (std::string(argv[i]) == "-isNpsRun")
+					config.isNpsRun = atoi(argv[i + 1]) != 0;
 				else if (std::string(argv[i]) == "-useDynamicParameters")
 					config.useDynamicParameters = atoi(argv[i + 1]) != 0;
 				else if (std::string(argv[i]) == "-logpool")
@@ -156,12 +167,13 @@ public:
 				else
 				{
 					// Output error message and help menu to the command line
-					std::cout << "----- ARGUMENT NOT RECOGNIZED: " << std::string(argv[i]) << std::endl;
+					ERROR("----- ARGUMENT NOT RECOGNIZED: ", std::string(argv[i]));
 					display_help();
 					throw std::string("Incorrect line of command");
 				}
 			}
 		}
+		INFO("----- RUNNING ", config.pathInstance, " WITHIN DIMACS CONTROLLER WITH TIME LIMIT ", config.timeLimit);
 	}
 
 	// Check if the input string s is a number (it only contains numbers)
@@ -179,7 +191,7 @@ public:
 	{
 		std::cout << std::endl;
 		std::cout << "-------------------------------------------------- HGS-CVRPTW algorithm (2022) -----------------------------------------"	<< std::endl;
-		std::cout << "Call with: ./genvrp instancePath solPath [-it nbIter] [-t myCPUtime] [-bks bksPath] [-seed mySeed] [-veh nbVehicles]    " << std::endl;
+		std::cout << "Call with: ./genvrp instancePath [-pathSolution pathSolution] [-it nbIter] [-t myCPUtime] [-bks bksPath] [-seed mySeed] [-veh nbVehicles]    " << std::endl;
 		std::cout << "                                         [-logpool interval]                                                            " << std::endl;
 		std::cout << std::endl;
 		std::cout << "[-it <int>] sets a maximum number of iterations without improvement. Defaults to 20,000                                 " << std::endl;
@@ -191,6 +203,7 @@ public:
 		std::cout << std::endl;
 		std::cout << "Additional Arguments:                                                                                                   " << std::endl;
 		std::cout << "[-isDimacsRun <bool>] sets when DIMACS instance is run: print incumbent and avoid other output. It can be 0 or 1.       " << std::endl;
+		std::cout << "[-isNpsRun <bool>] sets when NeurIPS instance is run:     " << std::endl;
 		std::cout << "                      Defaults to 0                                                                                     " << std::endl;
 		std::cout << "[-useDynamicParameters <int>] sets when dynamic parameters are used based on instance attributes. It can be 0 or 1.     " << std::endl;
 		std::cout << "                              Defaults to 0                                                                             " << std::endl;

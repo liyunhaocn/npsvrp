@@ -44,7 +44,8 @@ struct Configuration {
 
 	int popSize = 4;
 	int popSizeMin = 4;
-	int popSizeMax = 50;
+	// TODO[lyh][config.h][-1]:popSizeMax Ô­À´ÊÇ 50;
+	int popSizeMax = 5;
 	//int repairExitStep = 50;
 	int repairExitStep = 5;
 

@@ -43,8 +43,11 @@ Params::Params(const CommandLine& cl)
 	
 	// Read INPUT dataset
 	//std::ifstream inputFile(config.pathInstance);
-//	freopen(cl.config.pathInstance.data(), "r", stdin);
-
+	//INFO("cl.config.isNpsRun:", cl.config.isNpsRun);
+	if (cl.config.isNpsRun == false) {
+		auto x = freopen(cl.config.pathInstance.data(), "r", stdin);
+	}
+	
 	if (true)
 	{
 		// Read the instance name from the first line and remove \r
@@ -104,7 +107,7 @@ Params::Params(const CommandLine& cl)
 			cli.resize(nbClients);
 
 			// Don't count depot as client
-			nbClients--;
+			--nbClients;
 
 			// Check if the required service and the start of the time window of the depot are both zero
 			if (cli[0].earliestArrival != 0)
@@ -354,16 +357,16 @@ Params::Params(const CommandLine& cl)
 	{
 		// Safety margin: 30% + 3 more vehicles than the trivial bin packing LB
 		nbVehicles = static_cast<int>(std::ceil(1.3 * totalDemand / vehicleCapacity) + 3.);
-		std::cout << "----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO " << nbVehicles << " VEHICLES" << std::endl;
+		INFO("----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO ",nbVehicles ," VEHICLES");
 	}
 	else if (nbVehicles == -1)
 	{
 		nbVehicles = nbClients;
-		std::cout << "----- FLEET SIZE UNLIMITED: SET TO UPPER BOUND OF " << nbVehicles << " VEHICLES" << std::endl;
+		INFO("----- FLEET SIZE UNLIMITED: SET TO UPPER BOUND OF ", nbVehicles, " VEHICLES");
 	}
 	else
 	{
-		std::cout << "----- FLEET SIZE SPECIFIED IN THE COMMANDLINE: SET TO " << nbVehicles << " VEHICLES" << std::endl;
+		INFO("----- FLEET SIZE SPECIFIED IN THE COMMANDLINE: SET TO ", nbVehicles, " VEHICLES");
 	}
 
 	// If the run is a DIMACS run, store the solution in the current folder

@@ -96,7 +96,7 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
     my_stdin.write("EOF\n")
     my_stdin.flush()
 
-def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, initial_solution=None):
+def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None):
 
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
@@ -110,9 +110,8 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, initial
         yield solution, cost
         return
 
-    os.makedirs(tmp_dir, exist_ok=True)
-    instance_filename = os.path.join(tmp_dir, "problem.vrptw")
-
+    # os.makedirs(tmp_dir, exist_ok=True)
+    # instance_filename = os.path.join(tmp_dir, "problem.vrptw")
     # tools.write_vrplib(instance_filename, instance, is_vrptw=True)
 
     executable = os.path.join('dev', 'SmartRouter')
@@ -124,13 +123,15 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, initial
     # Subtract two seconds from the time limit to account for writing of the instance and delay in enforcing the time limit by HGS
 
     hgs_cmd = [
-        executable, instance_filename, str(max(time_limit - 2, 1)),
-        '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1'
+        executable, "readstdin", "-t", str(max(time_limit - 2, 1)),
+        '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1', "-isNpsRun", "1"
     ]
     if initial_solution is None:
         initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
     if initial_solution is not None:
         hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
+
+    # log(f"hgs_cmd{hgs_cmd}")
 
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
         write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
@@ -205,7 +206,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
             log(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}", newline=False)
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_new_requests = num_requests_open - num_requests_postponed
-            log(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...", newline=False, flush=True)
+            log(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...", newline=True, flush=True)
 
         if oracle_solution is not None:
             request_idx = set(epoch_instance['request_idx'])
@@ -219,7 +220,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
             # Run HGS with time limit and get last solution (= best solution found)
             # Note we use the same solver_seed in each epoch: this is sufficient as for the static problem
             # we will exactly use the solver_seed whereas in the dynamic problem randomness is in the instance
-            solutions = list(solve_static_vrptw(epoch_instance_dispatch, time_limit=epoch_tlim, tmp_dir=args.tmp_dir, seed=args.solver_seed))
+            solutions = list(solve_static_vrptw(epoch_instance_dispatch, time_limit=epoch_tlim, seed=args.solver_seed))
             assert len(solutions) > 0, f"No solution found during epoch {observation['current_epoch']}"
             epoch_solution, cost = solutions[-1]
 

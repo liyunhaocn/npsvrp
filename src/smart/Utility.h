@@ -27,38 +27,33 @@
 
 #include "Flag.h"
 
-#if DIMACSGO
+#define LYH_FILELINEADDS(str) ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:" + str)
+
+#if HUST_LYH_NPSRUN
 
 #define INFO(...);
 
 #else
 
-#define INFO(...) hust::println_("[INFO]:",## __VA_ARGS__);
+#define INFO(...) ;
+//#define INFO(...) hust::println_("[INFO]:",## __VA_ARGS__)
 
-#endif // DIMACSGO
+#endif // HUST_LYH_NPSRUN
 
-#define DEBUG(...) hust::println_("[DEBUG]:",## __VA_ARGS__);
-#define ERROR(...) hust::printlnerr_("[ERROR]:",## __VA_ARGS__);
+#define DEBUG(...) hust::println_("[DEBUG]:",## __VA_ARGS__)
+#define ERROR(...) hust::println_("[ERROR]:",## __VA_ARGS__)
 
 namespace hust {
 
-static void println_() { std::cout << std::endl; }
+static void println_() { std::cerr << std::endl; }
 template<typename T, typename ... Types>
 static void println_(const T& firstArg, const Types&... args) {
 
     //cout << "size of args: " << sizeof...(args) << endl;
-    std::cout << firstArg << " ";
+    std::cerr << firstArg << " ";
     println_(args...);
 }
 
-
-static void printlnerr_() { std::cerr << std::endl; }
-template<typename T, typename ... Types>
-static void printlnerr_(const T& firstArg, const Types&... args) {
-
-    std::cerr << firstArg << " ";
-    printlnerr_(args...);
-}
 
 template<typename T>
 static void printve(T arr) {

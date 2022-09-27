@@ -2833,6 +2833,8 @@ Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3换2
 			bestM.deltPtw *= alpha;
 		}
 		else {
+
+			// exchange vvjvjj and (ww+)
 			//v vj vjj
 			// (v-)->(w)->(w+)->(v3j)
 			newvPtw += customers[v_].TW_X;
@@ -2910,34 +2912,38 @@ Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3换2
 		DisType delt = 0;
 
 		if (v3j == w) {
+
+			// v vj vjj v3j(w) w+
 			delt -= input.getDisof2(vjj,w);
-			delt -= input.getDisof2(v,v_);
+			delt -= input.getDisof2(v_,v);
 			delt -= input.getDisof2(wj,wjj);
 
-			delt += input.getDisof2(w,v_);
+			delt += input.getDisof2(v_,w);
 			delt += input.getDisof2(wj,v);
 			delt += input.getDisof2(vjj,wjj);
 		}
 		else if (wj == v_) {
-			// (ww+) and v vj vjj and 
+			// w- w w+  v vj vjj v3j =>  w- v vj vjj w w+ v3j
 
-			delt -= input.getDisof2(w,w_);
+			delt -= input.getDisof2(w_,w);
 			delt -= input.getDisof2(vjj,v3j);
 			delt -= input.getDisof2(wj,v);
 
 			delt += input.getDisof2(vjj,w);
-			delt += input.getDisof2(v,w_);
+			delt += input.getDisof2(w_,v);
 			delt += input.getDisof2(wj,v3j);
 		}
 		else {
-			delt -= input.getDisof2(vjj,v3j);
-			delt -= input.getDisof2(v,v_);
-			delt -= input.getDisof2(wj,wjj);
-			delt -= input.getDisof2(w,w_);
 
-			delt += input.getDisof2(w,v_);
+			delt -= input.getDisof2(vjj,v3j);
+			delt -= input.getDisof2(v_,v);
+			delt -= input.getDisof2(wj,wjj);
+			delt -= input.getDisof2(w_,w);
+
+			// w- w w+ wjj v_ v vj vjj v3j =>  w- v vj vjj wjj v_ w wj v3j
+			delt += input.getDisof2(v_,w);
 			delt += input.getDisof2(wj,v3j);
-			delt += input.getDisof2(v,w_);
+			delt += input.getDisof2(w_,v);
 			delt += input.getDisof2(vjj,wjj);
 		}
 
@@ -3108,6 +3114,7 @@ Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 三换一
 			newwPtw += customers[w_].TW_X;
 			newwPtw += customers[wj].TWX_;
 
+			//exchange vvjvjj and (w)
 			DisType avp = customers[w_].av + input.datas[w_].serviceDuration + input.getDisof2(w_,v);
 
 			newwPtw += std::max<DisType>(0, avp - input.datas[v].latestArrival);
@@ -3117,12 +3124,12 @@ Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 三换一
 			DisType avjp = av + input.datas[v].serviceDuration + input.getDisof2(v,vj);
 
 			// (w-) -> (v) -> (vj) -> (vjj)-> (wj)
-			DisType zvjjp = customers[wj].zv - input.datas[vjj].serviceDuration - input.getDisof2(wj,vjj);
+			DisType zvjjp = customers[wj].zv - input.datas[vjj].serviceDuration - input.getDisof2(vjj,wj);
 
 			newwPtw += std::max<DisType>(0, input.datas[vjj].earliestArrival - zvjjp);
 
 			DisType zvjj = zvjjp < input.datas[vjj].earliestArrival ? input.datas[vjj].earliestArrival : std::min<DisType>(input.datas[vjj].latestArrival, zvjjp);
-			DisType zvjp = zvjj - input.getDisof2(vjj,vj) - input.datas[vj].serviceDuration;
+			DisType zvjp = zvjj - input.getDisof2(vj,vjj) - input.datas[vj].serviceDuration;
 
 			newwPtw +=
 				std::max<DisType>(0, std::max<DisType>(avjp, input.datas[vj].earliestArrival) - std::min<DisType>(input.datas[vj].latestArrival, zvjp));
@@ -3166,33 +3173,34 @@ Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 三换一
 		if (v == wj) {
 			//w v vj vjj -> v vj vjj w
 			delt -= input.getDisof2(w,v);
-			delt -= input.getDisof2(w,w_);
+			delt -= input.getDisof2(w_,w);
 			delt -= input.getDisof2(vjj,v3j);
 
-			delt += input.getDisof2(w,vjj);
+			delt += input.getDisof2(vjj,w);
 			delt += input.getDisof2(w,v3j);
-			delt += input.getDisof2(v,w_);
+			delt += input.getDisof2(w_,v);
 		}
 		else if (w_ == vjj) {
 
 			//v vj vjj w -> w v vj vjj 
-			delt -= input.getDisof2(w,vjj);
+			delt -= input.getDisof2(vjj,w);
 			delt -= input.getDisof2(w,wj);
-			delt -= input.getDisof2(v,v_);
+			delt -= input.getDisof2(v_,v);
 
 			delt += input.getDisof2(w,v);
-			delt += input.getDisof2(w,v_);
+			delt += input.getDisof2(v_,w);
 			delt += input.getDisof2(vjj,wj);
 		}
 		else {
 			delt -= input.getDisof2(vjj,v3j);
-			delt -= input.getDisof2(v,v_);
+			delt -= input.getDisof2(v_,v);
 			delt -= input.getDisof2(w,wj);
-			delt -= input.getDisof2(w,w_);
+			delt -= input.getDisof2(w_,w);
 
-			delt += input.getDisof2(w,v_);
+			// exchange v vj vjj and (w)
+			delt += input.getDisof2(v_,w);
 			delt += input.getDisof2(w,v3j);
-			delt += input.getDisof2(v,w_);
+			delt += input.getDisof2(w_,v);
 			delt += input.getDisof2(vjj,wj);
 		}
 
@@ -3595,9 +3603,9 @@ bool Solver::doMoves(TwoNodeMove& M) {
 		doReverse(M); break;
 	default:
 		ERROR("doNopt(M) error");
-		return false;
 		break;
 	}
+
 	return false;
 }
 
@@ -5906,7 +5914,7 @@ bool Solver::squeeze() {
 		return true;
 	};
 
-	while (penalty > 0 && !gloalTimer->isTimeOut()) {
+	while (penalty > 0 && !globalInput->para.isTimeLimitExceeded()) {
 	//while (penalty > 0) {
 
 		TwoNodeMove bestM = getMovesRandomly(updateBestM);
@@ -7674,7 +7682,7 @@ bool Solver::ejectLocalSearch() {
 	int iter = 1;
 
 	//while (iter < globalCfg->ejectLSMaxIter) {
-	while (!gloalTimer->isTimeOut()) {
+	while (!globalInput->para.isTimeLimitExceeded()) {
 		//while (1) {
 
 		++iter;
@@ -7798,7 +7806,7 @@ bool Solver::minimizeRN(int ourTarget) {
 	DisType beforeGamma = gamma;
 	gamma = 0;
 
-	while (rts.cnt > ourTarget && !gloalTimer->isTimeOut()) {
+	while (rts.cnt > ourTarget && !globalInput->para.isTimeLimitExceeded()) {
 
 		Solver sclone = *this;
 		removeOneRouteByRid();
@@ -8088,7 +8096,8 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 	TwoNodeMove MRLbestM;
 
-	static Vec<int> moveKindOrder = { 0,1,2,3,4,5,6,7, 8,/*9,10,*/ 11,/*12,*/13,/*14,*/15};
+	//static Vec<int> moveKindOrder = { 0,1,2,3,4,5,6,7, 8,/*9,10,*/ 11,/*12,*/13,/*14,*/15};
+	static Vec<int> moveKindOrder = { 0,1,2,3,4,5,6,7, 8,9,10, 11,12,13,14,15 };
 
 	static Vec<int> contribution(16, 0);
 	Vec<int> contricus(input.custCnt + 1, 0);
@@ -8137,7 +8146,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 		MRLbestM.reSet();
 		bool isFind = false;
 
-		//TODO[-1]:这里给邻域动作按照贡献排序了
+		//TODO[lyh][-1]:这里给邻域动作按照贡献排序了
 		std::sort(moveKindOrder.begin(), moveKindOrder.end(), [&](int a, int b) {
 			return contribution[a] > contribution[b];
 		});
@@ -8168,7 +8177,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 				int wpos = i;
 
-				//TODO[-1]:这里改成了addSTclose
+				//TODO[lyh][-1]:这里改成了addSTclose
 				int w = input.addSTclose[v][wpos];
 
 				if (customers[w].routeID == -1) {
@@ -8274,7 +8283,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 		RoutesCost += bestM.deltPen.deltCost;
 
-		//TODO[-1]如果不更新下面两条路径的cost 会把没有更新的cost赋值给bks
+		//TODO[lyh][-1]如果不更新下面两条路径的cost 会把没有更新的cost赋值给bks
 		rReCalRCost(rv);
 		rReCalRCost(rw);
 
@@ -8290,6 +8299,10 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 				ERROR(rts[i].routeID);
 				ERROR(rts[i].routeID);
 			}
+		}
+
+		if (verify() < 0) {
+			ERROR(LYH_FILELINEADDS("verify() < 0"));
 		}
 
 		DisType penaltyafterupdatePen = penalty;
@@ -8320,7 +8333,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 	}
 
-	//TODO[5]:这个更新必须有 因为搜索工程中没有更新每一条路径的routeCost
+	//TODO[lyh][5]:这个更新必须有 因为搜索工程中没有更新每一条路径的routeCost
 	sumRtsCost();
 	//auto rc = RoutesCost;
 	//reCalRtsCostSumCost();
@@ -8338,7 +8351,7 @@ Output Solver::saveToOutPut() {
 
 	DisType state = verify();
 
-	output.runTime = gloalTimer->getRunTime();
+	output.runTime = globalInput->para.getTimeElapsedSeconds();
 	output.EP = rPutCusInve(EPr);
 	output.minEP = minEPcus;
 	output.PtwNoWei = PtwNoWei;
@@ -8410,33 +8423,21 @@ bool BKS::updateBKSAndPrint(Solver& newSol, std::string opt) {
 	
 	if (newSol.RoutesCost <= bestSolFound.RoutesCost && newSol.rts.cnt <= globalInput->vehicleCnt) {
 
-#if DIMACSGO
+#if HUST_LYH_NPSRUN
 #else
 		auto lastRec = bestSolFound.RoutesCost;
 		if (newSol.RoutesCost < bestSolFound.RoutesCost) {
 			INFO("new bks cost:", newSol.RoutesCost,
-				"time:" + std::to_string(gloalTimer->getRunTime()), "rn:",
+				"time:" + std::to_string(globalInput->para.getTimeElapsedSeconds()), "rn:",
 				newSol.rts.cnt, "up:",
 				lastRec - newSol.RoutesCost, opt);
 		}
-#endif // DIMACSGO
+#endif // HUST_LYH_NPSRUN
 
 		bestSolFound = newSol;
 		ret = true;
 
 	}
-
-#if DIMACSGO
-	Timer::TimePoint pt = Timer::Clock::now();
-	auto ms = Timer::durationInMillisecond(lastPrintTp, pt);
-
-	if (ms.count() >= 1 && bestSolFound.RoutesCost < lastPrCost) {
-		
-		bestSolFound.printDimacs();
-		lastPrCost = bestSolFound.RoutesCost;
-		lastPrintTp = Timer::Clock::now();
-	}
-#endif // DIMACSGo
 
 	return ret;
 }
@@ -8503,7 +8504,7 @@ bool saveSolutiontoCsvFile(Solver& sol) {
 
 	rgbData << sol.rts.cnt << ",";
 
-	rgbData << gloalTimer->getRunTime() << ",";
+	rgbData << globalInput->para.getTimeElapsedSeconds() << ",";
 
 	for (int i = 0; i < sol.rts.cnt; ++i) {
 		rgbData << "Route  " << i + 1 << " : ";

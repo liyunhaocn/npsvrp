@@ -90,6 +90,8 @@ public:
 
 	int unionIndex = -1;
 	int choosecyIndex = -1;
+	Solver* pointerPa;
+	Solver* pointerPb;
 
 	EAX(Solver& pa, Solver& pb);
 

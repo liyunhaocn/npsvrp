@@ -4,14 +4,16 @@
 
 #include <vector>
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
+#include <set>
 #include <numeric>
 #include <iostream>
 #include <list>
 
 #include "Arr2D.h"
 
-#define DIMACSGO 0
+#define HUST_LYH_NPSRUN 0
 #define CHECKING 1
 
 #define lyhCheckTrue(x) {				\
@@ -25,6 +27,9 @@
 }
 
 namespace hust {
+
+template<typename T, typename U>
+using Map = std::map<T, U>;
 
 template<typename T, typename U>
 using UnorderedMap = std::unordered_map<T, U>;
@@ -77,7 +82,7 @@ extern hust::util::Array2D<int>* yearTable;
 extern Configuration* globalCfg;
 extern Input* globalInput;
 extern BKS* bks;
-extern Timer* gloalTimer;
+//extern Timer* gloalTimer;
 
 void globalRepairSquIter();
 }

@@ -4,7 +4,7 @@
 
 namespace hust {
 
-Goal::Goal(){
+Goal::Goal() {
 
 	eaxTabuTable = Vec<Vec<bool>>
 		(globalCfg->popSize, Vec<bool>(globalCfg->popSize,false));
@@ -170,12 +170,13 @@ int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 			Solver& pb = pool[pbIndex];
 
 #if CHECKING
+			
 			if (pa.verify() < 0) {
-				ERROR("pa.verify():",pa.verify())
+				ERROR("pa.verify():", pa.verify());
 			}
 
 			if (pb.verify() < 0) {
-				ERROR("pb.verify():",pb.verify())
+				ERROR("pb.verify():", pb.verify());
 			}
 #endif // CHECKING
 
@@ -223,11 +224,17 @@ int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 
 int Goal::gotoRNPop(int rn) {
 
-	//TODO[-1]:注释掉了
-	if (ppool[rn].size() == 0) {
-		fillPopulation(rn);
+	if (ppool.count(rn) == 0) {
+		return poprnLowBound;
+		throw std::string(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
 	}
 	
+	if (rn > poprnUpBound || rn < poprnLowBound) {
+		return poprnLowBound;
+		INFO(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
+		throw std::string(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
+	}
+
 	//TODO[0]:Lmax和ruinLmax的定义
 	globalCfg->ruinLmax = globalInput->custCnt / rn;
 	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1)/2;
@@ -251,7 +258,7 @@ int Goal::gotoRNPop(int rn) {
 		//TODO[-1]:从刚才搜索的位置跳
 		int downRn = -1;
 		DisType minRc = DisInf;
-
+		
 		for (int i = poprnUpBound; i >= poprnLowBound; --i) {
 			if (ppool[i][pIndex].rts.cnt == i) {
 				if (ppool[i][pIndex].RoutesCost < minRc) {
@@ -285,12 +292,12 @@ int Goal::gotoRNPop(int rn) {
 		else {
 			sol = ppool[downRn][pIndex];
 			isAdj = sol.adjustRN(rn);
-			
 		}
 
 		if (!isAdj) {
 
 			sol = ppool[poprnLowBound][pIndex];
+			
 			isAdj = sol.adjustRN(rn);
 		}
 
@@ -301,6 +308,7 @@ int Goal::gotoRNPop(int rn) {
 			ERROR("rn:", rn);
 			ERROR("sol.rts.cnt:", sol.rts.cnt);
 			ERROR("sol.rts.cnt:", sol.rts.cnt);
+			throw std::string(LYH_FILELINEADDS("sol.rts.cnt != rn"));
 		}
 #endif // CHECKING
 
@@ -362,15 +370,23 @@ bool Goal::experOnMinRN() {
 }
 
 void Goal::updateppol(Solver& sol, int index) {
+
 	int tar = sol.rts.cnt;
 
-	if (ppool[tar].size() == 0) {
-		ppool[tar].resize(globalCfg->popSizeMax);
+	if (sol.rts.cnt < poprnLowBound || sol.rts.cnt > poprnUpBound) {
+		return;
+		throw std::string(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
 	}
+
+	if (ppool[tar].size() == 0) {
+		throw std::string(LYH_FILELINEADDS("ppool[tar].size() == 0"));
+	}
+
 	if (sol.RoutesCost < ppool[tar][index].RoutesCost) {
 		INFO("update ppool rn:", tar, "index:", index);
 		ppool[tar][index] = sol;
 	}
+
 };
 
 void Goal::getTheRangeMostHope() {
@@ -390,7 +406,8 @@ void Goal::getTheRangeMostHope() {
 	int& mRLLocalSearchRange1 = globalCfg->mRLLocalSearchRange[1];
 	mRLLocalSearchRange1 = 40;
 
-	sol.Simulatedannealing(1, 1000, 100.0, globalCfg->ruinC_);
+	// TODO[lyh]-1]:这里要取消注释
+	//sol.Simulatedannealing(1, 1000, 100.0, globalCfg->ruinC_);
 	
 	if (globalInput->custCnt < sol.rts.cnt * 25 ) {
 		//short route
@@ -410,8 +427,6 @@ void Goal::getTheRangeMostHope() {
 	poolt[0] = sol;
 	updateppol(sol, 0);
 
-	//exit(0);
-
 	for (int i = 1; i < globalCfg->popSizeMax; ++i) {
 		int kind = (i == 4 ? 4 : i % 4);
 		//int kind = (i % 4);
@@ -427,9 +442,9 @@ void Goal::getTheRangeMostHope() {
 			//poolt[i].mRLLocalSearch(0, {});
 			globalCfg->ruinLmax = globalInput->custCnt / poolt[i].rts.cnt;
 			//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
-			poolt[i].Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
+			// TODO[lyh][Goal][-1]:这里记得还原注释
+			//poolt[i].Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
 			updateppol(poolt[i], i);
-			
 		}
 		bks->updateBKSAndPrint(poolt[i], " poolt[i] init");
 	}
@@ -452,7 +467,9 @@ void Goal::getTheRangeMostHope() {
 
 		glbound = std::min<int>(glbound, poolt[peopleIndex].rts.cnt);
 		//glbound = std::min<int>(glbound, poolt[0].rts.cnt);
+		// TODO[lyh][Goal][-1]:bound
 		int bound = (peopleIndex == 0 ? 2 : glbound);
+		//int bound = (peopleIndex == 0 ? sol.rts.cnt-1 : glbound);
 		while (sol.rts.cnt > bound) {
 		//while (sol.rts.cnt > 2) {
 			soles[peopleIndex].push_back(sol);
@@ -482,7 +499,7 @@ void Goal::getTheRangeMostHope() {
 	INFO("poprnLowBound:",poprnLowBound,"poprnUpBound:", poprnUpBound);
 
 	if (poprnLowBound > globalInput->vehicleCnt) {
-		ERROR("!!!!!this alg finshed! even cant get a sol sat vehicleCnt");
+		throw std::string("!!!!!this alg finshed! even cant get a sol sat vehicleCnt");
 	}
 	INFO("soles.size():", soles.size());
 
@@ -715,7 +732,7 @@ int Goal::TwoAlgCombine() {
 
 	bks->bestSolFound.printDimacs();
 
-	gloalTimer->disp();
+	//gloalTimer->disp();
 
 	return true;
 }
@@ -741,10 +758,10 @@ void Goal::test() {
 		}
 #if CHECKING
 		if (pa.verify() < 0) {
-			ERROR("pa.verify():", pa.verify())
+			throw ("pa.verify():", pa.verify());
 		}
 		if (pb.verify() < 0) {
-			ERROR("pb.verify():", pb.verify())
+			ERROR("pb.verify():", pb.verify());
 		}
 #endif // CHECKING
 		eaxState = eax.doNaEAX(pa, pb, pc);

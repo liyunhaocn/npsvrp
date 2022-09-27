@@ -102,6 +102,7 @@ public:
 		int nbVeh = INT_MAX;								// Number of vehicles
 		int logPoolInterval = 0;							// The verbose level of the algorithm log
 		bool isDimacsRun = false;							// If DIMACS run, print incumbent and avoid other output
+		bool isNpsRun = false;							    // If NeurIPS run, 
 		bool useDynamicParameters = false;					// To use dynamic parameters based on instance attributes
 		std::string pathSolution;							// Solution path
 		int nbGranular = 40;								// Granular search parameter, limits the number of moves in the RI local search

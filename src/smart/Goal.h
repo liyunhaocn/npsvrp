@@ -14,6 +14,7 @@ struct Goal {
 
 	UnorderedMap<int, Vec<Solver>> ppool;
 	//Vec<Vec<Solver>> ppool;
+	Params* para;
 
 	int curSearchRN = -1;
 

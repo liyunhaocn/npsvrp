@@ -6,7 +6,7 @@
 
 namespace hust {
 
-EAX::EAX(Solver& pa, Solver& pb) :paPriE(2 * (pa.input.custCnt + pa.rts.cnt+1)), pbPriE(2 * (pb.input.custCnt + pb.rts.cnt+1)) {
+	EAX::EAX(Solver& pa, Solver& pb) :pointerPa(&pa), pointerPb(&pb), paPriE(2 * (pa.input.custCnt + pa.rts.cnt + 1)), pbPriE(2 * (pb.input.custCnt + pb.rts.cnt + 1)) {
 
 	this->eaxCusCnt = pa.input.custCnt;
 	this->eaxRCnt = pa.rts.cnt;
@@ -210,16 +210,20 @@ bool EAX::generateCycles() {
 		}
 
 		#if CHECKING
-		else {
+		else { // the edge is not pa and not pb
 			INFO("lastEdge: is not pa pb");
 		}
 
 		if (reIndex == -1) {
+
 			INFO("reIndex == -1");
+
+			pointerPa->printDimacs();
+			pointerPb->printDimacs();
+
+			throw std::string(LYH_FILELINEADDS("reIndex == -1"));
 		}
 		#endif // CHECKING
-
-			
 
 		RichEdge& re = richEdges[reIndex];
 		re.visited = true;
@@ -642,7 +646,7 @@ int EAX::doNaEAX(Solver& pa, Solver& pb, Solver& pc) {
 
 #if CHECKING
 		if (pc.verify() < 0) {
-			ERROR("pc.verify():", pc.verify())
+			ERROR("pc.verify():", pc.verify());
 		}
 #endif // CHECKING
 
@@ -754,7 +758,7 @@ int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
 
 #if CHECKING
 		if (pc.verify() < 0) {
-			ERROR("pc.verify():", pc.verify())
+			ERROR("pc.verify():", pc.verify());
 		}
 #endif // CHECKING
 		bks->updateBKSAndPrint(pc, "doPrEAX after repair");
