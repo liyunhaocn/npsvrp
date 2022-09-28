@@ -6940,7 +6940,7 @@ int Solver::Simulatedannealing(int kind,int iterMax, double temperature,int ruin
 	double c = pow(jf / j0, 1 / double(iterMax * 3));
 	temperature = j0;
 
-	while (++iter < iterMax){
+	while (++iter < iterMax && !globalInput->para.isTimeLimitExceeded()){
 
 		auto sStar = s;
 
@@ -6996,7 +6996,7 @@ bool Solver::patternAdjustment(int Irand) {
 
 		TwoNodeMove ret;
 
-		for (int iter = 0; ++iter < 100;++iter) {
+		for (int iter = 0; ++iter < 100 && !globalInput->para.isTimeLimitExceeded(); ++iter) {
 
 			int v = myRand->pick(input.custCnt) + 1;
 			if (customers[v].routeID == -1) {
@@ -7056,7 +7056,7 @@ bool Solver::patternAdjustment(int Irand) {
 		doMoves(bestM);
 		++squIter;
 
-	} while (++iter < I1000);
+	} while (++iter < I1000 && !globalInput->para.isTimeLimitExceeded());
 
 	sumRtsPen();
 	if (beforeGamma == 1) {
@@ -7682,7 +7682,7 @@ bool Solver::ejectLocalSearch() {
 	int iter = 1;
 
 	//while (iter < globalCfg->ejectLSMaxIter) {
-	while (!globalInput->para.isTimeLimitExceeded()) {
+	while (iter < globalCfg->ejectLSMaxIter && !globalInput->para.isTimeLimitExceeded()) {
 		//while (1) {
 
 		++iter;
@@ -8026,7 +8026,7 @@ bool Solver::repair() {
 
 	auto penBest = penalty;
 
-	while (penalty > 0) {
+	while (penalty > 0 && !globalInput->para.isTimeLimitExceeded()) {
 		++iter;
 		if (contiNotDe > globalCfg->repairExitStep) {
 			break;
@@ -8220,7 +8220,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 	Vec<int>& ranges = globalCfg->mRLLocalSearchRange;
 
-	while (true) {
+	while (!globalInput->para.isTimeLimitExceeded()) {
 
 		TwoNodeMove bestM;
 		//TwoNodeMove bestM 

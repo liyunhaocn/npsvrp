@@ -62,6 +62,8 @@ namespace hust {
 
 #if 1
 
+ //../instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1
+
 int main(int argc, char* argv[])
 {
 	try

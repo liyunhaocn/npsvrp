@@ -38,7 +38,7 @@ DisType Goal::doTwoKindEAX(Solver& pa, Solver& pb, int kind) {
 
 	int contiNotRepair = 1;
 
-	for (int ch = 1; ch <= globalCfg->naEaxCh; ++ch) {
+	for (int ch = 1; ch <= globalCfg->naEaxCh && !globalInput->para.isTimeLimitExceeded(); ++ch) {
 
 		Solver pc = pa;
 		int eaxState = 0;
@@ -406,8 +406,7 @@ void Goal::getTheRangeMostHope() {
 	int& mRLLocalSearchRange1 = globalCfg->mRLLocalSearchRange[1];
 	mRLLocalSearchRange1 = 40;
 
-	// TODO[lyh]-1]:这里要取消注释
-	//sol.Simulatedannealing(1, 1000, 100.0, globalCfg->ruinC_);
+	sol.Simulatedannealing(1, 1000, 100.0, globalCfg->ruinC_);
 	
 	if (globalInput->custCnt < sol.rts.cnt * 25 ) {
 		//short route
@@ -448,7 +447,7 @@ void Goal::getTheRangeMostHope() {
 		}
 		bks->updateBKSAndPrint(poolt[i], " poolt[i] init");
 	}
-	
+
 	bks->resetBksAtRn();
 	mRLLocalSearchRange1 = globalCfg->neiSizeMin;
 
@@ -470,7 +469,7 @@ void Goal::getTheRangeMostHope() {
 		// TODO[lyh][Goal][-1]:bound
 		int bound = (peopleIndex == 0 ? 2 : glbound);
 		//int bound = (peopleIndex == 0 ? sol.rts.cnt-1 : glbound);
-		while (sol.rts.cnt > bound) {
+		while (sol.rts.cnt > bound && !globalInput->para.isTimeLimitExceeded()) {
 		//while (sol.rts.cnt > 2) {
 			soles[peopleIndex].push_back(sol);
 			bool isDel = sol.minimizeRN(sol.rts.cnt - 1);
@@ -480,7 +479,7 @@ void Goal::getTheRangeMostHope() {
 			bks->updateBKSAndPrint(sol, " poolt[0] mRLS(0, {})");
 		}
 	}
-
+	
 	poprnUpBound = 0;
 	poprnLowBound = IntInf;
 	for (int i = 0; i < globalCfg->popSizeMax; ++i) {
@@ -532,7 +531,7 @@ void Goal::getTheRangeMostHope() {
 	INFO("alreadyBound.size():", alreadyBound.size());
 	lyhCheckTrue(alreadyBound.size() > 0);
 	
-	for (int i = 0; i < globalCfg->popSizeMax ; ++i) {
+	for (int i = 0; i < globalCfg->popSizeMax; ++i) {
 		auto& sol = ppool[poprnLowBound][i];
 		if (sol.rts.cnt != poprnLowBound) {
 			int index = alreadyBound.front();
@@ -540,16 +539,20 @@ void Goal::getTheRangeMostHope() {
 			alreadyBound.push(i);
 			alreadyBound.push(index);
 			sol = (index == globalCfg->popSizeMax ? bks->bestSolFound : ppool[poprnLowBound][index]);
-			sol.patternAdjustment(100);
 		}
+	}
+
+	for (int i = 0; i < globalCfg->popSizeMax && !globalInput->para.isTimeLimitExceeded(); ++i) {
+		auto& sol = ppool[poprnLowBound][i];
+		sol.patternAdjustment(100);
 	}
 
 	globalCfg->popSize = globalCfg->popSizeMax;
 	//for (int i = poprnUpBound ; i >= poprnLowBound; --i) {
-	for (int i = poprnLowBound  ; i <= poprnUpBound; ++i) {
-		curSearchRN = gotoRNPop(i);
-	}
-	globalCfg->popSize = globalCfg->popSizeMin;
+	//for (int i = poprnLowBound  ; i <= poprnUpBound; ++i) {
+	//	curSearchRN = gotoRNPop(i);
+	//}
+	//globalCfg->popSize = globalCfg->popSizeMin;
 }
 
 int Goal::TwoAlgCombine() {
@@ -654,7 +657,7 @@ int Goal::TwoAlgCombine() {
 	}
 #endif // CHECKING
 
-	while (true) {
+	while (!globalInput->para.isTimeLimitExceeded()) {
 		
 #if CHECKING
 		for (int rn = poprnLowBound; rn <= poprnUpBound; ++rn) {
@@ -684,7 +687,7 @@ int Goal::TwoAlgCombine() {
 		int outpeopleNum = std::min<int>(5,globalCfg-> popSize);
 		auto& arr = myRandX->getMN(globalCfg->popSize, outpeopleNum);
 
-		for (int i = 0; i < outpeopleNum; ++i) {
+		for (int i = 0; i < outpeopleNum && !globalInput->para.isTimeLimitExceeded(); ++i) {
 			int index = arr[i];
 			Solver& sol = pool[index];
 			Solver clone = sol;
@@ -732,7 +735,7 @@ int Goal::TwoAlgCombine() {
 
 	bks->bestSolFound.printDimacs();
 
-	//gloalTimer->disp();
+	INFO(globalInput->para.getTimeElapsedSeconds());
 
 	return true;
 }

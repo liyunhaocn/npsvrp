@@ -37,7 +37,7 @@ struct Configuration {
 	int yearTabuRand = 10;
 
 	// TODO[0]:看需不需要频繁构造 1000 stepC2_8_7 需要20s C1_6_6 需要6s
-	int ejectLSMaxIter = 200;
+	int ejectLSMaxIter = 100;
 
 	//int yearTabuLen = 20;
 	//int yearTabuRand = 10;
