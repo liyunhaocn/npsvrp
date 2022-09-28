@@ -16,13 +16,16 @@ def get_tlim_of_static(path_path):
     customers_num = int(customers_num)
 
     # print(customers_num)
+    time_min = 0
     if 1 <= customers_num <= 299:
-        return 3
+        time_min = 3
     elif 300 <= customers_num <= 499:
-        return 5
+        time_min = 5
     elif 500 <= customers_num <= 900:
-        return 8
-    return 0
+        time_min = 8
+
+    # 1807 /1981
+    return int(time_min * 60 * 1807 / 1981)
 
 def get_all_instances_paths():
 
@@ -33,13 +36,24 @@ def get_all_instances_paths():
         ret.append(file_path)
     return ret
 
-def get_all_static_cmds():
+def get_all_static_nps_cmds():
 
     all_paths = get_all_instances_paths()
     cmds = []
     for instance_path in all_paths:
         cmds.append(f"python controller.py --instance {instance_path} "
                     + f"--static --epoch_tlim {get_tlim_of_static(instance_path)} -- ./run.sh")
+    # for cmd in cmds:
+    #     print(cmd)
+    return cmds
+
+def get_all_static_my_cmds():
+
+    all_paths = get_all_instances_paths()
+    cmds = []
+    for instance_path in all_paths:
+        cmds.append(f"./dev/SmartRouter {instance_path} -isNpsRun 0 -t {get_tlim_of_static(instance_path)} "
+                    + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
     # for cmd in cmds:
     #     print(cmd)
     return cmds

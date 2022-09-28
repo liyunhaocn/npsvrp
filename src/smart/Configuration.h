@@ -13,8 +13,8 @@ struct Configuration {
 
 	LL seed = -1;
 	std::string inputPath = "";
-	std::string outputPath = "../Results/";
-	
+	std::string outputPath = "./results/";
+
 	int squContiIter = 100;
 	int squMinContiIter = 100;
 	int squMaxContiIter = 199;
@@ -36,7 +36,7 @@ struct Configuration {
 	int yearTabuLen = 10;
 	int yearTabuRand = 10;
 
-	// TODO[0]:¿´Ðè²»ÐèÒªÆµ·±¹¹Ôì 1000 stepC2_8_7 ÐèÒª20s C1_6_6 ÐèÒª6s
+	// TODO[0]:ï¿½ï¿½ï¿½è²»ï¿½ï¿½ÒªÆµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 1000 stepC2_8_7 ï¿½ï¿½Òª20s C1_6_6 ï¿½ï¿½Òª6s
 	int ejectLSMaxIter = 100;
 
 	//int yearTabuLen = 20;
@@ -44,7 +44,7 @@ struct Configuration {
 
 	int popSize = 4;
 	int popSizeMin = 4;
-	// TODO[lyh][config.h][-1]:popSizeMax Ô­À´ÊÇ 50;
+	// TODO[lyh][config.h][-1]:popSizeMax Ô­ï¿½ï¿½ï¿½ï¿½ 50;
 	int popSizeMax = 5;
 	//int repairExitStep = 50;
 	int repairExitStep = 5;
@@ -56,12 +56,12 @@ struct Configuration {
 	int naEaxCh = 20;
 	//int naEaxCh = 20;
 
-	//patternAdjustment²ÎÊý
+	//patternAdjustmentï¿½ï¿½ï¿½ï¿½
 	int patternAdjustmentNnei = 60;
 	int patternAdjustmentGetM = 10;
 
 	// mRLLocalSearchRange
-	//TODO[-1]:ÕâÀï¸Ä³ÉÁË40
+	//TODO[-1]:ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½ï¿½40
 
 	double broaden = 1.2;
 	//int broadenWhenPos_0 = 50;
@@ -85,7 +85,7 @@ struct Configuration {
 	int ruinC_Max = 35;
 
 	int ruinWinkacRate = 90; // 100
-	//TODO[-1]:Îª³õÊ¼»¯ÉèÖÃÁËÕ£ÑÛ
+	//TODO[-1]:Îªï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ£ï¿½ï¿½
 	int initWinkacRate = 80; // 100
 	int abcyWinkacRate = 99; // 100
 

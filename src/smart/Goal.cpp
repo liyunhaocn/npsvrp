@@ -22,7 +22,7 @@ DisType Goal::getMinRtCostInPool(int rn) {
 
 DisType Goal::doTwoKindEAX(Solver& pa, Solver& pb, int kind) {
 
-	int retState = 0; // 0 ±íÊ¾Ã»ÓÐ³É¹¦¸üÐÂ×îÓÅ½â£¬1±íÊ¾¸üÐÂÁË×îÓÅ½â -1±íÊ¾ÕâÁ½¸ö½âÎÞ·¨½øÐÐeax
+	int retState = 0; // 0 ï¿½ï¿½Ê¾Ã»ï¿½Ð³É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å½â£¬1ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å½ï¿½ -1ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½eax
 
 	EAX eax(pa, pb);
 	eax.generateCycles();
@@ -122,7 +122,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 	bool isPerOnePerson = false;
 	for (int i = 0; i < 10; ++i) {
 
-		//³¢ÊÔÊ¹ÓÃ 100¶ÈµÄÄ£ÄâÍË»ð½øÐÐÈÅ¶¯
+		//ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ 100ï¿½Èµï¿½Ä£ï¿½ï¿½ï¿½Ë»ï¿½ï¿½ï¿½ï¿½ï¿½Å¶ï¿½
 		//sclone.Simulatedannealing(0,100,100.0,globalCfg->ruinC_);
 		
 		if (myRand->pick(2)==0) {
@@ -151,7 +151,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 	return isPerOnePerson;
 }
 
-int Goal::naMA(int rn) { // 1 ´ú±í¸üÐÂÁË×îÓÅ½â 0±íÊ¾Ã»ÓÐ
+int Goal::naMA(int rn) { // 1 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å½ï¿½ 0ï¿½ï¿½Ê¾Ã»ï¿½ï¿½
 
 	auto& pool = ppool[rn];
 
@@ -160,7 +160,7 @@ int Goal::naMA(int rn) { // 1 ´ú±í¸üÐÂÁË×îÓÅ½â 0±íÊ¾Ã»ÓÐ
 
 	DisType bestSolInPool = getMinRtCostInPool(curSearchRN);
 
-	//TODO[-1]:naMAÕâÀï¸Ä10ÁË
+	//TODO[-1]:naMAï¿½ï¿½ï¿½ï¿½ï¿½10ï¿½ï¿½
 	for (int ct = 0; ct < 10; ct++) {
 		myRand->shuffleVec(ords);
 		for (int i = 0; i < globalCfg->popSize; ++i) {
@@ -190,7 +190,7 @@ int Goal::naMA(int rn) { // 1 ´ú±í¸üÐÂÁË×îÓÅ½â 0±íÊ¾Ã»ÓÐ
 		}
 	}
 
-	//TODO[-1]:naMAÕâÀï¸Ä10ÁË
+	//TODO[-1]:naMAï¿½ï¿½ï¿½ï¿½ï¿½10ï¿½ï¿½
 	bestSolInPool = getMinRtCostInPool(curSearchRN);
 	for (int ct = 0; ct < 10; ct++) {
 		myRand->shuffleVec(ords);
@@ -231,11 +231,11 @@ int Goal::gotoRNPop(int rn) {
 	
 	if (rn > poprnUpBound || rn < poprnLowBound) {
 		return poprnLowBound;
-		INFO(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
+		INFO(("rn > poprnUpBound || rn < poprnLowBound"));
 		throw std::string(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
 	}
 
-	//TODO[0]:LmaxºÍruinLmaxµÄ¶¨Òå
+	//TODO[0]:Lmaxï¿½ï¿½ruinLmaxï¿½Ä¶ï¿½ï¿½ï¿½
 	globalCfg->ruinLmax = globalInput->custCnt / rn;
 	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1)/2;
 	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
@@ -244,7 +244,7 @@ int Goal::gotoRNPop(int rn) {
 
 	auto& pool = ppool[rn];
 
-	if (rn == poprnLowBound) { //rÈç¹ûÊÇ
+	if (rn == poprnLowBound) { //rï¿½ï¿½ï¿½ï¿½ï¿½
 		return rn;
 	}
 
@@ -255,7 +255,7 @@ int Goal::gotoRNPop(int rn) {
 
 		bool isAdj = false;
 
-		//TODO[-1]:´Ó¸Õ²ÅËÑË÷µÄÎ»ÖÃÌø
+		//TODO[-1]:ï¿½Ó¸Õ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½
 		int downRn = -1;
 		DisType minRc = DisInf;
 		
@@ -441,7 +441,7 @@ void Goal::getTheRangeMostHope() {
 			//poolt[i].mRLLocalSearch(0, {});
 			globalCfg->ruinLmax = globalInput->custCnt / poolt[i].rts.cnt;
 			//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
-			// TODO[lyh][Goal][-1]:ÕâÀï¼ÇµÃ»¹Ô­×¢ÊÍ
+			// TODO[lyh][Goal][-1]:ï¿½ï¿½ï¿½ï¿½ÇµÃ»ï¿½Ô­×¢ï¿½ï¿½
 			//poolt[i].Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
 			updateppol(poolt[i], i);
 		}
@@ -492,7 +492,7 @@ void Goal::getTheRangeMostHope() {
 	poprnUpBound = std::max<int>(poprnUpBound,bks->bestSolFound.rts.cnt);
 	poprnLowBound = std::min<int>(poprnLowBound,bks->bestSolFound.rts.cnt);
 
-	//TODO[-1]:Õâ¸öºÜÖØÒª ¿¼ÂÇÁËvehicleCnt£¡£¡£¡
+	//TODO[-1]:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òª ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½vehicleCntï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	poprnUpBound = std::min<int>(poprnUpBound, globalInput->vehicleCnt);
 
 	INFO("poprnLowBound:",poprnLowBound,"poprnUpBound:", poprnUpBound);
@@ -506,7 +506,7 @@ void Goal::getTheRangeMostHope() {
 		fillPopulation(rn);
 	}
 
-	// ËùÓÐ½â
+	// ï¿½ï¿½ï¿½Ð½ï¿½
 	for (int popIndex = 0;popIndex< globalCfg->popSizeMax;++popIndex) {
 		auto& deorsoles = soles[popIndex];
 		for (auto& sol : deorsoles) {
@@ -548,10 +548,10 @@ void Goal::getTheRangeMostHope() {
 	}
 
 	globalCfg->popSize = globalCfg->popSizeMax;
-	//for (int i = poprnUpBound ; i >= poprnLowBound; --i) {
-	//for (int i = poprnLowBound  ; i <= poprnUpBound; ++i) {
-	//	curSearchRN = gotoRNPop(i);
-	//}
+//	for (int i = poprnUpBound ; i >= poprnLowBound; --i) {
+	for (int i = poprnLowBound  ; i <= poprnUpBound; ++i) {
+		curSearchRN = gotoRNPop(i);
+	}
 	//globalCfg->popSize = globalCfg->popSizeMin;
 }
 
@@ -733,9 +733,7 @@ int Goal::TwoAlgCombine() {
 		}
 	}
 
-	bks->bestSolFound.printDimacs();
 	INFO(globalInput->para.getTimeElapsedSeconds());
-	saveSolutiontoCsvFile(bks->bestSolFound);
 
 	return true;
 }
@@ -771,80 +769,6 @@ void Goal::test() {
 		pc = pa;
 		eaxState = eax.doPrEAX(pa, pb, pc);
 	}
-}
-
-static bool saveSolutiontoCsvFile(Solver& sol) {
-
-	static bool isPrinted = false;
-	if (isPrinted) {
-		return 0;
-	}
-	isPrinted = true;
-
-	MyString ms;
-	// Êä³ö tm ½á¹¹µÄ¸÷¸ö×é³É²¿·Ö
-	//std::string day = /*ms.LL_str(d.year) + */ms.LL_str(d.month) + ms.LL_str(d.day);
-
-	std::string type = "";
-
-	std::string path = type + __DATE__;
-
-	//path += std::string(1, '_') + __TIME__;
-
-	for (auto& c : path) {
-		if (c == ' ' || c == ':') {
-			c = '_';
-		}
-	}
-
-	std::ofstream rgbData;
-	path += globalCfg->tag;
-	std::string wrPath = globalCfg->outputPath + "_" + path + ".csv";
-
-	bool isGood = false; {
-		std::ifstream f(wrPath.c_str());
-		isGood = f.good();
-	}
-
-	rgbData.open(wrPath, std::ios::app | std::ios::out);
-
-	if (!rgbData) {
-		INFO("output file open errno");
-		return false;
-	}
-	if (!isGood) {
-		rgbData << "ins,rn,rl,time,seed,rts" << std::endl;
-	}
-
-	Input& input = *globalInput;
-
-	rgbData << input.example << ",";
-	rgbData << sol.rts.cnt << ",";
-	DisType oldRtsCost = sol.RoutesCost;
-	rgbData << sol.verify() << ",";
-	
-	if (oldRtsCost != sol.RoutesCost) {
-		throw std::string(LYH_FILELINEADDS("oldRtsCost != sol.RoutesCost"));
-	}
-
-	rgbData << input.para.getTimeElapsedSeconds() << ",";
-	rgbData << globalCfg->seed<<",";
-
-	for (int i = 0; i < sol.rts.cnt; ++i) {
-		rgbData << "Route  " << i + 1 << " : ";
-		Route& r = sol.rts[i];
-		auto cusArr = sol.rPutCusInve(r);
-		for (int c : cusArr) {
-			rgbData << c << " ";
-		}
-		rgbData << "| ";
-	}
-
-	rgbData << std::endl;
-	rgbData.close();
-
-	INFO("write file succeed");
-	return true;
 }
 
 }

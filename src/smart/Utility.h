@@ -28,6 +28,7 @@
 #include "Flag.h"
 
 #define LYH_FILELINEADDS(str) ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:" + str)
+#define LYH_FILELINE() ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:")
 
 #if HUST_LYH_NPSRUN
 
@@ -35,13 +36,13 @@
 
 #else
 
-//#define INFO(...) ;
-#define INFO(...) hust::println_("[INFO]:",## __VA_ARGS__)
+#define INFO(...) ;
+//#define INFO(...) hust::println_("[INFO]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
 
 #endif // HUST_LYH_NPSRUN
 
-#define DEBUG(...) hust::println_("[DEBUG]:",## __VA_ARGS__)
-#define ERROR(...) hust::println_("[ERROR]:",## __VA_ARGS__)
+#define DEBUG(...) hust::println_("[DEBUG]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
+#define ERROR(...) hust::println_("[ERROR]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
 
 namespace hust {
 
