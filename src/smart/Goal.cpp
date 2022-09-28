@@ -734,8 +734,8 @@ int Goal::TwoAlgCombine() {
 	}
 
 	bks->bestSolFound.printDimacs();
-
 	INFO(globalInput->para.getTimeElapsedSeconds());
+	saveSolutiontoCsvFile(bks->bestSolFound);
 
 	return true;
 }
@@ -771,6 +771,80 @@ void Goal::test() {
 		pc = pa;
 		eaxState = eax.doPrEAX(pa, pb, pc);
 	}
+}
+
+static bool saveSolutiontoCsvFile(Solver& sol) {
+
+	static bool isPrinted = false;
+	if (isPrinted) {
+		return 0;
+	}
+	isPrinted = true;
+
+	MyString ms;
+	// 输出 tm 结构的各个组成部分
+	//std::string day = /*ms.LL_str(d.year) + */ms.LL_str(d.month) + ms.LL_str(d.day);
+
+	std::string type = "";
+
+	std::string path = type + __DATE__;
+
+	//path += std::string(1, '_') + __TIME__;
+
+	for (auto& c : path) {
+		if (c == ' ' || c == ':') {
+			c = '_';
+		}
+	}
+
+	std::ofstream rgbData;
+	path += globalCfg->tag;
+	std::string wrPath = globalCfg->outputPath + "_" + path + ".csv";
+
+	bool isGood = false; {
+		std::ifstream f(wrPath.c_str());
+		isGood = f.good();
+	}
+
+	rgbData.open(wrPath, std::ios::app | std::ios::out);
+
+	if (!rgbData) {
+		INFO("output file open errno");
+		return false;
+	}
+	if (!isGood) {
+		rgbData << "ins,rn,rl,time,seed,rts" << std::endl;
+	}
+
+	Input& input = *globalInput;
+
+	rgbData << input.example << ",";
+	rgbData << sol.rts.cnt << ",";
+	DisType oldRtsCost = sol.RoutesCost;
+	rgbData << sol.verify() << ",";
+	
+	if (oldRtsCost != sol.RoutesCost) {
+		throw std::string(LYH_FILELINEADDS("oldRtsCost != sol.RoutesCost"));
+	}
+
+	rgbData << input.para.getTimeElapsedSeconds() << ",";
+	rgbData << globalCfg->seed<<",";
+
+	for (int i = 0; i < sol.rts.cnt; ++i) {
+		rgbData << "Route  " << i + 1 << " : ";
+		Route& r = sol.rts[i];
+		auto cusArr = sol.rPutCusInve(r);
+		for (int c : cusArr) {
+			rgbData << c << " ";
+		}
+		rgbData << "| ";
+	}
+
+	rgbData << std::endl;
+	rgbData.close();
+
+	INFO("write file succeed");
+	return true;
 }
 
 }

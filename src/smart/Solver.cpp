@@ -8379,7 +8379,7 @@ bool Solver::printDimacs() {
 		printf("\n");
 	}
 
-	printf("Cost %.1lf\n", double(RoutesCost) / 10);
+	printf("Cost %lld\n", RoutesCost);
 	fflush(stdout);
 	return true;
 }
