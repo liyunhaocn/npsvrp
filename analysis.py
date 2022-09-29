@@ -14,23 +14,38 @@ def get_csv_data(file_path):
 
 if __name__ == "__main__":
 
-    data_my = get_csv_data("./results/_Sep_28_2022_20_28_54.csv")
-    data_hgs = get_csv_data("./results/_Sep_28_2022_23_33_24.csv")
+    data_my = get_csv_data("./results/my.csv")
+    data_hgs = get_csv_data("./results/hgs.csv")
     data_my = data_my[1:]
     data_hgs = data_hgs[1:]
 
     compdic = {}
-    for row in data_hgs + data_my:
+    for row in data_my:
         if row[0] in compdic:
             compdic[row[0]].append(int(row[2]))
         else:
             compdic[row[0]] = [int(row[2])]
 
-    for key, val in compdic.items():
-        if len(val) == 2:
-            print(key, val, (val[0]-val[1])/val[0]*100 )
+    instance_names_my = [arr[0] for arr in data_my]
+    instance_names_hgs = [arr[0] for arr in data_hgs]
+
+    print(len(instance_names_my))
+    print(len(set(instance_names_hgs)))
+
+    for name in instance_names_my:
+        if name in instance_names_hgs:
+            pass
         else:
-            print(row[0])
+            print(f"name:{name} is not in")
+
+    for key, val in compdic.items():
+        if len(val) == 1:
+            # print(key, val, (val[0]-val[1])/val[0]*100)
+            pass
+        else:
+            # print(f"row:{row}")
+            print(f"key:{key}")
+
     # for row in data:
     #     print(row)
     # for i in range(len(data)):
@@ -38,9 +53,7 @@ if __name__ == "__main__":
     #         if data[i][0] == data[j][0]:
     #             print(f"data[i]:{data[i]}")
     #             print(f"data[j]:{data[i]}")
-    instance_names = [arr[0] for arr in data_my]
-    # print(len(instance_names))
-    # print(len(set(instance_names)))
+
     # print([item for item, count in collections.Counter(instance_names).items() if count > 1])
     ## [1, 2, 5]
 

@@ -738,37 +738,46 @@ int Goal::TwoAlgCombine() {
 	return true;
 }
 
-void Goal::test() {
-	for (int i = 0; i < 100; ++i) {
+void Goal::test(Genetic* hgsSolver) {
 
-		Solver pa;
-		Solver pb;
-		pa.initSolution(myRand->pick(4));
-		pb.initSolution(myRand->pick(4));
-		if (pb.rts.cnt != pa.rts.cnt) {
-			pb.adjustRN(pa.rts.cnt);
-		}
+	std::pair<Solver,Solver> parent;
+	auto& pa = parent.first;
+	auto& pb = parent.second;
+	parent.first.initSolution(0);
+	parent.second.initSolution(1);
 
-		Solver pc = pa;
-		int eaxState = 0;
-		EAX eax(pa, pb);
-		eax.generateCycles();
+	int adjBig = std::min<int>(globalInput->vehicleCnt, pa.rts.cnt + 10);
 
-		if (eax.abCycleSet.size() <= 1) {
-			return;
-		}
-#if CHECKING
-		if (pa.verify() < 0) {
-			throw ("pa.verify():", pa.verify());
-		}
-		if (pb.verify() < 0) {
-			ERROR("pb.verify():", pb.verify());
-		}
-#endif // CHECKING
-		eaxState = eax.doNaEAX(pa, pb, pc);
-		pc = pa;
-		eaxState = eax.doPrEAX(pa, pb, pc);
-	}
+	pa.adjustRN(adjBig);
+
+	globalCfg->ruinLmax = globalInput->custCnt / pa.rts.cnt;
+	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
+	int& mRLLocalSearchRange1 = globalCfg->mRLLocalSearchRange[1];
+	mRLLocalSearchRange1 = 40;
+	//pa.Simulatedannealing(1, 1000, 100.0, globalCfg->ruinC_);
+
+	//while (!globalInput->para.isTimeLimitExceeded()) {
+	//	auto paIndividual =  pa.exportIndividual();
+	//	auto pbIndividual = pb.exportIndividual();
+	//	Individual* offspring = hgsSolver->crossoverOX({&paIndividual,&pbIndividual });
+	//	
+	//	Solver pc;
+	//	pc.loadSolutionByArr2D(offspring->chromR);
+	//	if (pc.penalty > 0) {
+	//		if (pc.repair()) {
+	//			pc.mRLLocalSearch(0,{});
+	//			if (pc.RoutesCost < pa.RoutesCost) {
+	//				pa = pc;
+	//			}
+	//		}
+	//	}
+	//	else {
+	//		pc.mRLLocalSearch(0, {});
+	//		pa.patternAdjustment();
+	//		pb.patternAdjustment();
+	//	}
+	//}
+
 }
 
 }

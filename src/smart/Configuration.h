@@ -23,8 +23,6 @@ struct Configuration {
 	int weightUpStep = 1;
 
 	int Irand = 400;
-	int runTimer = 1800; //s
-	//int runTimer = 0; //s
 	int neiMoveKind = 16;
 
 	int Pwei0 = 1;

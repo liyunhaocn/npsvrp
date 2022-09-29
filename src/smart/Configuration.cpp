@@ -11,8 +11,6 @@ namespace hust {
 void Configuration::show() {
 
 	INFO("inputPath:", inputPath);
-	INFO("runTimer:",runTimer);
-	
 	INFO("Pwei0:", Pwei0);
 	INFO("Pwei1:", Pwei1);
 	INFO("minKmax:", minKmax);
@@ -63,10 +61,7 @@ void Configuration::solveCommandLine(int argc, char* argv[]) {
 
 	for (int i = 1; i < argc; i+=2) {
 		std::string argvstr = std::string(argv[i]);
-		if (argvstr == "-time") {
-			globalCfg->runTimer = std::stoi(argv[i+1], nullptr, 0);
-		}
-		else if (argvstr == "-ins") {
+		if (argvstr == "-ins") {
 			globalCfg->inputPath = std::string(argv[i + 1]);
 		}
 		else if (argvstr == "-seed") {

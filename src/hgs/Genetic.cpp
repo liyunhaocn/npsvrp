@@ -29,7 +29,10 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 
 		/* LOCAL SEARCH */
 		// Run the Local Search on the new individual
-		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
+		//localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
+		
+		smartSolver->run(offspring);
+
 		// Check if the new individual is the best feasible individual of the population, based on penalizedCost
 		bool isNewBest = population->addIndividual(offspring, true);
 		// In case of infeasibility, repair the individual with a certain probability
@@ -425,7 +428,8 @@ Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, cons
 		: offspringSREX;
 }
 
-Genetic::Genetic(Params* params, Split* split, Population* population, LocalSearch* localSearch) : params(params), split(split), population(population), localSearch(localSearch)
+Genetic::Genetic(Params* params, Split* split, Population* population, LocalSearch* localSearch,hust::Solver* smartSolver) 
+	: params(params), split(split), population(population), localSearch(localSearch), smartSolver(smartSolver)
 {
 	// After initializing the parameters of the Genetic object, also generate new individuals in the array candidateOffsprings
 	std::generate(candidateOffsprings.begin(), candidateOffsprings.end(), [&]{ return new Individual(params); });

@@ -9,6 +9,7 @@
 #include "Flag.h"
 #include "Utility.h"
 #include "Problem.h"
+#include "../hgs/Individual.h"
 
 namespace hust {
 
@@ -603,9 +604,11 @@ public:
 
 	bool initMaxRoute();
 
-	bool initByArr2(Vec < Vec<int>> arr2);
-
 	bool initSolution(int kind);
+
+	bool loadSolutionByArr2D(Vec < Vec<int>> arr2);
+
+	void exportIndividual(Individual* indiv);
 
 	bool EPrReset();
 
@@ -776,6 +779,8 @@ public:
 
 	bool printDimacs();
 	
+	bool run(Individual*indiv);
+
 	~Solver();
 
 public:

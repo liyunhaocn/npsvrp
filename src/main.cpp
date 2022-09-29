@@ -64,6 +64,10 @@ namespace hust {
 
  //./instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
 //./instances/ORTEC-VRPTW-ASYM-92bc6975-d1-n273-k20.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
+
+// ./instances/ORTEC-VRPTW-ASYM-8bc13a3f-d1-n421-k40.txt -t 273 -seed 1 -veh -1 -useWallClockTime 1
+//203578
+
 int main(int argc, char* argv[])
 {
 	try
@@ -80,7 +84,7 @@ int main(int argc, char* argv[])
 		Split split(&params);
 		LocalSearch localSearch(&params);
 
-#if LYH_DIMACS_EUN
+#if 0
 		hust::globalInput = new hust::Input(params);
 		hust::allocGlobalMem(params.config.seed);
 		hust::globalInput->initInput();
@@ -89,39 +93,43 @@ int main(int argc, char* argv[])
 		//smartSolver.minimizeRN(2);
 		//smartSolver.mRLLocalSearch(0, {});
 		hust::Goal goal;
-		//goal.test();
+		// Genetic algorithm
+		INFO("----- STARTING GENETIC ALGORITHM");
+		Genetic hgsSolver(&params, &split, nullptr, &localSearch);
+
+		goal.test(&hgsSolver);
+
 		//goal.callSimulatedannealing();
-		goal.TwoAlgCombine();
+		//goal.TwoAlgCombine();
 		//goal.experOnMinRN();
-        if(hust::globalInput->para.config.isNpsRun == true) {
-            hust::bks->bestSolFound.printDimacs();
-        }
-        saveSolutiontoCsvFile(bks->bestSolFound);
+
+        hust::bks->bestSolFound.printDimacs();
+        saveSolutiontoCsvFile(hust::bks->bestSolFound);
 
 		hust::deallocGlobalMem();
 		return 0;
-#endif //LYH_DIMACS_EUN
-
+#else
 		// Initial population
 		INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
 		INFO("----- BUILDING INITIAL POPULATION");
 		Population population(&params, &split, &localSearch);
 
+		hust::globalInput = new hust::Input(params);
+		hust::allocGlobalMem(params.config.seed);
+		hust::globalInput->initInput();
+		hust::Solver smartSolver;
+		//smartSolver.initSolution(0);
+		//smartSolver.minimizeRN(2);
+		//smartSolver.mRLLocalSearch(0, {});
+		
 		// Genetic algorithm
 		INFO("----- STARTING GENETIC ALGORITHM");
-		Genetic solver(&params, &split, &population, &localSearch);
+		Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
 		solver.run(commandline.config.nbIter, commandline.config.timeLimit);
-		INFO("----- GENETIC ALGORITHM FINISHED, TIME SPENT: ", params.getTimeElapsedSeconds());
 
-		population.getBestFound()->printCVRPLibFormat();
-
-        hust::globalInput = new hust::Input(params);
-        hust::allocGlobalMem(params.config.seed);
-        hust::globalInput->initInput();
-        hust::Solver smartSolver;
-        smartSolver.initByArr2(population.getBestFound()->chromR);
-        ERROR(11111);
+        smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
         saveSolutiontoCsvFile(smartSolver);
+#endif //1
 		// Export the best solution, if it exist
 		//if (population.getBestFound() != nullptr)
 		//{

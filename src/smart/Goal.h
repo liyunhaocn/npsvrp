@@ -2,6 +2,7 @@
 #define CN_HUST_LYH_GOAL_H
 
 #include "Solver.h"
+#include "../hgs/Genetic.h"
 
 namespace hust {
 
@@ -45,7 +46,7 @@ struct Goal {
 
 	void getTheRangeMostHope();
 
-	void test();
+	void test(Genetic* hgsSolver);
 };
 
 

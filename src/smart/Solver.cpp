@@ -1071,31 +1071,6 @@ bool Solver::initMaxRoute() {
 	return true;
 }
 
-bool Solver::initByArr2(Vec < Vec<int>> arr2) {
-
-	for (int rid = 0; rid < arr2.size(); ++rid) {
-	
-		auto& arr = arr2[rid];
-		if (arr.size() == 0) {
-			break;
-		}
-		Route r = rCreateRoute(rid);
-
-		for (int cus : arr) {
-			rInsAtPosPre(r, r.tail, (cus));
-		}
-		//rNextDisp(r);
-
-		rUpdateAvQfrom(r, r.head);
-		rUpdateZvQfrom(r, r.tail);
-		rts.push_back(r);
-	}
-	sumRtsPen();
-	reCalRtsCostSumCost();
-
-	return true;
-}
-
 bool Solver::initSolution(int kind) {//5种
 
 	if (kind == 0) {
@@ -1126,6 +1101,58 @@ bool Solver::initSolution(int kind) {//5种
 	INFO("init rtcost:",RoutesCost);
 
 	return true;
+}
+
+bool Solver::loadSolutionByArr2D(Vec < Vec<int>> arr2) {
+	
+	rts.reSet();
+	for (int rid = 0; rid < arr2.size(); ++rid) {
+
+		auto& arr = arr2[rid];
+		if (arr.size() == 0) {
+			// invdual 中的chromR是一个输入车辆数那么多的大数组，有的路径为空
+			continue;
+		}
+		Route r = rCreateRoute(rid);
+
+		for (int cus : arr) {
+			rInsAtPosPre(r, r.tail, (cus));
+		}
+		//rNextDisp(r);
+
+		rUpdateAvQfrom(r, r.head);
+		rUpdateZvQfrom(r, r.tail);
+		rts.push_back(r);
+	}
+	sumRtsPen();
+	reCalRtsCostSumCost();
+	return true;
+}
+
+void Solver::exportIndividual(Individual* indiv) {
+
+	// TODO[lyh][0]:这里要处理polarAngleBarycenter
+	//Individual indiv(&globalInput->para);
+	//std::vector < std::pair <double, int> > routePolarAngles;
+	//for (int r = 0; r < globalInput->para.nbVehicles; r++)
+	//	routePolarAngles.push_back(std::pair <double, int>(rts[r].polarAngleBarycenter, r));
+	//std::sort(routePolarAngles.begin(), routePolarAngles.end()); // empty routes have a polar angle of 1.e30, and therefore will always appear at the end
+
+	int pos = 0;
+	for (int r = 0; r <globalInput->para.nbVehicles; r++) {
+		indiv->chromR[r].clear();
+	}
+
+	for (int rIndex = 0; rIndex < rts.cnt; ++rIndex) {
+		
+		auto& r = rts[rIndex];
+		for (int c = customers[r.head].next; c <= globalInput->custCnt; c = customers[c].next) {
+			indiv->chromT[pos] = c;
+			indiv->chromR[rIndex].push_back(c);
+			pos++;
+		}
+	}
+	indiv->evaluateCompleteCost();
 }
 
 bool Solver::EPrReset() {
@@ -8096,8 +8123,8 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 	TwoNodeMove MRLbestM;
 
-	//static Vec<int> moveKindOrder = { 0,1,2,3,4,5,6,7, 8,/*9,10,*/ 11,/*12,*/13,/*14,*/15};
-	static Vec<int> moveKindOrder = { 0,1,2,3,4,5,6,7, 8,9,10, 11,12,13,14,15 };
+	static Vec<int> moveKindOrder = { 0,1,2,3,4,5,6,7, 8,/*9,10,*/ 11,/*12,*/13,/*14,*/15};
+	//static Vec<int> moveKindOrder = { 0,1,2,3,4,5,6,7, 8,9,10, 11,12,13,14,15 };
 
 	static Vec<int> contribution(16, 0);
 	Vec<int> contricus(input.custCnt + 1, 0);
@@ -8381,6 +8408,20 @@ bool Solver::printDimacs() {
 
 	printf("Cost %lld\n", RoutesCost);
 	fflush(stdout);
+	return true;
+}
+
+bool Solver::run(Individual* indiv) {
+	loadSolutionByArr2D(indiv->chromR);
+	if (penalty > 0) {
+		if (repair()) {
+			mRLLocalSearch(0, {});
+		}
+	}
+	else {
+		mRLLocalSearch(0, {});
+	}
+	exportIndividual(indiv);
 	return true;
 }
 

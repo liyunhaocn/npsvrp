@@ -32,6 +32,7 @@ SOFTWARE.*/
 #include "Population.h"
 #include "LocalSearch.h"
 #include "Individual.h"
+#include "../smart/Solver.h"
 
 // Class to run the genetic algorithm, which incorporates functionality of population management, doing crossovers and updating parameters.
 class Genetic
@@ -41,7 +42,7 @@ public:
 	void run(int maxIterNonProd, int timeLimit);
 
 	// Constructor
-	Genetic(Params* params, Split* split, Population* population, LocalSearch* localSearch);
+	Genetic(Params* params, Split* split, Population* population, LocalSearch* localSearch,hust::Solver* smartSolver);
 
 	// Destructor
 	~Genetic();
@@ -56,6 +57,7 @@ public:
 	Split* split;				// Split algorithm
 	Population* population;		// Population
 	LocalSearch* localSearch;	// Local Search structure
+	hust::Solver* smartSolver;
 
 	// Pointers for offspring to edit new offspring in place:
 	// 0 and 1 are reserved for SREX, 2 and 3 are reserved for OX
