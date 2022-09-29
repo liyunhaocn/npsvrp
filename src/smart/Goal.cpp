@@ -22,7 +22,7 @@ DisType Goal::getMinRtCostInPool(int rn) {
 
 DisType Goal::doTwoKindEAX(Solver& pa, Solver& pb, int kind) {
 
-	int retState = 0; // 0 ��ʾû�гɹ��������Ž⣬1��ʾ���������Ž� -1��ʾ���������޷�����eax
+	int retState = 0; // 0 表示没有成功更新最优解，1表示更新了最优解 -1表示这两个解无法进行eax
 
 	EAX eax(pa, pb);
 	eax.generateCycles();
@@ -122,7 +122,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 	bool isPerOnePerson = false;
 	for (int i = 0; i < 10; ++i) {
 
-		//����ʹ�� 100�ȵ�ģ���˻�����Ŷ�
+		//尝试使用 100度的模拟退火进行扰动
 		//sclone.Simulatedannealing(0,100,100.0,globalCfg->ruinC_);
 		
 		if (myRand->pick(2)==0) {
@@ -151,7 +151,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 	return isPerOnePerson;
 }
 
-int Goal::naMA(int rn) { // 1 ������������Ž� 0��ʾû��
+int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 
 	auto& pool = ppool[rn];
 
@@ -160,7 +160,7 @@ int Goal::naMA(int rn) { // 1 ������������Ž� 0���
 
 	DisType bestSolInPool = getMinRtCostInPool(curSearchRN);
 
-	//TODO[-1]:naMA�����10��
+	//TODO[-1]:naMA这里改10了
 	for (int ct = 0; ct < 10; ct++) {
 		myRand->shuffleVec(ords);
 		for (int i = 0; i < globalCfg->popSize; ++i) {
@@ -190,7 +190,7 @@ int Goal::naMA(int rn) { // 1 ������������Ž� 0���
 		}
 	}
 
-	//TODO[-1]:naMA�����10��
+	//TODO[-1]:naMA这里改10了
 	bestSolInPool = getMinRtCostInPool(curSearchRN);
 	for (int ct = 0; ct < 10; ct++) {
 		myRand->shuffleVec(ords);
@@ -235,7 +235,7 @@ int Goal::gotoRNPop(int rn) {
 		throw std::string(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
 	}
 
-	//TODO[0]:Lmax��ruinLmax�Ķ���
+	//TODO[0]:Lmax和ruinLmax的定义
 	globalCfg->ruinLmax = globalInput->custCnt / rn;
 	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1)/2;
 	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
@@ -244,7 +244,7 @@ int Goal::gotoRNPop(int rn) {
 
 	auto& pool = ppool[rn];
 
-	if (rn == poprnLowBound) { //r�����
+	if (rn == poprnLowBound) { //r如果是
 		return rn;
 	}
 
@@ -255,7 +255,7 @@ int Goal::gotoRNPop(int rn) {
 
 		bool isAdj = false;
 
-		//TODO[-1]:�Ӹղ�������λ����
+		//TODO[-1]:从刚才搜索的位置跳
 		int downRn = -1;
 		DisType minRc = DisInf;
 		
@@ -441,7 +441,7 @@ void Goal::getTheRangeMostHope() {
 			//poolt[i].mRLLocalSearch(0, {});
 			globalCfg->ruinLmax = globalInput->custCnt / poolt[i].rts.cnt;
 			//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
-			// TODO[lyh][Goal][-1]:����ǵû�ԭע��
+			// TODO[lyh][Goal][-1]:这里记得还原注释
 			//poolt[i].Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
 			updateppol(poolt[i], i);
 		}
@@ -492,7 +492,7 @@ void Goal::getTheRangeMostHope() {
 	poprnUpBound = std::max<int>(poprnUpBound,bks->bestSolFound.rts.cnt);
 	poprnLowBound = std::min<int>(poprnLowBound,bks->bestSolFound.rts.cnt);
 
-	//TODO[-1]:�������Ҫ ������vehicleCnt������
+	//TODO[-1]:这个很重要 考虑了vehicleCnt！！！
 	poprnUpBound = std::min<int>(poprnUpBound, globalInput->vehicleCnt);
 
 	INFO("poprnLowBound:",poprnLowBound,"poprnUpBound:", poprnUpBound);
@@ -506,7 +506,7 @@ void Goal::getTheRangeMostHope() {
 		fillPopulation(rn);
 	}
 
-	// ���н�
+	// 所有解
 	for (int popIndex = 0;popIndex< globalCfg->popSizeMax;++popIndex) {
 		auto& deorsoles = soles[popIndex];
 		for (auto& sol : deorsoles) {

@@ -36,7 +36,7 @@ struct Configuration {
 	int yearTabuLen = 10;
 	int yearTabuRand = 10;
 
-	// TODO[0]:���費��ҪƵ������ 1000 stepC2_8_7 ��Ҫ20s C1_6_6 ��Ҫ6s
+	// TODO[0]:看需不需要频繁构造 1000 stepC2_8_7 需要20s C1_6_6 需要6s
 	int ejectLSMaxIter = 100;
 
 	//int yearTabuLen = 20;
@@ -44,7 +44,7 @@ struct Configuration {
 
 	int popSize = 4;
 	int popSizeMin = 4;
-	// TODO[lyh][config.h][-1]:popSizeMax ԭ���� 50;
+	// TODO[lyh][config.h][-1]:popSizeMax 原来是 50;
 	int popSizeMax = 5;
 	//int repairExitStep = 50;
 	int repairExitStep = 5;
@@ -56,12 +56,12 @@ struct Configuration {
 	int naEaxCh = 20;
 	//int naEaxCh = 20;
 
-	//patternAdjustment����
+	//patternAdjustment参数
 	int patternAdjustmentNnei = 60;
 	int patternAdjustmentGetM = 10;
 
 	// mRLLocalSearchRange
-	//TODO[-1]:����ĳ���40
+	//TODO[-1]:这里改成了40
 
 	double broaden = 1.2;
 	//int broadenWhenPos_0 = 50;
@@ -85,7 +85,7 @@ struct Configuration {
 	int ruinC_Max = 35;
 
 	int ruinWinkacRate = 90; // 100
-	//TODO[-1]:Ϊ��ʼ��������գ��
+	//TODO[-1]:为初始化设置了眨眼
 	int initWinkacRate = 80; // 100
 	int abcyWinkacRate = 99; // 100
 

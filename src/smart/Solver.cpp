@@ -136,7 +136,7 @@ DisType Solver::rUpdatePc(Route& r) {
 
 bool Solver::rReset(Route& r) {
 
-	r.rCustCnt = 0; //û�м���ֿ�
+	r.rCustCnt = 0; //没有计算仓库
 	//r.routeID = -1;
 	r.routeCost = 0;
 	r.rPc = 0;
@@ -797,7 +797,7 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 
 	Position ret;
 
-	// �ͷ�����������ǰ��
+	// 惩罚最大的排在最前面
 	auto updatePool = [&](Position& pos) {
 
 		if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
@@ -808,7 +808,7 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 			else if (pos.pen == ret.pen) {
 
 				if (pos.cost < ret.cost) {
-					// TODO[8]:գ���ʿ��Ե� 5%���ʣ�
+					// TODO[8]:眨眼率可以调 5%合适？
 					ret = pos;
 				}
 			}
@@ -862,7 +862,7 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 
 			rPtw = rPtw - oldrPtw;
 
-			//TODO[-1]:����ľ�����㷽ʽ�ı���
+			//TODO[-1]:这里的距离计算方式改变了
 			DisType cost = input.getDisof2(v,w)
 				+ input.getDisof2(w,vj)
 				- input.getDisof2(v,vj);
@@ -903,7 +903,7 @@ bool Solver::initBySecOrder() {
 	int indexBeg = myRand->pick(input.custCnt);
 
 	//int indexBeg = 100;
-	// TODO[0]:init����+inupt.custCnt-1 �൱�ڷ�����ת��
+	// TODO[0]:init方向，+inupt.custCnt-1 相当于反方向转动
 	int deltstep = input.custCnt - 1;
 	if (myRand->pick(2) == 0) {
 		deltstep = 1;
@@ -1009,7 +1009,7 @@ bool Solver::initMaxRoute() {
 	Vec<int>que1(input.custCnt);
 	std::iota(que1.begin(), que1.end(), 1);
 	
-	//TODO[-1]:�������������������
+	//TODO[-1]:这里的排序，现在是乱序
 	//myRand->shuffleVec(que1);
 
 	auto cmp = [&](int x, int y) {
@@ -1096,7 +1096,7 @@ bool Solver::initByArr2(Vec < Vec<int>> arr2) {
 	return true;
 }
 
-bool Solver::initSolution(int kind) {//5��
+bool Solver::initSolution(int kind) {//5种
 
 	if (kind == 0) {
 		initBySecOrder();
@@ -1131,7 +1131,7 @@ bool Solver::initSolution(int kind) {//5��
 bool Solver::EPrReset() {
 
 	Route& r = EPr;
-	r.rCustCnt = 0; //û�м���ֿ�
+	r.rCustCnt = 0; //没有计算仓库
 	//r.routeID = -1;
 	r.routeCost = 0;
 	r.rPc = 0;
@@ -1215,7 +1215,7 @@ int Solver::EPrGetCusByIndex(int index) {
 }
 
 Solver::DeltPen Solver::estimatevw(int kind, int v, int w, int oneR) {
-	// TODO[move]:�鿴�������ı��
+	// TODO[move]:查看邻域动作的编号
 	switch (kind) {
 	case 0:return _2optOpenvv_(v, w);
 	case 1:return _2optOpenvvj(v, w);
@@ -1871,7 +1871,7 @@ Solver::DeltPen Solver::outrelocatevTowwj(int v, int w, int oneR) { //3
 	return bestM;
 }
 
-//������(twbegin��twend) twbegin��twend�ĸ���ֵ���ǿɿ��ģ��������м�ĵ���Ա仯 twbegin��twend�����ǲֿ� 
+//开区间(twbegin，twend) twbegin，twend的各项值都是可靠的，开区间中间的点可以变化 twbegin，twend可以是仓库 
 DisType Solver::getaRangeOffPtw(int twbegin, int twend) {
 
 	DisType newwvPtw = customers[twbegin].TW_X;
@@ -2435,7 +2435,7 @@ Solver::DeltPen Solver::exchangevwj(int v, int w, int oneR) { // 7
 	return exchangevw(v, wj, oneR);
 }
 
-Solver::DeltPen Solver::exchangevvjw(int v, int w, int oneR) { //11 2��1
+Solver::DeltPen Solver::exchangevvjw(int v, int w, int oneR) { //11 2换1
 
 	// exchange vvj and (w)
 
@@ -2666,7 +2666,7 @@ Solver::DeltPen Solver::exchangevvjw(int v, int w, int oneR) { //11 2��1
 	return bestM;
 }
 
-Solver::DeltPen Solver::exchangevwwj(int v, int w, int oneR) { // 12 1��2
+Solver::DeltPen Solver::exchangevwwj(int v, int w, int oneR) { // 12 1换2
 
 	// exchange v and (ww+)
 	DeltPen bestM;
@@ -2680,7 +2680,7 @@ Solver::DeltPen Solver::exchangevwwj(int v, int w, int oneR) { // 12 1��2
 
 }
 
-Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3��2
+Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3换2
 
 	// exchange vvjvjj and (ww+)
 	DeltPen bestM;
@@ -2965,7 +2965,7 @@ Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3��
 	return bestM;
 }
 
-Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 ����һ
+Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 三换一
 
 	// exchange vvjvjj and (w)
 	Route& rv = rts.getRouteByRid(customers[v].routeID);
@@ -3222,7 +3222,7 @@ Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 ���
 	return bestM;
 }
 
-Solver::DeltPen Solver::outrelocatevvjTowwj(int v, int w, int oneR) {  //13 ������
+Solver::DeltPen Solver::outrelocatevvjTowwj(int v, int w, int oneR) {  //13 扔两个
 
 	DeltPen bestM;
 
@@ -3386,7 +3386,7 @@ Solver::DeltPen Solver::outrelocatevvjTowwj(int v, int w, int oneR) {  //13 ��
 	return bestM;
 }
 
-Solver::DeltPen Solver::outrelocatevv_Toww_(int v, int w, int oneR) {  //14 ���������
+Solver::DeltPen Solver::outrelocatevv_Toww_(int v, int w, int oneR) {  //14 扔两个左边
 
 	DeltPen bestM;
 
@@ -3411,7 +3411,7 @@ Solver::DeltPen Solver::outrelocatevv_Toww_(int v, int w, int oneR) {  //14 ��
 
 }
 
-Solver::DeltPen Solver::reversevw(int v, int w) { //15 ��ת
+Solver::DeltPen Solver::reversevw(int v, int w) { //15 翻转
 
 	DeltPen bestM;
 
@@ -4058,7 +4058,7 @@ bool Solver::exchange(TwoNodeMove& M) {
 	}
 	else if (M.kind == 9) {
 
-		//exchangevvjvjjwwj 3��2
+		//exchangevvjvjjwwj 3换2
 		int wj = customers[w].next;
 		int vj = customers[v].next;
 		int vjj = customers[vj].next;
@@ -4132,7 +4132,7 @@ bool Solver::exchange(TwoNodeMove& M) {
 	}
 	else if (M.kind == 10) {
 
-		//exchangevvjvjjw 3��1
+		//exchangevvjvjjw 3换1
 		int v_ = customers[v].pre;
 		int vj = customers[v].next;
 		int vjj = customers[vj].next;
@@ -4198,7 +4198,7 @@ bool Solver::exchange(TwoNodeMove& M) {
 		}
 	}
 	else if (M.kind == 11) {
-		//exchangevvjw 2��1
+		//exchangevvjw 2换1
 		int v_ = customers[v].pre;
 		int vj = customers[v].next;
 		int w_ = customers[w].pre;
@@ -4573,7 +4573,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 9) {
 
-		//exchangevvjvjjwwj(v, w); ������ v v+ v++ | w w+
+		//exchangevvjvjjwwj(v, w); 三换二 v v+ v++ | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -4593,7 +4593,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 10) {
 
-		//exchangevvjvjjw(v, w); ����һ v v+ v++ | w
+		//exchangevvjvjjw(v, w); 三换一 v v+ v++ | w
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -4610,7 +4610,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 
 	}
 	else if (t.kind == 11) {
-		//exchangevvjw(v, w); ����һ v v +  | w
+		//exchangevvjw(v, w); 二换一 v v +  | w
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
 		int vjj = customers[vj].next > input.custCnt ? 0 : customers[vj].next;
@@ -4626,7 +4626,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 12) {
 
-		//exchangevwwj(v, w); һ���� v  | w w+
+		//exchangevwwj(v, w); 一换二 v  | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -4643,7 +4643,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 13) {
 
-		//outrelocatevvjTowwj(v, w); ������ v v+  | w w+
+		//outrelocatevvjTowwj(v, w); 扔两个 v v+  | w w+
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
 		int vjj = customers[vj].next > input.custCnt ? 0 : customers[vj].next;
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
@@ -4816,7 +4816,7 @@ Vec<int> Solver::getPtwNodes(Route& r, int ptwKind) {
 			}
 			pt = customers[pt].next;
 		}
-		//TODO[7]:�ǵ�ע�͵������
+		//TODO[7]:记得注释掉下面的
 		//if (pt != endNode) {
 		//	debug(pt);
 		//}
@@ -4883,7 +4883,7 @@ Vec<int> Solver::getPtwNodes(Route& r, int ptwKind) {
 		getPtwNodesByFirstPtw();
 	}
 	else if (ptwKind == 1) {
-		// TODO[1]: һ�����Լ��� �Ӻ���ǰ��last ��ǰ�����first
+		// TODO[1]: 一定可以加速 从后向前找last 从前向后找first
 		getPtwNodesByLastPtw();
 	}
 
@@ -5047,7 +5047,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 9) {
 
-		//exchangevvjvjjwwj(v, w); ������ v v+ v++ | w w+
+		//exchangevvjvjjwwj(v, w); 三换二 v v+ v++ | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5064,7 +5064,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 10) {
 
-		//exchangevvjvjjw(v, w); ����һ v v + v++ | w
+		//exchangevvjvjjw(v, w); 三换一 v v + v++ | w
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5079,7 +5079,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 
 	}
 	else if (t.kind == 11) {
-		//exchangevvjw(v, w); ����һ v v +  | w
+		//exchangevvjw(v, w); 二换一 v v +  | w
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5093,7 +5093,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 12) {
 
-		//exchangevwwj(v, w); һ���� v  | w w+
+		//exchangevwwj(v, w); 一换二 v  | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5108,7 +5108,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 13) {
 
-		//outrelocatevvjTowwj(v, w); ������ v v+  | w w+
+		//outrelocatevvjTowwj(v, w); 扔两个 v v+  | w w+
 
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
 		//int w_ = customers[w].pre > input.custCnt ? 0 : customers[w].pre;
@@ -6131,7 +6131,7 @@ bool Solver::squeeze() {
 
 void Solver::ruinClearEP(int kind) {
 
-	// �������ڵ��·�����������֮��ֻ������Щ·����costֵ
+	// 保存放入节点的路径，放入结束之后只更新这些路径的cost值
 	std::unordered_set<int> insRts;
 	Vec<int> EPArr = rPutCusInve(EPr);
 
@@ -6291,8 +6291,8 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 			++cusNumAfterbeg;
 		}
 		cusNumAfterbeg -= 1;
-		// ��beg��λ�������ǰ��ruinCusNumInRoute-1 ����
-		//// ��beg��λ��������ǰ��ruinCusNumInRoute - (cusNumAfterbeg + 1) ����
+		// 在beg的位置最多向前走ruinCusNumInRoute-1 步数
+		//// 在beg的位置至少向前走ruinCusNumInRoute - (cusNumAfterbeg + 1) 步数
 		int minStepFward = ruinCusNumInRoute - (cusNumAfterbeg + 1);
 		
 		int cusNumbegorebeg = r.rCustCnt - cusNumAfterbeg - 1;
@@ -6314,7 +6314,7 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 			pt = customers[pt].next;
 		}
 
-		// ��һ�γ�����(ruinCusNumInRoute - mputBack) / 2
+		// 第一段长度是(ruinCusNumInRoute - mputBack) / 2
 		int firstPartMax = (ruinCusNumInRoute - mputBack) / 2;
 		int firstPart = 0;
 		for (int i = 0; i < firstPartMax; ++i) {
@@ -6327,7 +6327,7 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 			pt = customers[pt].next;
 		}
 
-		//����mputBack��
+		//跳过mputBack个
 		for (int i = 0; i < mputBack; ++i) {
 			pt = customers[pt].next;
 		}
@@ -6350,7 +6350,7 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 		int n = r.rCustCnt;
 		int index = std::find(a.begin(), a.end(),beg) - a.begin();
 
-		//ruin m+t �� ��t���Ż���
+		//ruin m+t 个 把t个放回来
 
 		int ruinL = myRand->pick(1, ruinLmax + 1);
 
@@ -6571,7 +6571,7 @@ void Solver::perturbBasedejepool(int ruinCusNum) {
 	sumRtsPen();
 	bool isej = ejectLocalSearch();
 	if (isej) {
-		//TODO[-1]:����ȥ����
+		//TODO[-1]:这里去掉了
 		//reCalRtsCostAndPen();
 	}
 	else {
@@ -6643,8 +6643,8 @@ bool Solver::perturbBaseRuin(int perturbkind, int ruinCusNum,int clearEPKind) {
 	ruinCusNum = std::min<int>(ruinCusNum,input.custCnt / 2);
 
 	gamma = 1;
-	//TODO[4][1]:������ܿ���ȥ�������֮ǰÿһ��·����cost��ά���Ļ�
-	//TODO[4][2]:���ǽӵ��Ŷ�����Ͳ�̫����
+	//TODO[4][1]:这里可能可以去掉，如果之前每一条路径的cost都维护的话
+	//TODO[4][2]:但是接到扰动后面就不太行了
 	reCalRtsCostSumCost();
 
 	Solver pClone = *this;
@@ -6704,12 +6704,12 @@ bool Solver::perturbBaseRuin(int perturbkind, int ruinCusNum,int clearEPKind) {
 	return false;
 }
 
-//TODO[-1]:���ܰѽ���
+//TODO[-1]:可能把解变差
 int Solver::ruinLocalSearchNotNewR(int ruinCusNum) {
 
 	gamma = 1;
-	//TODO[4][1]:������ܿ���ȥ�������֮ǰÿһ��·����cost��ά���Ļ�
-	//TODO[4][2]:���ǽӵ��Ŷ�����Ͳ�̫����
+	//TODO[4][1]:这里可能可以去掉，如果之前每一条路径的cost都维护的话
+	//TODO[4][2]:但是接到扰动后面就不太行了
 	reCalRtsCostSumCost();
 
 	auto solclone = *this;
@@ -6870,7 +6870,7 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 		ruinCus = ruinGetRuinCusBySting(ruinKmax, Lmax);
 	}
 	else if(perturbkind==3){
-		// TODO[-1]:���ɾ��customers
+		// TODO[-1]:随机删除customers
 		ruinCus = ruinGetRuinCusByRand(ruinCusNum);
 	}
 	else if (perturbkind == 4) {
@@ -6917,7 +6917,7 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 		mRLLocalSearch(1, cuses);
 	}
 
-	//TODO[-1]:����ȥ����reCalRtsCostAndPen
+	//TODO[-1]:这里去掉了reCalRtsCostAndPen
 	//reCalRtsCostAndPen();
 
 	if (RoutesCost < solClone.RoutesCost) {
@@ -6927,7 +6927,7 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 	return true;
 }
 
-//0 ��ʾ������������·��1��ʾ����������·
+//0 表示不可以增加新路，1表示可以增加新路
 int Solver::Simulatedannealing(int kind,int iterMax, double temperature,int ruinNum) {
 
 	Solver pBest = *this;
@@ -7009,7 +7009,7 @@ bool Solver::patternAdjustment(int Irand) {
 			for (int i = 0; i < m; ++i) {
 				int wpos = ve[i];
 
-				//TODO[-1]:����ĳ���addSTclose
+				//TODO[-1]:这里改成了addSTclose
 				//int w = input.allCloseOf[v][wpos];
 				int w = input.addSTclose[v][wpos];
 				if (customers[w].routeID == -1
@@ -7293,7 +7293,7 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 		updateAvfromSubRoute(next);
 	};
 
-	// ʹ�ù�ʽ�� ����v��avp����Ptw
+	// 使用公式二 利用v的avp计算Ptw
 	auto getPtwUseEq2 = [&](int v) {
 
 		DisType avp = getAvpOf(v);
@@ -7333,7 +7333,7 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 			DisType avnp = customers[pre].av + input.datas[pre].serviceDuration + input.getDisof2(pre,next);
 			ptw = std::max<DisType>(0, avnp - customers[next].zv) + customers[next].TWX_ + customers[pre].TW_X;
 
-			if (customers[pre].TW_X > 0) { // ��֦ ɾ��ik֮�� ǰ���ʱ�䴰û������
+			if (customers[pre].TW_X > 0) { // 剪枝 删除ik之后 前面的时间窗没有消除
 				return etemp;
 			}
 
@@ -7410,8 +7410,8 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 
 			int delv = ptwArr[ve[k]];
 
-			// ������ͬ����Psum �ķ��� >
-			// ��������ͬ����Psum �ķ��� >=
+			// 考虑相同所有Psum 的方案 >
+			// 不考虑相同所有Psum 的方案 >=
 			while (etemp.Psum + input.P[delv] > noTabuN.Psum && ve[k] < N) {
 				++ve[k];
 				delv = ptwArr[ve[k]];
@@ -7440,8 +7440,8 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 
 			++ve[k];
 
-			// ������ͬ����Psum �ķ��� >
-			// ��������ͬ����Psum �ķ��� >=
+			// 考虑相同所有Psum 的方案 >
+			// 不考虑相同所有Psum 的方案 >=
 			if (etemp.Psum > noTabuN.Psum) {
 				;
 			}
@@ -7638,7 +7638,7 @@ bool Solver::EPNodesCanEasilyPut() {
 		int top = arr[EPIndex];
 
 		Position bestP = findBestPosInSol(top);
-		//TODO[0]:�������findBestPosInSolForInit
+		//TODO[0]:这里改了findBestPosInSolForInit
 		//Position bestP = findBestPosInSolForInit(top);
 
 		if (bestP.pen == 0) {
@@ -7699,7 +7699,7 @@ bool Solver::ejectLocalSearch() {
 			if (EpCusNoDown % 10000 == 0) {
 
 				//globalCfg->minKmax = 1;
-				// ���� minKmax ��1 2 ֮���л�
+				// 调整 minKmax 在1 2 之间切换
 				//globalCfg->minKmax = 3 - globalCfg->minKmax;
 				INFO("globalCfg->minKmax:", globalCfg->minKmax);
 			}
@@ -7715,7 +7715,7 @@ bool Solver::ejectLocalSearch() {
 		int top = EPrVe[myRand->pick(EPrVe.size())];
 
 		Position bestP = findBestPosInSol(top);
-		//TODO[0]:�������findBestPosInSolForInit
+		//TODO[0]:这里改了findBestPosInSolForInit
 		//Position bestP = findBestPosInSolForInit(top);
 
 		Route& r = rts[bestP.rIndex];
@@ -7886,7 +7886,7 @@ bool Solver::adjustRN(int ourTarget) {
 
 			int index = -1;
 			//int choseNum = 0;
-			//TODO[-1]:�����޸ĳ��˹˿�ƽ���������
+			//TODO[-1]:这里修改成了顾客平均间距最大的
 			for (int i = 0; i < rts.cnt; ++i) {
 				Route& ri = rts[i];
 
@@ -8031,7 +8031,7 @@ bool Solver::repair() {
 		if (contiNotDe > globalCfg->repairExitStep) {
 			break;
 		}
-		//TODO[2][repair]:�����޸���������������ôѡ
+		//TODO[2][repair]:这里修复的邻域动作究竟怎么选
 		TwoNodeMove bestM = getMovesRandomly(updateBestM);
 
 		if (bestM.deltPen.PcOnly + bestM.deltPen.PtwOnly > 0) {
@@ -8072,7 +8072,7 @@ bool Solver::repair() {
 			++contiNotDe;
 		}
 	}
-	//TODO[2][repair]:��ӡ�޸�����
+	//TODO[2][repair]:打印修复贡献
 	//printve(moveContribute);
 
 	reCalRtsCostAndPen();
@@ -8146,7 +8146,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 		MRLbestM.reSet();
 		bool isFind = false;
 
-		//TODO[lyh][-1]:��������������չ���������
+		//TODO[lyh][-1]:这里给邻域动作按照贡献排序了
 		std::sort(moveKindOrder.begin(), moveKindOrder.end(), [&](int a, int b) {
 			return contribution[a] > contribution[b];
 		});
@@ -8177,7 +8177,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 				int wpos = i;
 
-				//TODO[lyh][-1]:����ĳ���addSTclose
+				//TODO[lyh][-1]:这里改成了addSTclose
 				int w = input.addSTclose[v][wpos];
 
 				if (customers[w].routeID == -1) {
@@ -8283,7 +8283,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 		RoutesCost += bestM.deltPen.deltCost;
 
-		//TODO[lyh][-1]�����������������·����cost ���û�и��µ�cost��ֵ��bks
+		//TODO[lyh][-1]如果不更新下面两条路径的cost 会把没有更新的cost赋值给bks
 		rReCalRCost(rv);
 		rReCalRCost(rw);
 
