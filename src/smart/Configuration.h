@@ -36,7 +36,7 @@ struct Configuration {
 	int yearTabuLen = 10;
 	int yearTabuRand = 10;
 
-	// TODO[0]:çœ‹éœ€ä¸éœ€è¦é¢‘ç¹æ„é€  1000 stepC2_8_7 éœ€è¦20s C1_6_6 éœ€è¦6s
+	// TODO[0]:¿´Ğè²»ĞèÒªÆµ·±¹¹Ôì 1000 stepC2_8_7 ĞèÒª20s C1_6_6 ĞèÒª6s
 	int ejectLSMaxIter = 100;
 
 	//int yearTabuLen = 20;
@@ -44,7 +44,7 @@ struct Configuration {
 
 	int popSize = 4;
 	int popSizeMin = 4;
-	// TODO[lyh][config.h][-1]:popSizeMax åŸæ¥æ˜¯ 50;
+	// TODO[lyh][config.h][-1]:popSizeMax Ô­À´ÊÇ 50;
 	int popSizeMax = 5;
 	//int repairExitStep = 50;
 	int repairExitStep = 5;
@@ -56,12 +56,12 @@ struct Configuration {
 	int naEaxCh = 20;
 	//int naEaxCh = 20;
 
-	//patternAdjustmentå‚æ•°
+	//patternAdjustment²ÎÊı
 	int patternAdjustmentNnei = 60;
 	int patternAdjustmentGetM = 10;
 
 	// mRLLocalSearchRange
-	//TODO[-1]:è¿™é‡Œæ”¹æˆäº†40
+	//TODO[-1]:ÕâÀï¸Ä³ÉÁË40
 
 	double broaden = 1.2;
 	//int broadenWhenPos_0 = 50;
@@ -85,7 +85,7 @@ struct Configuration {
 	int ruinC_Max = 35;
 
 	int ruinWinkacRate = 90; // 100
-	//TODO[-1]:ä¸ºåˆå§‹åŒ–è®¾ç½®äº†çœ¨çœ¼
+	//TODO[-1]:Îª³õÊ¼»¯ÉèÖÃÁËÕ£ÑÛ
 	int initWinkacRate = 80; // 100
 	int abcyWinkacRate = 99; // 100
 

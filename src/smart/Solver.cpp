@@ -136,7 +136,7 @@ DisType Solver::rUpdatePc(Route& r) {
 
 bool Solver::rReset(Route& r) {
 
-	r.rCustCnt = 0; //æ²¡æœ‰è®¡ç®—ä»“åº“
+	r.rCustCnt = 0; //Ã»ÓĞ¼ÆËã²Ö¿â
 	//r.routeID = -1;
 	r.routeCost = 0;
 	r.rPc = 0;
@@ -797,7 +797,7 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 
 	Position ret;
 
-	// æƒ©ç½šæœ€å¤§çš„æ’åœ¨æœ€å‰é¢
+	// ³Í·£×î´óµÄÅÅÔÚ×îÇ°Ãæ
 	auto updatePool = [&](Position& pos) {
 
 		if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
@@ -808,7 +808,7 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 			else if (pos.pen == ret.pen) {
 
 				if (pos.cost < ret.cost) {
-					// TODO[8]:çœ¨çœ¼ç‡å¯ä»¥è°ƒ 5%åˆé€‚ï¼Ÿ
+					// TODO[8]:Õ£ÑÛÂÊ¿ÉÒÔµ÷ 5%ºÏÊÊ£¿
 					ret = pos;
 				}
 			}
@@ -862,7 +862,7 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 
 			rPtw = rPtw - oldrPtw;
 
-			//TODO[-1]:è¿™é‡Œçš„è·ç¦»è®¡ç®—æ–¹å¼æ”¹å˜äº†
+			//TODO[-1]:ÕâÀïµÄ¾àÀë¼ÆËã·½Ê½¸Ä±äÁË
 			DisType cost = input.getDisof2(v,w)
 				+ input.getDisof2(w,vj)
 				- input.getDisof2(v,vj);
@@ -903,7 +903,7 @@ bool Solver::initBySecOrder() {
 	int indexBeg = myRand->pick(input.custCnt);
 
 	//int indexBeg = 100;
-	// TODO[0]:initæ–¹å‘ï¼Œ+inupt.custCnt-1 ç›¸å½“äºåæ–¹å‘è½¬åŠ¨
+	// TODO[0]:init·½Ïò£¬+inupt.custCnt-1 Ïàµ±ÓÚ·´·½Ïò×ª¶¯
 	int deltstep = input.custCnt - 1;
 	if (myRand->pick(2) == 0) {
 		deltstep = 1;
@@ -1009,7 +1009,7 @@ bool Solver::initMaxRoute() {
 	Vec<int>que1(input.custCnt);
 	std::iota(que1.begin(), que1.end(), 1);
 	
-	//TODO[-1]:è¿™é‡Œçš„æ’åºï¼Œç°åœ¨æ˜¯ä¹±åº
+	//TODO[-1]:ÕâÀïµÄÅÅĞò£¬ÏÖÔÚÊÇÂÒĞò
 	//myRand->shuffleVec(que1);
 
 	auto cmp = [&](int x, int y) {
@@ -1096,7 +1096,7 @@ bool Solver::initByArr2(Vec < Vec<int>> arr2) {
 	return true;
 }
 
-bool Solver::initSolution(int kind) {//5ç§
+bool Solver::initSolution(int kind) {//5ÖÖ
 
 	if (kind == 0) {
 		initBySecOrder();
@@ -1131,7 +1131,7 @@ bool Solver::initSolution(int kind) {//5ç§
 bool Solver::EPrReset() {
 
 	Route& r = EPr;
-	r.rCustCnt = 0; //æ²¡æœ‰è®¡ç®—ä»“åº“
+	r.rCustCnt = 0; //Ã»ÓĞ¼ÆËã²Ö¿â
 	//r.routeID = -1;
 	r.routeCost = 0;
 	r.rPc = 0;
@@ -1215,7 +1215,7 @@ int Solver::EPrGetCusByIndex(int index) {
 }
 
 Solver::DeltPen Solver::estimatevw(int kind, int v, int w, int oneR) {
-	// TODO[move]:æŸ¥çœ‹é‚»åŸŸåŠ¨ä½œçš„ç¼–å·
+	// TODO[move]:²é¿´ÁÚÓò¶¯×÷µÄ±àºÅ
 	switch (kind) {
 	case 0:return _2optOpenvv_(v, w);
 	case 1:return _2optOpenvvj(v, w);
@@ -1871,7 +1871,7 @@ Solver::DeltPen Solver::outrelocatevTowwj(int v, int w, int oneR) { //3
 	return bestM;
 }
 
-//å¼€åŒºé—´(twbeginï¼Œtwend) twbeginï¼Œtwendçš„å„é¡¹å€¼éƒ½æ˜¯å¯é çš„ï¼Œå¼€åŒºé—´ä¸­é—´çš„ç‚¹å¯ä»¥å˜åŒ– twbeginï¼Œtwendå¯ä»¥æ˜¯ä»“åº“ 
+//¿ªÇø¼ä(twbegin£¬twend) twbegin£¬twendµÄ¸÷ÏîÖµ¶¼ÊÇ¿É¿¿µÄ£¬¿ªÇø¼äÖĞ¼äµÄµã¿ÉÒÔ±ä»¯ twbegin£¬twend¿ÉÒÔÊÇ²Ö¿â 
 DisType Solver::getaRangeOffPtw(int twbegin, int twend) {
 
 	DisType newwvPtw = customers[twbegin].TW_X;
@@ -2435,7 +2435,7 @@ Solver::DeltPen Solver::exchangevwj(int v, int w, int oneR) { // 7
 	return exchangevw(v, wj, oneR);
 }
 
-Solver::DeltPen Solver::exchangevvjw(int v, int w, int oneR) { //11 2æ¢1
+Solver::DeltPen Solver::exchangevvjw(int v, int w, int oneR) { //11 2»»1
 
 	// exchange vvj and (w)
 
@@ -2666,7 +2666,7 @@ Solver::DeltPen Solver::exchangevvjw(int v, int w, int oneR) { //11 2æ¢1
 	return bestM;
 }
 
-Solver::DeltPen Solver::exchangevwwj(int v, int w, int oneR) { // 12 1æ¢2
+Solver::DeltPen Solver::exchangevwwj(int v, int w, int oneR) { // 12 1»»2
 
 	// exchange v and (ww+)
 	DeltPen bestM;
@@ -2680,7 +2680,7 @@ Solver::DeltPen Solver::exchangevwwj(int v, int w, int oneR) { // 12 1æ¢2
 
 }
 
-Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3æ¢2
+Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3»»2
 
 	// exchange vvjvjj and (ww+)
 	DeltPen bestM;
@@ -2965,7 +2965,7 @@ Solver::DeltPen Solver::exchangevvjvjjwwj(int v, int w, int oneR) { // 9 3æ¢2
 	return bestM;
 }
 
-Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 ä¸‰æ¢ä¸€
+Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 Èı»»Ò»
 
 	// exchange vvjvjj and (w)
 	Route& rv = rts.getRouteByRid(customers[v].routeID);
@@ -3222,7 +3222,7 @@ Solver::DeltPen Solver::exchangevvjvjjw(int v, int w, int oneR) { // 10 ä¸‰æ¢ä¸
 	return bestM;
 }
 
-Solver::DeltPen Solver::outrelocatevvjTowwj(int v, int w, int oneR) {  //13 æ‰”ä¸¤ä¸ª
+Solver::DeltPen Solver::outrelocatevvjTowwj(int v, int w, int oneR) {  //13 ÈÓÁ½¸ö
 
 	DeltPen bestM;
 
@@ -3386,7 +3386,7 @@ Solver::DeltPen Solver::outrelocatevvjTowwj(int v, int w, int oneR) {  //13 æ‰”ä
 	return bestM;
 }
 
-Solver::DeltPen Solver::outrelocatevv_Toww_(int v, int w, int oneR) {  //14 æ‰”ä¸¤ä¸ªå·¦è¾¹
+Solver::DeltPen Solver::outrelocatevv_Toww_(int v, int w, int oneR) {  //14 ÈÓÁ½¸ö×ó±ß
 
 	DeltPen bestM;
 
@@ -3411,7 +3411,7 @@ Solver::DeltPen Solver::outrelocatevv_Toww_(int v, int w, int oneR) {  //14 æ‰”ä
 
 }
 
-Solver::DeltPen Solver::reversevw(int v, int w) { //15 ç¿»è½¬
+Solver::DeltPen Solver::reversevw(int v, int w) { //15 ·­×ª
 
 	DeltPen bestM;
 
@@ -4058,7 +4058,7 @@ bool Solver::exchange(TwoNodeMove& M) {
 	}
 	else if (M.kind == 9) {
 
-		//exchangevvjvjjwwj 3æ¢2
+		//exchangevvjvjjwwj 3»»2
 		int wj = customers[w].next;
 		int vj = customers[v].next;
 		int vjj = customers[vj].next;
@@ -4132,7 +4132,7 @@ bool Solver::exchange(TwoNodeMove& M) {
 	}
 	else if (M.kind == 10) {
 
-		//exchangevvjvjjw 3æ¢1
+		//exchangevvjvjjw 3»»1
 		int v_ = customers[v].pre;
 		int vj = customers[v].next;
 		int vjj = customers[vj].next;
@@ -4198,7 +4198,7 @@ bool Solver::exchange(TwoNodeMove& M) {
 		}
 	}
 	else if (M.kind == 11) {
-		//exchangevvjw 2æ¢1
+		//exchangevvjw 2»»1
 		int v_ = customers[v].pre;
 		int vj = customers[v].next;
 		int w_ = customers[w].pre;
@@ -4573,7 +4573,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 9) {
 
-		//exchangevvjvjjwwj(v, w); ä¸‰æ¢äºŒ v v+ v++ | w w+
+		//exchangevvjvjjwwj(v, w); Èı»»¶ş v v+ v++ | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -4593,7 +4593,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 10) {
 
-		//exchangevvjvjjw(v, w); ä¸‰æ¢ä¸€ v v+ v++ | w
+		//exchangevvjvjjw(v, w); Èı»»Ò» v v+ v++ | w
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -4610,7 +4610,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 
 	}
 	else if (t.kind == 11) {
-		//exchangevvjw(v, w); äºŒæ¢ä¸€ v v +  | w
+		//exchangevvjw(v, w); ¶ş»»Ò» v v +  | w
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
 		int vjj = customers[vj].next > input.custCnt ? 0 : customers[vj].next;
@@ -4626,7 +4626,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 12) {
 
-		//exchangevwwj(v, w); ä¸€æ¢äºŒ v  | w w+
+		//exchangevwwj(v, w); Ò»»»¶ş v  | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -4643,7 +4643,7 @@ bool Solver::updateYearTable(TwoNodeMove& t) {
 	}
 	else if (t.kind == 13) {
 
-		//outrelocatevvjTowwj(v, w); æ‰”ä¸¤ä¸ª v v+  | w w+
+		//outrelocatevvjTowwj(v, w); ÈÓÁ½¸ö v v+  | w w+
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
 		int vjj = customers[vj].next > input.custCnt ? 0 : customers[vj].next;
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
@@ -4816,7 +4816,7 @@ Vec<int> Solver::getPtwNodes(Route& r, int ptwKind) {
 			}
 			pt = customers[pt].next;
 		}
-		//TODO[7]:è®°å¾—æ³¨é‡Šæ‰ä¸‹é¢çš„
+		//TODO[7]:¼ÇµÃ×¢ÊÍµôÏÂÃæµÄ
 		//if (pt != endNode) {
 		//	debug(pt);
 		//}
@@ -4883,7 +4883,7 @@ Vec<int> Solver::getPtwNodes(Route& r, int ptwKind) {
 		getPtwNodesByFirstPtw();
 	}
 	else if (ptwKind == 1) {
-		// TODO[1]: ä¸€å®šå¯ä»¥åŠ é€Ÿ ä»åå‘å‰æ‰¾last ä»å‰å‘åæ‰¾first
+		// TODO[1]: Ò»¶¨¿ÉÒÔ¼ÓËÙ ´ÓºóÏòÇ°ÕÒlast ´ÓÇ°ÏòºóÕÒfirst
 		getPtwNodesByLastPtw();
 	}
 
@@ -5047,7 +5047,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 9) {
 
-		//exchangevvjvjjwwj(v, w); ä¸‰æ¢äºŒ v v+ v++ | w w+
+		//exchangevvjvjjwwj(v, w); Èı»»¶ş v v+ v++ | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5064,7 +5064,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 10) {
 
-		//exchangevvjvjjw(v, w); ä¸‰æ¢ä¸€ v v + v++ | w
+		//exchangevvjvjjw(v, w); Èı»»Ò» v v + v++ | w
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5079,7 +5079,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 
 	}
 	else if (t.kind == 11) {
-		//exchangevvjw(v, w); äºŒæ¢ä¸€ v v +  | w
+		//exchangevvjw(v, w); ¶ş»»Ò» v v +  | w
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5093,7 +5093,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 12) {
 
-		//exchangevwwj(v, w); ä¸€æ¢äºŒ v  | w w+
+		//exchangevwwj(v, w); Ò»»»¶ş v  | w w+
 
 		int v_ = customers[v].pre > input.custCnt ? 0 : customers[v].pre;
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
@@ -5108,7 +5108,7 @@ LL Solver::getYearOfMove(TwoNodeMove& t) {
 	}
 	else if (t.kind == 13) {
 
-		//outrelocatevvjTowwj(v, w); æ‰”ä¸¤ä¸ª v v+  | w w+
+		//outrelocatevvjTowwj(v, w); ÈÓÁ½¸ö v v+  | w w+
 
 		int vj = customers[v].next > input.custCnt ? 0 : customers[v].next;
 		//int w_ = customers[w].pre > input.custCnt ? 0 : customers[w].pre;
@@ -6131,7 +6131,7 @@ bool Solver::squeeze() {
 
 void Solver::ruinClearEP(int kind) {
 
-	// ä¿å­˜æ”¾å…¥èŠ‚ç‚¹çš„è·¯å¾„ï¼Œæ”¾å…¥ç»“æŸä¹‹ååªæ›´æ–°è¿™äº›è·¯å¾„çš„costå€¼
+	// ±£´æ·ÅÈë½ÚµãµÄÂ·¾¶£¬·ÅÈë½áÊøÖ®ºóÖ»¸üĞÂÕâĞ©Â·¾¶µÄcostÖµ
 	std::unordered_set<int> insRts;
 	Vec<int> EPArr = rPutCusInve(EPr);
 
@@ -6291,8 +6291,8 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 			++cusNumAfterbeg;
 		}
 		cusNumAfterbeg -= 1;
-		// åœ¨begçš„ä½ç½®æœ€å¤šå‘å‰èµ°ruinCusNumInRoute-1 æ­¥æ•°
-		//// åœ¨begçš„ä½ç½®è‡³å°‘å‘å‰èµ°ruinCusNumInRoute - (cusNumAfterbeg + 1) æ­¥æ•°
+		// ÔÚbegµÄÎ»ÖÃ×î¶àÏòÇ°×ßruinCusNumInRoute-1 ²½Êı
+		//// ÔÚbegµÄÎ»ÖÃÖÁÉÙÏòÇ°×ßruinCusNumInRoute - (cusNumAfterbeg + 1) ²½Êı
 		int minStepFward = ruinCusNumInRoute - (cusNumAfterbeg + 1);
 		
 		int cusNumbegorebeg = r.rCustCnt - cusNumAfterbeg - 1;
@@ -6314,7 +6314,7 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 			pt = customers[pt].next;
 		}
 
-		// ç¬¬ä¸€æ®µé•¿åº¦æ˜¯(ruinCusNumInRoute - mputBack) / 2
+		// µÚÒ»¶Î³¤¶ÈÊÇ(ruinCusNumInRoute - mputBack) / 2
 		int firstPartMax = (ruinCusNumInRoute - mputBack) / 2;
 		int firstPart = 0;
 		for (int i = 0; i < firstPartMax; ++i) {
@@ -6327,7 +6327,7 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 			pt = customers[pt].next;
 		}
 
-		//è·³è¿‡mputBackä¸ª
+		//Ìø¹ımputBack¸ö
 		for (int i = 0; i < mputBack; ++i) {
 			pt = customers[pt].next;
 		}
@@ -6350,7 +6350,7 @@ Vec<int> Solver::ruinGetRuinCusBySting(int ruinKmax, int ruinLmax) {
 		int n = r.rCustCnt;
 		int index = std::find(a.begin(), a.end(),beg) - a.begin();
 
-		//ruin m+t ä¸ª æŠŠtä¸ªæ”¾å›æ¥
+		//ruin m+t ¸ö °Ñt¸ö·Å»ØÀ´
 
 		int ruinL = myRand->pick(1, ruinLmax + 1);
 
@@ -6571,7 +6571,7 @@ void Solver::perturbBasedejepool(int ruinCusNum) {
 	sumRtsPen();
 	bool isej = ejectLocalSearch();
 	if (isej) {
-		//TODO[-1]:è¿™é‡Œå»æ‰äº†
+		//TODO[-1]:ÕâÀïÈ¥µôÁË
 		//reCalRtsCostAndPen();
 	}
 	else {
@@ -6643,8 +6643,8 @@ bool Solver::perturbBaseRuin(int perturbkind, int ruinCusNum,int clearEPKind) {
 	ruinCusNum = std::min<int>(ruinCusNum,input.custCnt / 2);
 
 	gamma = 1;
-	//TODO[4][1]:è¿™é‡Œå¯èƒ½å¯ä»¥å»æ‰ï¼Œå¦‚æœä¹‹å‰æ¯ä¸€æ¡è·¯å¾„çš„costéƒ½ç»´æŠ¤çš„è¯
-	//TODO[4][2]:ä½†æ˜¯æ¥åˆ°æ‰°åŠ¨åé¢å°±ä¸å¤ªè¡Œäº†
+	//TODO[4][1]:ÕâÀï¿ÉÄÜ¿ÉÒÔÈ¥µô£¬Èç¹ûÖ®Ç°Ã¿Ò»ÌõÂ·¾¶µÄcost¶¼Î¬»¤µÄ»°
+	//TODO[4][2]:µ«ÊÇ½Óµ½ÈÅ¶¯ºóÃæ¾Í²»Ì«ĞĞÁË
 	reCalRtsCostSumCost();
 
 	Solver pClone = *this;
@@ -6704,12 +6704,12 @@ bool Solver::perturbBaseRuin(int perturbkind, int ruinCusNum,int clearEPKind) {
 	return false;
 }
 
-//TODO[-1]:å¯èƒ½æŠŠè§£å˜å·®
+//TODO[-1]:¿ÉÄÜ°Ñ½â±ä²î
 int Solver::ruinLocalSearchNotNewR(int ruinCusNum) {
 
 	gamma = 1;
-	//TODO[4][1]:è¿™é‡Œå¯èƒ½å¯ä»¥å»æ‰ï¼Œå¦‚æœä¹‹å‰æ¯ä¸€æ¡è·¯å¾„çš„costéƒ½ç»´æŠ¤çš„è¯
-	//TODO[4][2]:ä½†æ˜¯æ¥åˆ°æ‰°åŠ¨åé¢å°±ä¸å¤ªè¡Œäº†
+	//TODO[4][1]:ÕâÀï¿ÉÄÜ¿ÉÒÔÈ¥µô£¬Èç¹ûÖ®Ç°Ã¿Ò»ÌõÂ·¾¶µÄcost¶¼Î¬»¤µÄ»°
+	//TODO[4][2]:µ«ÊÇ½Óµ½ÈÅ¶¯ºóÃæ¾Í²»Ì«ĞĞÁË
 	reCalRtsCostSumCost();
 
 	auto solclone = *this;
@@ -6870,7 +6870,7 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 		ruinCus = ruinGetRuinCusBySting(ruinKmax, Lmax);
 	}
 	else if(perturbkind==3){
-		// TODO[-1]:éšæœºåˆ é™¤customers
+		// TODO[-1]:Ëæ»úÉ¾³ıcustomers
 		ruinCus = ruinGetRuinCusByRand(ruinCusNum);
 	}
 	else if (perturbkind == 4) {
@@ -6917,7 +6917,7 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 		mRLLocalSearch(1, cuses);
 	}
 
-	//TODO[-1]:è¿™é‡Œå»æ‰äº†reCalRtsCostAndPen
+	//TODO[-1]:ÕâÀïÈ¥µôÁËreCalRtsCostAndPen
 	//reCalRtsCostAndPen();
 
 	if (RoutesCost < solClone.RoutesCost) {
@@ -6927,7 +6927,7 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 	return true;
 }
 
-//0 è¡¨ç¤ºä¸å¯ä»¥å¢åŠ æ–°è·¯ï¼Œ1è¡¨ç¤ºå¯ä»¥å¢åŠ æ–°è·¯
+//0 ±íÊ¾²»¿ÉÒÔÔö¼ÓĞÂÂ·£¬1±íÊ¾¿ÉÒÔÔö¼ÓĞÂÂ·
 int Solver::Simulatedannealing(int kind,int iterMax, double temperature,int ruinNum) {
 
 	Solver pBest = *this;
@@ -7009,7 +7009,7 @@ bool Solver::patternAdjustment(int Irand) {
 			for (int i = 0; i < m; ++i) {
 				int wpos = ve[i];
 
-				//TODO[-1]:è¿™é‡Œæ”¹æˆäº†addSTclose
+				//TODO[-1]:ÕâÀï¸Ä³ÉÁËaddSTclose
 				//int w = input.allCloseOf[v][wpos];
 				int w = input.addSTclose[v][wpos];
 				if (customers[w].routeID == -1
@@ -7293,7 +7293,7 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 		updateAvfromSubRoute(next);
 	};
 
-	// ä½¿ç”¨å…¬å¼äºŒ åˆ©ç”¨vçš„avpè®¡ç®—Ptw
+	// Ê¹ÓÃ¹«Ê½¶ş ÀûÓÃvµÄavp¼ÆËãPtw
 	auto getPtwUseEq2 = [&](int v) {
 
 		DisType avp = getAvpOf(v);
@@ -7333,7 +7333,7 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 			DisType avnp = customers[pre].av + input.datas[pre].serviceDuration + input.getDisof2(pre,next);
 			ptw = std::max<DisType>(0, avnp - customers[next].zv) + customers[next].TWX_ + customers[pre].TW_X;
 
-			if (customers[pre].TW_X > 0) { // å‰ªæ åˆ é™¤ikä¹‹å å‰é¢çš„æ—¶é—´çª—æ²¡æœ‰æ¶ˆé™¤
+			if (customers[pre].TW_X > 0) { // ¼ôÖ¦ É¾³ıikÖ®ºó Ç°ÃæµÄÊ±¼ä´°Ã»ÓĞÏû³ı
 				return etemp;
 			}
 
@@ -7410,8 +7410,8 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 
 			int delv = ptwArr[ve[k]];
 
-			// è€ƒè™‘ç›¸åŒæ‰€æœ‰Psum çš„æ–¹æ¡ˆ >
-			// ä¸è€ƒè™‘ç›¸åŒæ‰€æœ‰Psum çš„æ–¹æ¡ˆ >=
+			// ¿¼ÂÇÏàÍ¬ËùÓĞPsum µÄ·½°¸ >
+			// ²»¿¼ÂÇÏàÍ¬ËùÓĞPsum µÄ·½°¸ >=
 			while (etemp.Psum + input.P[delv] > noTabuN.Psum && ve[k] < N) {
 				++ve[k];
 				delv = ptwArr[ve[k]];
@@ -7440,8 +7440,8 @@ Solver::eOneRNode Solver::ejectOneRouteOnlyP(Route& r, int kind, int Kmax) {
 
 			++ve[k];
 
-			// è€ƒè™‘ç›¸åŒæ‰€æœ‰Psum çš„æ–¹æ¡ˆ >
-			// ä¸è€ƒè™‘ç›¸åŒæ‰€æœ‰Psum çš„æ–¹æ¡ˆ >=
+			// ¿¼ÂÇÏàÍ¬ËùÓĞPsum µÄ·½°¸ >
+			// ²»¿¼ÂÇÏàÍ¬ËùÓĞPsum µÄ·½°¸ >=
 			if (etemp.Psum > noTabuN.Psum) {
 				;
 			}
@@ -7638,7 +7638,7 @@ bool Solver::EPNodesCanEasilyPut() {
 		int top = arr[EPIndex];
 
 		Position bestP = findBestPosInSol(top);
-		//TODO[0]:è¿™é‡Œæ”¹äº†findBestPosInSolForInit
+		//TODO[0]:ÕâÀï¸ÄÁËfindBestPosInSolForInit
 		//Position bestP = findBestPosInSolForInit(top);
 
 		if (bestP.pen == 0) {
@@ -7699,7 +7699,7 @@ bool Solver::ejectLocalSearch() {
 			if (EpCusNoDown % 10000 == 0) {
 
 				//globalCfg->minKmax = 1;
-				// è°ƒæ•´ minKmax åœ¨1 2 ä¹‹é—´åˆ‡æ¢
+				// µ÷Õû minKmax ÔÚ1 2 Ö®¼äÇĞ»»
 				//globalCfg->minKmax = 3 - globalCfg->minKmax;
 				INFO("globalCfg->minKmax:", globalCfg->minKmax);
 			}
@@ -7715,7 +7715,7 @@ bool Solver::ejectLocalSearch() {
 		int top = EPrVe[myRand->pick(EPrVe.size())];
 
 		Position bestP = findBestPosInSol(top);
-		//TODO[0]:è¿™é‡Œæ”¹äº†findBestPosInSolForInit
+		//TODO[0]:ÕâÀï¸ÄÁËfindBestPosInSolForInit
 		//Position bestP = findBestPosInSolForInit(top);
 
 		Route& r = rts[bestP.rIndex];
@@ -7886,7 +7886,7 @@ bool Solver::adjustRN(int ourTarget) {
 
 			int index = -1;
 			//int choseNum = 0;
-			//TODO[-1]:è¿™é‡Œä¿®æ”¹æˆäº†é¡¾å®¢å¹³å‡é—´è·æœ€å¤§çš„
+			//TODO[-1]:ÕâÀïĞŞ¸Ä³ÉÁË¹Ë¿ÍÆ½¾ù¼ä¾à×î´óµÄ
 			for (int i = 0; i < rts.cnt; ++i) {
 				Route& ri = rts[i];
 
@@ -8031,7 +8031,7 @@ bool Solver::repair() {
 		if (contiNotDe > globalCfg->repairExitStep) {
 			break;
 		}
-		//TODO[2][repair]:è¿™é‡Œä¿®å¤çš„é‚»åŸŸåŠ¨ä½œç©¶ç«Ÿæ€ä¹ˆé€‰
+		//TODO[2][repair]:ÕâÀïĞŞ¸´µÄÁÚÓò¶¯×÷¾¿¾¹ÔõÃ´Ñ¡
 		TwoNodeMove bestM = getMovesRandomly(updateBestM);
 
 		if (bestM.deltPen.PcOnly + bestM.deltPen.PtwOnly > 0) {
@@ -8072,7 +8072,7 @@ bool Solver::repair() {
 			++contiNotDe;
 		}
 	}
-	//TODO[2][repair]:æ‰“å°ä¿®å¤è´¡çŒ®
+	//TODO[2][repair]:´òÓ¡ĞŞ¸´¹±Ï×
 	//printve(moveContribute);
 
 	reCalRtsCostAndPen();
@@ -8146,7 +8146,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 		MRLbestM.reSet();
 		bool isFind = false;
 
-		//TODO[lyh][-1]:è¿™é‡Œç»™é‚»åŸŸåŠ¨ä½œæŒ‰ç…§è´¡çŒ®æ’åºäº†
+		//TODO[lyh][-1]:ÕâÀï¸øÁÚÓò¶¯×÷°´ÕÕ¹±Ï×ÅÅĞòÁË
 		std::sort(moveKindOrder.begin(), moveKindOrder.end(), [&](int a, int b) {
 			return contribution[a] > contribution[b];
 		});
@@ -8177,7 +8177,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 				int wpos = i;
 
-				//TODO[lyh][-1]:è¿™é‡Œæ”¹æˆäº†addSTclose
+				//TODO[lyh][-1]:ÕâÀï¸Ä³ÉÁËaddSTclose
 				int w = input.addSTclose[v][wpos];
 
 				if (customers[w].routeID == -1) {
@@ -8283,7 +8283,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 		RoutesCost += bestM.deltPen.deltCost;
 
-		//TODO[lyh][-1]å¦‚æœä¸æ›´æ–°ä¸‹é¢ä¸¤æ¡è·¯å¾„çš„cost ä¼šæŠŠæ²¡æœ‰æ›´æ–°çš„costèµ‹å€¼ç»™bks
+		//TODO[lyh][-1]Èç¹û²»¸üĞÂÏÂÃæÁ½ÌõÂ·¾¶µÄcost »á°ÑÃ»ÓĞ¸üĞÂµÄcost¸³Öµ¸øbks
 		rReCalRCost(rv);
 		rReCalRCost(rw);
 
@@ -8333,7 +8333,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 	}
 
-	//TODO[lyh][5]:ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â±ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ğ¸ï¿½ï¿½ï¿½Ã¿Ò»ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½routeCost
+	//TODO[lyh][5]:??????¡À????? ???????????????§Ú???????¡¤????routeCost
 	sumRtsCost();
 	//auto rc = RoutesCost;
 	//reCalRtsCostSumCost();

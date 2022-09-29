@@ -22,7 +22,7 @@ DisType Goal::getMinRtCostInPool(int rn) {
 
 DisType Goal::doTwoKindEAX(Solver& pa, Solver& pb, int kind) {
 
-	int retState = 0; // 0 è¡¨ç¤ºæ²¡æœ‰æˆåŠŸæ›´æ–°æœ€ä¼˜è§£ï¼Œ1è¡¨ç¤ºæ›´æ–°äº†æœ€ä¼˜è§£ -1è¡¨ç¤ºè¿™ä¸¤ä¸ªè§£æ— æ³•è¿›è¡Œeax
+	int retState = 0; // 0 ±íÊ¾Ã»ÓĞ³É¹¦¸üĞÂ×îÓÅ½â£¬1±íÊ¾¸üĞÂÁË×îÓÅ½â -1±íÊ¾ÕâÁ½¸ö½âÎŞ·¨½øĞĞeax
 
 	EAX eax(pa, pb);
 	eax.generateCycles();
@@ -122,7 +122,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 	bool isPerOnePerson = false;
 	for (int i = 0; i < 10; ++i) {
 
-		//å°è¯•ä½¿ç”¨ 100åº¦çš„æ¨¡æ‹Ÿé€€ç«è¿›è¡Œæ‰°åŠ¨
+		//³¢ÊÔÊ¹ÓÃ 100¶ÈµÄÄ£ÄâÍË»ğ½øĞĞÈÅ¶¯
 		//sclone.Simulatedannealing(0,100,100.0,globalCfg->ruinC_);
 		
 		if (myRand->pick(2)==0) {
@@ -151,7 +151,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 	return isPerOnePerson;
 }
 
-int Goal::naMA(int rn) { // 1 ä»£è¡¨æ›´æ–°äº†æœ€ä¼˜è§£ 0è¡¨ç¤ºæ²¡æœ‰
+int Goal::naMA(int rn) { // 1 ´ú±í¸üĞÂÁË×îÓÅ½â 0±íÊ¾Ã»ÓĞ
 
 	auto& pool = ppool[rn];
 
@@ -160,7 +160,7 @@ int Goal::naMA(int rn) { // 1 ä»£è¡¨æ›´æ–°äº†æœ€ä¼˜è§£ 0è¡¨ç¤ºæ²¡æœ‰
 
 	DisType bestSolInPool = getMinRtCostInPool(curSearchRN);
 
-	//TODO[-1]:naMAè¿™é‡Œæ”¹10äº†
+	//TODO[-1]:naMAÕâÀï¸Ä10ÁË
 	for (int ct = 0; ct < 10; ct++) {
 		myRand->shuffleVec(ords);
 		for (int i = 0; i < globalCfg->popSize; ++i) {
@@ -190,7 +190,7 @@ int Goal::naMA(int rn) { // 1 ä»£è¡¨æ›´æ–°äº†æœ€ä¼˜è§£ 0è¡¨ç¤ºæ²¡æœ‰
 		}
 	}
 
-	//TODO[-1]:naMAè¿™é‡Œæ”¹10äº†
+	//TODO[-1]:naMAÕâÀï¸Ä10ÁË
 	bestSolInPool = getMinRtCostInPool(curSearchRN);
 	for (int ct = 0; ct < 10; ct++) {
 		myRand->shuffleVec(ords);
@@ -235,7 +235,7 @@ int Goal::gotoRNPop(int rn) {
 		throw std::string(LYH_FILELINEADDS("rn > poprnUpBound || rn < poprnLowBound"));
 	}
 
-	//TODO[0]:Lmaxå’ŒruinLmaxçš„å®šä¹‰
+	//TODO[0]:LmaxºÍruinLmaxµÄ¶¨Òå
 	globalCfg->ruinLmax = globalInput->custCnt / rn;
 	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1)/2;
 	//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
@@ -244,7 +244,7 @@ int Goal::gotoRNPop(int rn) {
 
 	auto& pool = ppool[rn];
 
-	if (rn == poprnLowBound) { //rå¦‚æœæ˜¯
+	if (rn == poprnLowBound) { //rÈç¹ûÊÇ
 		return rn;
 	}
 
@@ -255,7 +255,7 @@ int Goal::gotoRNPop(int rn) {
 
 		bool isAdj = false;
 
-		//TODO[-1]:ä»åˆšæ‰æœç´¢çš„ä½ç½®è·³
+		//TODO[-1]:´Ó¸Õ²ÅËÑË÷µÄÎ»ÖÃÌø
 		int downRn = -1;
 		DisType minRc = DisInf;
 		
@@ -441,7 +441,7 @@ void Goal::getTheRangeMostHope() {
 			//poolt[i].mRLLocalSearch(0, {});
 			globalCfg->ruinLmax = globalInput->custCnt / poolt[i].rts.cnt;
 			//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
-			// TODO[lyh][Goal][-1]:è¿™é‡Œè®°å¾—è¿˜åŸæ³¨é‡Š
+			// TODO[lyh][Goal][-1]:ÕâÀï¼ÇµÃ»¹Ô­×¢ÊÍ
 			//poolt[i].Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
 			updateppol(poolt[i], i);
 		}
@@ -492,7 +492,7 @@ void Goal::getTheRangeMostHope() {
 	poprnUpBound = std::max<int>(poprnUpBound,bks->bestSolFound.rts.cnt);
 	poprnLowBound = std::min<int>(poprnLowBound,bks->bestSolFound.rts.cnt);
 
-	//TODO[-1]:è¿™ä¸ªå¾ˆé‡è¦ è€ƒè™‘äº†vehicleCntï¼ï¼ï¼
+	//TODO[-1]:Õâ¸öºÜÖØÒª ¿¼ÂÇÁËvehicleCnt£¡£¡£¡
 	poprnUpBound = std::min<int>(poprnUpBound, globalInput->vehicleCnt);
 
 	INFO("poprnLowBound:",poprnLowBound,"poprnUpBound:", poprnUpBound);
@@ -506,7 +506,7 @@ void Goal::getTheRangeMostHope() {
 		fillPopulation(rn);
 	}
 
-	// æ‰€æœ‰è§£
+	// ËùÓĞ½â
 	for (int popIndex = 0;popIndex< globalCfg->popSizeMax;++popIndex) {
 		auto& deorsoles = soles[popIndex];
 		for (auto& sol : deorsoles) {

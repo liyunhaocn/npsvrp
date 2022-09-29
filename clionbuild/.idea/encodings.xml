@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding" defaultCharsetForPropertiesFiles="GBK" addBOMForNewFiles="with BOM">
-    <file url="file://$PROJECT_DIR$/src/hgs/Population.cpp" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../src/main.cpp" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/../src/smart/Solver.cpp" charset="GBK" />
     <file url="PROJECT" charset="GBK" />
   </component>
 </project>

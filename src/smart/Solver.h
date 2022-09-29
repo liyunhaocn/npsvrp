@@ -19,7 +19,7 @@ struct Route {
 public:
 
 	int routeID = -1;
-	int rCustCnt = 0; //æ²¡æœ‰è®¡ç®—ä»“åº“
+	int rCustCnt = 0; //Ã»ÓĞ¼ÆËã²Ö¿â
 	DisType rQ = 0;
 	int head = -1;
 	int tail = -1;
@@ -32,7 +32,7 @@ public:
 	Route() {
 
 		routeID = -1;
-		rCustCnt = 0; //æ²¡æœ‰è®¡ç®—ä»“åº“
+		rCustCnt = 0; //Ã»ÓĞ¼ÆËã²Ö¿â
 		rQ = 0;
 		head = -1;
 		tail = -1;
@@ -62,7 +62,7 @@ public:
 	Route(int rid) {
 
 		this->routeID = rid;
-		this->rCustCnt = 0; //æ²¡æœ‰è®¡ç®—ä»“åº“
+		this->rCustCnt = 0; //Ã»ÓĞ¼ÆËã²Ö¿â
 		this->head = -1;
 		this->tail = -1;
 		this->rQ = 0;
@@ -638,7 +638,7 @@ public:
 	DeltPen outrelocatevTowwj(int v, int w, int oneR);
 
 	int getFrontofTwoCus(int v, int w);
-	//å¼€åŒºé—´(twbeginï¼Œtwend) twbeginï¼Œtwendçš„å„é¡¹å€¼éƒ½æ˜¯å¯é çš„ï¼Œå¼€åŒºé—´ä¸­é—´çš„ç‚¹å¯ä»¥å˜åŒ– twbeginï¼Œtwendå¯ä»¥æ˜¯ä»“åº“ 
+	//¿ªÇø¼ä(twbegin£¬twend) twbegin£¬twendµÄ¸÷ÏîÖµ¶¼ÊÇ¿É¿¿µÄ£¬¿ªÇø¼äÖĞ¼äµÄµã¿ÉÒÔ±ä»¯ twbegin£¬twend¿ÉÒÔÊÇ²Ö¿â 
 	DisType getaRangeOffPtw(int twbegin, int twend);
 
 	DeltPen inrelocatevv_(int v, int w, int oneR);

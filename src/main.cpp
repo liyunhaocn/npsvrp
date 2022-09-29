@@ -34,7 +34,7 @@ namespace hust {
 
 		globalCfg->show();
 
-		// TODO[lyh][0]:ä¸€å®šè¦è®°å¾—globalCfgç”¨cusCntåˆæ³•åŒ–ä¸€ä¸‹
+		// TODO[lyh][0]:Ò»¶¨Òª¼ÇµÃglobalCfgÓÃcusCntºÏ·¨»¯Ò»ÏÂ
 		globalCfg->repairByCusCnt(globalInput->custCnt);
 
 		yearTable = new hust::util::Array2D<int>(globalInput->custCnt + 1, globalInput->custCnt + 1, 0);
