@@ -98,8 +98,10 @@ Route Solver::rCreateRoute(int id) {
 	r.head = index;
 	r.tail = index + 1;
 
+	customers[r.head].pre = -1;
 	customers[r.head].next = r.tail;
 	customers[r.tail].pre = r.head;
+	customers[r.tail].next = -1;
 
 	customers[r.head].routeID = id;
 	customers[r.tail].routeID = id;
@@ -1106,14 +1108,15 @@ bool Solver::initSolution(int kind) {//5种
 bool Solver::loadSolutionByArr2D(Vec < Vec<int>> arr2) {
 	
 	rts.reSet();
-	for (int rid = 0; rid < arr2.size(); ++rid) {
+	int rid = 0;
+	for (int i = 0; i < arr2.size(); ++i) {
 
-		auto& arr = arr2[rid];
+		auto& arr = arr2[i];
 		if (arr.size() == 0) {
 			// invdual 中的chromR是一个输入车辆数那么多的大数组，有的路径为空
 			continue;
 		}
-		Route r = rCreateRoute(rid);
+		Route r = rCreateRoute(rid++);
 
 		for (int cus : arr) {
 			rInsAtPosPre(r, r.tail, (cus));
@@ -8411,7 +8414,7 @@ bool Solver::printDimacs() {
 	return true;
 }
 
-bool Solver::run(Individual* indiv) {
+bool Solver::runLoaclSearch(Individual* indiv) {
 	loadSolutionByArr2D(indiv->chromR);
 	if (penalty > 0) {
 		if (repair()) {
@@ -8420,6 +8423,20 @@ bool Solver::run(Individual* indiv) {
 	}
 	else {
 		mRLLocalSearch(0, {});
+	}
+	exportIndividual(indiv);
+	return true;
+}
+
+bool Solver::runSimulatedannealing(Individual* indiv) {
+	loadSolutionByArr2D(indiv->chromR);
+	if (penalty > 0) {
+		if (repair()) {
+			Simulatedannealing(1, 100, 50.0, globalCfg->ruinC_);
+		}
+	}
+	else {
+		Simulatedannealing(1, 100, 50.0, globalCfg->ruinC_);
 	}
 	exportIndividual(indiv);
 	return true;
@@ -8461,7 +8478,6 @@ bool BKS::updateBKSAndPrint(Solver& newSol, std::string opt) {
 
 	bool ret = false;
 
-	
 	if (newSol.RoutesCost <= bestSolFound.RoutesCost && newSol.rts.cnt <= globalInput->vehicleCnt) {
 
 #if HUST_LYH_NPSRUN

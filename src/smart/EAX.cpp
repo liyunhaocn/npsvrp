@@ -1,12 +1,13 @@
 
 #include <unordered_map>
 #include <numeric>
+#include <algorithm>
 
 #include "EAX.h"
 
 namespace hust {
 
-	EAX::EAX(Solver& pa, Solver& pb) :pointerPa(&pa), pointerPb(&pb), paPriE(2 * (pa.input.custCnt + pa.rts.cnt + 1)), pbPriE(2 * (pb.input.custCnt + pb.rts.cnt + 1)) {
+EAX::EAX(Solver& pa, Solver& pb) :pointerPa(&pa), pointerPb(&pb), paPriE(2 * (pa.input.custCnt + pa.rts.cnt + 1)), pbPriE(2 * (pb.input.custCnt + pb.rts.cnt + 1)) {
 
 	this->eaxCusCnt = pa.input.custCnt;
 	this->eaxRCnt = pa.rts.cnt;
@@ -15,6 +16,7 @@ namespace hust {
 	this->adjEdgeTable = Vec<Vec<int>>(this->eaxCusCnt + 1, Vec<int>());
 	//visited = Vec<bool>(cusCnt+1,0);
 	this->supportNumNodes = this->eaxCusCnt + 1;
+	std::generate(candidateIndival.begin(), candidateIndival.end(), [&] { return new Individual(&globalInput->para); });
 
 #if CHECKING
 	if (pa.rts.cnt != pb.rts.cnt) {
@@ -27,6 +29,12 @@ namespace hust {
 	classifyEdges(pa, pb);
 };
 
+EAX::~EAX() {
+	for (Individual* candidateOffspring : candidateIndival)
+	{
+		delete candidateOffspring;
+	}
+}
 /* 从边到哈希码 */
 int EAX::toCode(int i, int j) {
 	return i * supportNumNodes + j;
@@ -805,6 +813,146 @@ Vec<int> EAX::getDiffCusofPb(Solver& pa, Solver& pb) {
 	
 	return ret;
 
+}
+
+int EAX::doNaEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
+
+	choosecyIndex = -1;
+	auto& order = myRandX->getMN(abCycleSet.size(), abCycleSet.size());
+
+	for (int i : order) {
+		if (tabuCyIds.count(i) == 0) {
+			choosecyIndex = i;
+		}
+	}
+	if (choosecyIndex == -1) {
+		return -1;
+	}
+
+	applyCycles({ choosecyIndex }, pc);
+
+	pc.reCalRtsCostAndPen();
+	removeSubring(pc);
+	pc.reCalRtsCostAndPen();
+	return 0;
+}
+
+int EAX::doPrEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
+
+	//TODO[lyh][001]:最多放置多少个abcycle[2,(abcyNum)/2],pick 是开区间
+	int abcyNum = abCycleSet.size();
+
+	//static ProbControl probc(globalInput->custCnt/2);
+	////int numABCyUsed = 2;
+	//int numABCyUsed = probc.getIndexBasedData(3) + 2;
+	////int numABCyUsed = probc.getIndexBasedData(std::min<int>(2,abcyNum / 2 + 1) ) + 2;
+	////int numABCyUsed = myRand->pick(2, abcyNum/2+1);
+	////int numABCyUsed = myRand->pick(2, 10);
+	//numABCyUsed = std::min<int>(numABCyUsed, abcyNum-1);
+
+	int putMax = abcyNum / 2;
+	//int putMax = myRand->pick(2, abcyNum / 2 + 1);
+	int numABCyUsed = 2;
+	for (int i = 3; i <= putMax; ++i) {
+		// TODO[-1]:这里可以调整 放置多少个abcy
+		if (myRand->pick(100) < 80) {
+			numABCyUsed = i;
+		}
+		else {
+			break;
+		}
+	}
+
+	int uarrNum = unionArr.size();
+	Vec<int> unionIndexOrder;
+	for (int i = 0; i < uarrNum; ++i) {
+		if (unionArr[i].size() >= 2) {
+			unionIndexOrder.push_back(i);
+		}
+	}
+	if (unionIndexOrder.size() == 0) {
+		return -1;
+	}
+	myRand->shuffleVec(unionIndexOrder);
+
+
+	ConfSet cyInUnion(abcyNum);
+
+	Vec<int> eset;
+
+	for (int uId : unionIndexOrder) {
+
+		//将一个并查集的所有abcyindex保存起来
+		for (int cy : unionArr[uId]) {
+			cyInUnion.ins(cy);
+		}
+
+		int firstCyIndex = cyInUnion.ve[myRand->pick(cyInUnion.cnt)];
+		std::queue<int> qu;
+		qu.push(firstCyIndex);
+		cyInUnion.removeVal(firstCyIndex);
+
+		while (eset.size() < numABCyUsed && qu.size() > 0) {
+			auto tp = qu.front();
+			eset.push_back(tp);
+			qu.pop();
+
+			auto adjs = abCyAdj[tp];
+			myRand->shuffleVec(adjs);
+			for (int ad : adjs) {
+				if (cyInUnion.pos[ad] >= 0) {
+					qu.push(ad);
+					cyInUnion.removeVal(ad);
+				}
+			}
+		}
+
+		if (eset.size() == numABCyUsed) {
+			break;
+		}
+	}
+
+	//printve(eset);
+	//INFO("eset.size():", eset.size(),"numABCyUsed:", numABCyUsed);
+
+	applyCycles(eset, pc);
+	pc.reCalRtsCostAndPen();
+	removeSubring(pc);
+	pc.reCalRtsCostAndPen();
+
+	return 0;
+}
+
+Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, Individual* offspring) {
+
+	Solver pa;
+	Solver pb;
+
+	pa.loadSolutionByArr2D(parent.first->chromR);
+	pb.loadSolutionByArr2D(parent.second->chromR);
+	if (pa.rts.cnt > pb.rts.cnt) {
+		pb.adjustRN(pa.rts.cnt);
+	}
+	else if (pa.rts.cnt < pb.rts.cnt) {
+		pa.adjustRN(pb.rts.cnt);
+	}
+
+	EAX eax(pa, pb);
+	eax.generateCycles();
+
+	if (eax.abCycleSet.size() <= 1) {
+		return nullptr;
+	}
+	auto pc = pa;
+	//int eaxRet = eax.doNaEAXWithoutRepair(pa, pb, pc);
+	int eaxRet = eax.doPrEAXWithoutRepair(pa, pb, pc);
+	
+	if (eaxRet < 0) {
+		return nullptr;
+	}
+
+	pc.exportIndividual(offspring);
+	return offspring;
 }
 
 }

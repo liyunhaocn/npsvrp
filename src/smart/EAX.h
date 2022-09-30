@@ -2,13 +2,18 @@
 #ifndef CN_HUST_LYH_EAX_H
 #define CN_HUST_LYH_EAX_H
 
+#include <array>
 #include "Solver.h"
+#include "../hgs/Individual.h"
 
 namespace hust {
 
 struct EAX
 {
 public:
+
+	static const int numberOfCandidateIndival = 4;
+	std::array<Individual*, numberOfCandidateIndival> candidateIndival;
 
 	enum class Owner { UNKNOWN = -1, Pa, Pb, COMMON };
 
@@ -95,6 +100,8 @@ public:
 
 	EAX(Solver& pa, Solver& pb);
 
+	~EAX();
+
 	/* ´Ó±ßµ½¹þÏ£Âë */
 	int toCode(int i, int j);
 
@@ -126,6 +133,9 @@ public:
 
 	void getUnionArr();
 
+	int doNaEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc);
+	int doPrEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc);
+
 	int doNaEAX(Solver& pa, Solver& pb, Solver& pc);
 
 	int doPrEAX(Solver& pa, Solver& pb, Solver& pc);
@@ -133,6 +143,8 @@ public:
 	static int getabCyNum(Solver& pa, Solver& pb);
 	
 	static Vec<int> getDiffCusofPb(Solver& pa, Solver& pb);
+
+	static Individual* doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, Individual* offspring);
 
 };
 

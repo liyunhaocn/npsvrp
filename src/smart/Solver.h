@@ -779,7 +779,9 @@ public:
 
 	bool printDimacs();
 	
-	bool run(Individual*indiv);
+	bool runLoaclSearch(Individual*indiv);
+
+	bool runSimulatedannealing(Individual*indiv);
 
 	~Solver();
 

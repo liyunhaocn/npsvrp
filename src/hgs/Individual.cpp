@@ -6,6 +6,7 @@
 
 #include "Individual.h"
 #include "Params.h"
+#include "../smart/Utility.h"
 
 void Individual::evaluateCompleteCost()
 {
@@ -185,7 +186,7 @@ void Individual::exportCVRPLibFormat(std::string fileName)
 
 void Individual::printCVRPLibFormat()
 {
-	std::cout << "----- PRINTING SOLUTION WITH VALUE " << myCostSol.penalizedCost << std::endl;
+	INFO("----- PRINTING SOLUTION WITH VALUE ", myCostSol.penalizedCost);
 	for (int k = 0; k < params->nbVehicles; k++)
 	{
 		if (!chromR[k].empty())

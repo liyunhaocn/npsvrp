@@ -9,6 +9,7 @@
 #include "Population.h"
 #include "LocalSearch.h"
 #include "Individual.h"
+#include "../smart/EAX.h"
 
 void Genetic::run(int maxIterNonProd, int timeLimit)
 {
@@ -25,13 +26,23 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		// First select parents using getNonIdenticalParentsBinaryTournament
 		// Then use the selected parents to create new individuals using OX and SREX
 		// Finally select the best new individual based on bestOfSREXAndOXCrossovers
+		//Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
+		
+		//Individual* offspring = hust::EAX::doEaxWithoutRepair(population->getNonIdenticalParentsBinaryTournament(), candidateOffsprings[2]);
+		//if (offspring == nullptr) {
+		//	offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
+		//}
+
 		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
 
 		/* LOCAL SEARCH */
 		// Run the Local Search on the new individual
-		//localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
-		
-		smartSolver->run(offspring);
+
+		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
+		if (offspring->isFeasible && offspring->myCostSol.distance < hust::bks->bestSolFound.RoutesCost) {
+			smartSolver->runSimulatedannealing(offspring);
+		}
+		//smartSolver->runLoaclSearch(offspring);
 
 		// Check if the new individual is the best feasible individual of the population, based on penalizedCost
 		bool isNewBest = population->addIndividual(offspring, true);
@@ -51,6 +62,12 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		/* TRACKING THE NUMBER OF ITERATIONS SINCE LAST SOLUTION IMPROVEMENT */
 		if (isNewBest)
 		{
+			if (offspring->isFeasible) {
+				smartSolver->runSimulatedannealing(offspring);
+				isNewBest = population->addIndividual(offspring, false);
+			}
+			
+			//isNewBest = population->addIndividual(offspring, false);
 			nbIterNonProd = 1;
 		}
 		else nbIterNonProd++;
