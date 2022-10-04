@@ -10,6 +10,7 @@
 #include "Params.h"
 #include "Split.h"
 #include "LocalSearch.h"
+#include "../smart/Utility.h"
 
 void Population::doLocalSearchAndAddIndividual(Individual* indiv)
 {
@@ -93,7 +94,7 @@ void Population::generatePopulation()
 	}
 
 	// Output that some individuals have been created
-	std::cout << "Generated " << nofNearestIndividualsToGenerate << " individuals using Nearest" << std::endl;
+	INFO("Generated ", nofNearestIndividualsToGenerate, " individuals using Nearest");
 	printState(-1, -1);
 
 	// Generate some individuals using the FURHEST construction heuristic
@@ -114,7 +115,7 @@ void Population::generatePopulation()
 	}
 
 	// Output that some individuals have been created
-	std::cout << "Generated " << nofFurthestIndividualsToGenerate << " individuals using Furthest" << std::endl;
+	INFO("Generated ", nofFurthestIndividualsToGenerate, " individuals using Furthest");
 	printState(-1, -1);
 
 	// Generate some individuals using the SWEEP construction heuristic
@@ -134,7 +135,7 @@ void Population::generatePopulation()
 	}
 
 	// Output that some individuals have been created
-	std::cout << "Generated " << nofSweepIndividualsToGenerate << " individuals using Sweep" << std::endl;
+	INFO("Generated ", nofSweepIndividualsToGenerate, " individuals using Sweep");
 	printState(-1, -1);
 
 	// Generate some individuals using a RANDOM strategy
@@ -152,7 +153,7 @@ void Population::generatePopulation()
 	}
 
 	// Output that some individuals have been created
-	std::cout << "Generated " << nofRandomIndividualsToGenerate << " individuals Randomly" << std::endl;
+	INFO("Generated ", nofRandomIndividualsToGenerate, " individuals Randomly");
 	printState(-1, -1);
 }
 

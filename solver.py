@@ -1,8 +1,10 @@
 # Solver for Dynamic VRPTW, baseline strategy is to use the static solver HGS-VRPTW repeatedly
 import argparse
+import csv
 import subprocess
 import sys
 import os
+import time
 import uuid
 import platform
 import numpy as np
@@ -96,8 +98,8 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
     my_stdin.write("EOF\n")
     my_stdin.flush()
 
-def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None):
 
+def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None):
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
     if instance['coords'].shape[0] <= 1:
@@ -175,7 +177,9 @@ def run_oracle(args, env):
 
     # Compute oracle solution (separate time limit since epoch_tlim is used for greedy initial solution)
     log(f"Start computing oracle solution with {len(hindsight_problem['coords'])} requests...")
-    oracle_solution = min(solve_static_vrptw(hindsight_problem, time_limit=args.oracle_tlim, tmp_dir=args.tmp_dir, initial_solution=greedy_solution), key=lambda x: x[1])[0]
+    oracle_solution = \
+    min(solve_static_vrptw(hindsight_problem, time_limit=args.oracle_tlim, initial_solution=greedy_solution),
+        key=lambda x: x[1])[0]
     oracle_cost = tools.validate_static_solution(hindsight_problem, oracle_solution)
     log(f"Found oracle solution with cost {oracle_cost}")
 
@@ -186,7 +190,6 @@ def run_oracle(args, env):
 
 
 def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
-
     strategy = strategy or args.strategy
     strategy = STRATEGIES[strategy] if isinstance(strategy, str) else strategy
     seed = seed or args.solver_seed
@@ -203,10 +206,12 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
         epoch_instance = observation['epoch_instance']
 
         if args.verbose:
-            log(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}", newline=False)
+            log(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
+                newline=False)
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_new_requests = num_requests_open - num_requests_postponed
-            log(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...", newline=True, flush=True)
+            log(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
+                newline=True, flush=True)
 
         if oracle_solution is not None:
             request_idx = set(epoch_instance['request_idx'])
@@ -215,7 +220,8 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
         else:
             # Select the requests to dispatch using the strategy
             # Note: DQN strategy requires more than just epoch instance, bit hacky for compatibility with other strategies
-            epoch_instance_dispatch = strategy({**epoch_instance, 'observation': observation, 'static_info': static_info}, rng)
+            epoch_instance_dispatch = strategy(
+                {**epoch_instance, 'observation': observation, 'static_info': static_info}, rng)
 
             # Run HGS with time limit and get last solution (= best solution found)
             # Note we use the same solver_seed in each epoch: this is sufficient as for the static problem
@@ -255,33 +261,45 @@ def log(obj, newline=True, flush=False):
         sys.stderr.flush()
 
 
+def save_results_csv(csv_path, data_dic):
+
+    fieldnames = ["instance", "cost", "route_mum", "epoch_num", "strategy", "solver_seed", "static", "epoch_tlim", "solution"]
+    file_exist = os.path.exists(csv_path)
+    # print(f"fieldnames:{fieldnames}")
+    with open(csv_path, 'a', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+        if not file_exist:
+            writer.writerow(fieldnames)
+        data_replace_order = []
+        for key in fieldnames:
+            data_replace_order.append(data_dic[key])
+        # print(f"data_replace_order:{data_replace_order}")
+        writer.writerow(data_replace_order)
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--strategy", type=str, default='greedy', help="Baseline strategy used to decide whether to dispatch routes")
+    parser.add_argument("--strategy", type=str, default='greedy',
+                        help="Baseline strategy used to decide whether to dispatch routes")
     # Note: these arguments are only for convenience during development, during testing you should use controller.py
     parser.add_argument("--instance", help="Instance to solve")
     parser.add_argument("--instance_seed", type=int, default=1, help="Seed to use for the dynamic instance")
     parser.add_argument("--solver_seed", type=int, default=1, help="Seed to use for the solver")
-    parser.add_argument("--static", action='store_true', help="Add this flag to solve the static variant of the problem (by default dynamic)")
+    parser.add_argument("--static", action='store_true',
+                        help="Add this flag to solve the static variant of the problem (by default dynamic)")
     parser.add_argument("--epoch_tlim", type=int, default=120, help="Time limit per epoch")
     parser.add_argument("--oracle_tlim", type=int, default=120, help="Time limit for oracle")
-    parser.add_argument("--tmp_dir", type=str, default=None, help="Provide a specific directory to use as tmp directory (useful for debugging)")
-    parser.add_argument("--model_path", type=str, default=None, help="Provide the path of the machine learning model to be used as strategy (Path must not contain `model.pth`)")
+    # parser.add_argument("--tmp_dir", type=str, default=None, help="Provide a specific directory to use as tmp directory (useful for debugging)")
+    # parser.add_argument("--model_path", type=str, default=None, help="Provide the path of the machine learning model to be used as strategy (Path must not contain `model.pth`)")
     parser.add_argument("--verbose", action='store_true', help="Show verbose output")
+    parser.add_argument("--run_tag", default="", help="Show verbose output")
     args = parser.parse_args()
-
-    if args.tmp_dir is None:
-        # Generate random tmp directory
-        args.tmp_dir = os.path.join("tmp", str(uuid.uuid4()))
-        cleanup_tmp_dir = True
-    else:
-        # If tmp dir is manually provided, don't clean it up (for debugging)
-        cleanup_tmp_dir = False
 
     try:
         if args.instance is not None:
-            env = VRPEnvironment(seed=args.instance_seed, instance=tools.read_vrplib(args.instance), epoch_tlim=args.epoch_tlim, is_static=args.static)
+            env = VRPEnvironment(seed=args.instance_seed, instance=tools.read_vrplib(args.instance),
+                                 epoch_tlim=args.epoch_tlim, is_static=args.static)
+            args_dic = vars(args).copy()
         else:
             assert args.strategy != "oracle", "Oracle can not run with external controller"
             # Run within external controller
@@ -296,21 +314,30 @@ if __name__ == "__main__":
         if args.strategy == 'oracle':
             run_oracle(args, env)
         else:
-            if args.strategy == 'supervised':
-                from baselines.supervised.utils import load_model
-                net = load_model(args.model_path, device='cpu')
-                strategy = functools.partial(STRATEGIES['supervised'], net=net)
-            elif args.strategy == 'dqn':
-                from baselines.dqn.utils import load_model
-                net = load_model(args.model_path, device='cpu')
-                strategy = functools.partial(STRATEGIES['dqn'], net=net)
-            else:
-                strategy = STRATEGIES[args.strategy]
+            strategy = STRATEGIES[args.strategy]
+            reward = run_baseline(args, env, strategy=strategy)
+            cost = -reward
 
-            run_baseline(args, env, strategy=strategy)
+        if "instance" in args_dic:
+            result_dic = args_dic
 
-        if args.instance is not None:
+            ymd = time.strftime("%m-%d", time.localtime())
+            ymd = ymd.replace("-", "_")
+            # print(f"ymd:{ymd}")
+            result_dic["cost"] = cost
+            result_dic["route_mum"] = 0
+            for key, value in env.final_solutions.items():
+                result_dic["route_mum"] += len(value)
+
+            result_dic["instance"] = result_dic["instance"].replace("instances/", "")
+            result_dic["solution"] = tools.json_dumps_np(env.final_solutions)
+            result_dic["epoch_num"] = len(env.final_solutions)
+            is_static = args_dic["static"]
+            strategy = args_dic["strategy"]
+            run_tag = args_dic["run_tag"]
+
+            save_results_csv(f"./results/[{ymd}][static_{is_static}][{strategy}][{run_tag}].csv", result_dic)
+
             log(tools.json_dumps_np(env.final_solutions))
     finally:
-        if cleanup_tmp_dir:
-            tools.cleanup_tmp_dir(args.tmp_dir)
+        pass

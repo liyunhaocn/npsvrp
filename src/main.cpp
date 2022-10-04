@@ -128,7 +128,9 @@ int main(int argc, char* argv[])
 		solver.run(commandline.config.nbIter, commandline.config.timeLimit);
 
         smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
-        saveSolutiontoCsvFile(smartSolver);
+        //saveSolutiontoCsvFile(smartSolver);
+		population.getBestFound()->printCVRPLibFormat();
+
 #endif //1
 		// Export the best solution, if it exist
 		//if (population.getBestFound() != nullptr)

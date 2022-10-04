@@ -36,8 +36,8 @@
 
 #else
 
-//#define INFO(...) ;
-#define INFO(...) hust::println_("[INFO]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
+#define INFO(...) ;
+//#define INFO(...) hust::println_("[INFO]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
 
 #endif // HUST_LYH_NPSRUN
 
