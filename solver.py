@@ -133,8 +133,6 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None)
     if initial_solution is not None:
         hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
 
-    # log(f"hgs_cmd{hgs_cmd}")
-
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
         write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
 

@@ -49,7 +49,7 @@ def get_all_static_nps_cmds():
     #     print(cmd)
     return cmds
 
-def get_all_static_my_cmds(tag=""):
+def get_all_static_my_cmds(tag="notag"):
 
     all_paths = get_all_instances_paths()
     cmds = []
@@ -60,7 +60,7 @@ def get_all_static_my_cmds(tag=""):
         #             + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
     return cmds
 
-def get_all_dynamic_my_cmds(tag=""):
+def get_all_dynamic_my_cmds(tag="notag"):
 
     all_paths = get_all_instances_paths()
     cmds = []

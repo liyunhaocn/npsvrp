@@ -7,11 +7,10 @@
     <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_cmds.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Problem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_all.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/README.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,9 +138,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="D:\npsvrp\env\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/jobsch.py" />
@@ -224,12 +223,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>338</line>
+          <line>336</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>334</line>
+          <line>332</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
       </breakpoints>
