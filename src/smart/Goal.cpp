@@ -441,8 +441,7 @@ void Goal::getTheRangeMostHope() {
 			//poolt[i].mRLLocalSearch(0, {});
 			globalCfg->ruinLmax = globalInput->custCnt / poolt[i].rts.cnt;
 			//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
-			// TODO[lyh][Goal][-1]:这里记得还原注释
-			//poolt[i].Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
+			poolt[i].Simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
 			updateppol(poolt[i], i);
 		}
 		bks->updateBKSAndPrint(poolt[i], " poolt[i] init");

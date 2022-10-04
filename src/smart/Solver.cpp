@@ -1134,20 +1134,35 @@ bool Solver::loadSolutionByArr2D(Vec < Vec<int>> arr2) {
 
 void Solver::exportIndividual(Individual* indiv) {
 
-	// TODO[lyh][0]:这里要处理polarAngleBarycenter
-	//Individual indiv(&globalInput->para);
-	//std::vector < std::pair <double, int> > routePolarAngles;
-	//for (int r = 0; r < globalInput->para.nbVehicles; r++)
-	//	routePolarAngles.push_back(std::pair <double, int>(rts[r].polarAngleBarycenter, r));
-	//std::sort(routePolarAngles.begin(), routePolarAngles.end()); // empty routes have a polar angle of 1.e30, and therefore will always appear at the end
+	int cumulatedX = 0;
+	int cumulatedY = 0;
+
+	bool firstIt = true;
+
+	Vec < std::pair <double, int> > routePolarAngles;
+	for (int rIndex = 0; rIndex < rts.cnt; ++rIndex) {
+
+		auto& r = rts[rIndex];
+		for (int c = customers[r.head].next; c <= globalInput->custCnt; c = customers[c].next) {
+			cumulatedX += globalInput->para.cli[c].coordX;
+			cumulatedY += globalInput->para.cli[c].coordY;
+		}
+		double routespolar = 
+			atan2(cumulatedY / static_cast<double>(r.rCustCnt) - globalInput->para.cli[0].coordY,
+			cumulatedX / static_cast<double>(r.rCustCnt) - globalInput->para.cli[0].coordX);
+		routePolarAngles.push_back(std::pair <double, int>(routespolar, rIndex));
+	}
+	std::sort(routePolarAngles.begin(), routePolarAngles.end()); // empty routes have a polar angle of 1.e30, and therefore will always appear at the end
+
 
 	int pos = 0;
 	for (int r = 0; r <globalInput->para.nbVehicles; r++) {
 		indiv->chromR[r].clear();
 	}
 
-	for (int rIndex = 0; rIndex < rts.cnt; ++rIndex) {
+	for (auto& it : routePolarAngles) {
 		
+		int rIndex = it.second;
 		auto& r = rts[rIndex];
 		for (int c = customers[r.head].next; c <= globalInput->custCnt; c = customers[c].next) {
 			indiv->chromT[pos] = c;

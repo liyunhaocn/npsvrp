@@ -23,9 +23,11 @@ def get_tlim_of_static(path_path):
         time_min = 5
     elif 500 <= customers_num <= 900:
         time_min = 8
-
     # 1807 /1981
     return int(time_min * 60 * 1807 / 1981)
+
+def get_tlim_of_dynamic():
+    return int(60 * 1807 / 1981)
 
 def get_all_instances_paths():
 
@@ -47,15 +49,26 @@ def get_all_static_nps_cmds():
     #     print(cmd)
     return cmds
 
-def get_all_static_my_cmds():
+def get_all_static_my_cmds(tag=""):
 
     all_paths = get_all_instances_paths()
     cmds = []
     for instance_path in all_paths:
-        cmds.append(f"./dev/SmartRouter {instance_path} -isNpsRun 0 -t {get_tlim_of_static(instance_path)} "
-                    + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
-    # for cmd in cmds:
-    #     print(cmd)
+        cmds.append(f"python solver.py --instance {instance_path} "
+                    + f"--static --epoch_tlim {get_tlim_of_static(instance_path)} --run_tag {tag} --verbose")
+        # cmds.append(f"./dev/SmartRouter {instance_path} -isNpsRun 0 -t {get_tlim_of_static(instance_path)} "
+        #             + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
+    return cmds
+
+def get_all_dynamic_my_cmds(tag=""):
+
+    all_paths = get_all_instances_paths()
+    cmds = []
+    for instance_path in all_paths:
+        cmds.append(f"python solver.py --instance {instance_path} "
+                    + f"--epoch_tlim {get_tlim_of_dynamic()} --run_tag {tag} --verbose")
+        # cmds.append(f"./dev/SmartRouter {instance_path} -isNpsRun 0 -t {get_tlim_of_static(instance_path)} "
+        #             + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
     return cmds
 
 if __name__ == "__main__":

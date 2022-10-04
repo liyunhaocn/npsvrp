@@ -4,15 +4,14 @@ import platform
 import time
 import os
 
-import controller
-import test_all
+import all_cmds
 
 jobs = []
 
 def run(arr, run=True):
 
     for i in range(len(arr)):
-        arr[i] = "nohup " + arr[i] + " &"
+        arr[i] = f"nohup {arr[i]} &"
 
     for cmd in arr:
         print(cmd)
@@ -50,22 +49,14 @@ def run(arr, run=True):
 
 if __name__ == "__main__":
 
-    if not platform.system() == 'Linux':
+    if platform.system() == 'Linux':
         print("run job schedule on Linux")
         os.system("chmod 777 ./dev/SmartRouter")
 
-    jobs = test_all.get_all_static_my_cmds()
+    # jobs = all_cmds.get_all_static_my_cmds()
+    jobs = all_cmds.get_all_dynamic_my_cmds()
     # for job in jobs:
     #     print(job)
-    print(len(jobs))
     run(jobs, True)
-
-    # all_paths = test_all.get_all_instances_paths()
-    # print(all_paths)
-    # cmds = ["./dev/SmartRouter " + x + " -isNpsRun 0 -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0" for x in all_paths]
-    # run(cmds)
-
-    # print(cmds)
-    # os.system(cmds[0])
-    # ./dev/SmartRouter ./instances/ORTEC-VRPTW-ASYM-92bc6975-d1-n273-k20.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
+    print(len(jobs))
 

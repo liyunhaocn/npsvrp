@@ -104,11 +104,11 @@ bool Input::initInput() {
 			//return disOf[v][a] + datas[a].serviceDuration <
 			//	disOf[v][b] + datas[b].serviceDuration;
 
-			//if (disOf[a][v] == disOf[b][v]) {
+			//if (para.timeCost.get(v,a) == para.timeCost.get(v, b)) {
 			//	return datas[a].latestArrival < datas[b].latestArrival;
 			//}
 			//else {
-			//	return disOf[a][v] < disOf[b][v];
+			//	return para.timeCost.get(v, a) < para.timeCost.get(v, b);
 			//}
 			//return true;
 
