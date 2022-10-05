@@ -1,6 +1,7 @@
 #!/bin/bash
 pip install -r requirements.txt
-cd baselines/hgs_vrptw
+cd dev
 make clean
 make all
-cd ../..
+make clean
+cd ..

@@ -1,5 +1,8 @@
 .vscode
 .flake8
 tmp
-submissions
 draws
+/cmake-build-release/
+/cmake-build-debug/
+/CMakeFiles/
+/stdcerr/

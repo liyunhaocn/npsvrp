@@ -5,14 +5,12 @@ import subprocess
 import sys
 import os
 import time
-import uuid
 import platform
 import numpy as np
-import functools
 
 import tools
 from environment import VRPEnvironment, ControllerEnvironment
-from baselines.strategies import STRATEGIES
+from strategies import STRATEGIES
 
 
 def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True):

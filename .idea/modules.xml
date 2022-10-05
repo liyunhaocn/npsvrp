@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/npsvrp.iml" filepath="$PROJECT_DIR$/.idea/npsvrp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/npsvrp2.iml" filepath="$PROJECT_DIR$/.idea/npsvrp2.iml" />
     </modules>
   </component>
 </project>
