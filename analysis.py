@@ -1,6 +1,7 @@
 import csv
+import numpy as np
 import collections
-
+import all_cmds
 
 def get_csv_data(file_path):
 
@@ -12,7 +13,20 @@ def get_csv_data(file_path):
             data.append(row)  # 选择某一列加入到data数组中
     return data
 
+def get_diff_of_two_runs(path_a,path_b):
+    data_a_instance_name = np.array(get_csv_data(path_a))[:, 0:1]
+    data_b_instance_name = np.array(get_csv_data(path_b))[:, 0:1]
+    ret = []
+    for name in data_a_instance_name:
+        if name not in data_b_instance_name:
+            ret.append(name)
+    return ret
+
 if __name__ == "__main__":
+
+    diff = get_diff_of_two_runs("./results/[10_04][static_False][greedy][notag].csv", "./results/[10_04][static_True][greedy][notag].csv")
+    print(diff)
+    exit(0)
 
     data_my = get_csv_data("./results/my.csv")
     data_hgs = get_csv_data("./results/hgs.csv")

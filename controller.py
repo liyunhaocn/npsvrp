@@ -35,7 +35,7 @@ if __name__ == "__main__":
     env = VRPEnvironment(args.instance_seed, static_instance, args.epoch_tlim, args.static)
 
     done = False
-
+    print(f"controller:solver_cmd:{solver_cmd}")
     # Start subprocess and interact with it
     with subprocess.Popen(solver_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True) as p:
 

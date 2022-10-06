@@ -38,6 +38,10 @@ def get_all_instances_paths():
         ret.append(file_path)
     return ret
 
+def get_all_instances_names():
+    all_paths = get_all_instances_paths()
+    return [x.replace("./instances/", "") for x in all_paths]
+
 def get_all_static_nps_cmds():
 
     all_paths = get_all_instances_paths()

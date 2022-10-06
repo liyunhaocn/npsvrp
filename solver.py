@@ -272,6 +272,7 @@ def save_results_csv(csv_path, data_dic):
         # print(f"data_replace_order:{data_replace_order}")
         writer.writerow(data_replace_order)
 
+# --instance ./instances/ORTEC-VRPTW-ASYM-2e2ef021-d1-n210-k17.txt --static --epoch_tlim 164 --run_tag notag --verbose
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -312,15 +313,13 @@ if __name__ == "__main__":
         else:
             strategy = STRATEGIES[args.strategy]
             reward = run_baseline(args, env, strategy=strategy)
-            cost = -reward
 
         if "instance" in args_dic:
             result_dic = args_dic
 
-            ymd = time.strftime("%m-%d", time.localtime())
-            ymd = ymd.replace("-", "_")
+            ymd = time.strftime("%m_%d", time.localtime())
             # print(f"ymd:{ymd}")
-            result_dic["cost"] = cost
+            result_dic["cost"] = -reward
             result_dic["route_mum"] = 0
             for key, value in env.final_solutions.items():
                 result_dic["route_mum"] += len(value)
@@ -332,7 +331,7 @@ if __name__ == "__main__":
             strategy = args_dic["strategy"]
             run_tag = args_dic["run_tag"]
 
-            save_results_csv(f"./results/[{ymd}][static_{is_static}][{strategy}][{run_tag}].csv", result_dic)
+            # save_results_csv(f"./results/[{ymd}][static_{is_static}][{strategy}][{run_tag}].csv", result_dic)
 
             log(tools.json_dumps_np(env.final_solutions))
     finally:

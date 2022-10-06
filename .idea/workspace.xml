@@ -22,21 +22,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/npsvrp2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/npsvrp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/npsvrp.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_cmds.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/clionbuild/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clionbuild/.idea/clionbuild.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clionbuild/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clionbuild/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clionbuild/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clionbuild/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/clionbuild/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/create_submission.sh" beforeDir="false" afterPath="$PROJECT_DIR$/create_submission.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -92,7 +83,7 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.con">
+  <component name="RunManager" selected="Python.solver">
     <configuration name="SmartRouter" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="hust" TARGET_NAME="SmartRouter" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="hust" RUN_TARGET_NAME="SmartRouter">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -105,12 +96,12 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="D:\npsvrp\env\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="D:\npsvrp\all_cmds.py" />
+      <option name="SCRIPT_NAME" value="D:/npsvrp/all_cmds.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -126,9 +117,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="D:\npsvrp\env\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/analysis.py" />
@@ -147,13 +138,13 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="D:\ProgramData\Anaconda3\envs\npsvrp\python.exe" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/env/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/controller.py" />
-      <option name="PARAMETERS" value="--instance instances/ORTEC-VRPTW-ASYM-0bdff870-d1-n458-k35.txt --epoch_tlim 5 -- python solver.py --verbose" />
+      <option name="PARAMETERS" value="--instance instances/ORTEC-VRPTW-ASYM-0bdff870-d1-n458-k35.txt --epoch_tlim 10 -- python solver.py --verbose" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -168,9 +159,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="D:\npsvrp\env\Scripts\python.exe" />
+      <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
+      <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/draw.py" />
@@ -189,7 +180,7 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/env/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
@@ -216,7 +207,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance instances/ORTEC-VRPTW-ASYM-0bdff870-d1-n458-k35.txt --epoch_tlim 4 --run_tag t1 --verbose" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-2e2ef021-d1-n210-k17.txt --static --epoch_tlim 164 --run_tag notag --verbose" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -225,9 +216,9 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.con" />
       <item itemvalue="Python.all_cmds" />
       <item itemvalue="Python.analysis" />
+      <item itemvalue="Python.con" />
       <item itemvalue="Python.draw" />
       <item itemvalue="Python.jobsch" />
       <item itemvalue="Python.solver" />
@@ -252,7 +243,7 @@
       <updated>1660839366713</updated>
       <workItem from="1664939440276" duration="1001000" />
       <workItem from="1664940452638" duration="5378000" />
-      <workItem from="1664958442148" duration="989000" />
+      <workItem from="1664958442148" duration="5846000" />
     </task>
     <task id="LOCAL-00001" summary="[tag][10_4]运行版本 dynamic+static">
       <created>1664899290153</created>
@@ -280,7 +271,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="[tag][10_4]运行版本 dynamic+static" />
-    <option name="LAST_COMMIT_MESSAGE" value="[tag][10_4]运行版本 dynamic+static" />
+    <MESSAGE value="test_submission 成功" />
+    <option name="LAST_COMMIT_MESSAGE" value="test_submission 成功" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -289,16 +281,6 @@
           <url>file://$PROJECT_DIR$/draw.py</url>
           <line>45</line>
           <option name="timeStamp" value="3" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>334</line>
-          <option name="timeStamp" value="16" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>330</line>
-          <option name="timeStamp" value="17" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

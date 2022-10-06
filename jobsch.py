@@ -57,6 +57,6 @@ if __name__ == "__main__":
     jobs = all_cmds.get_all_dynamic_my_cmds() + all_cmds.get_all_static_my_cmds()
     # for job in jobs:
     #     print(job)
-    run(jobs, True)
+    run(jobs, False)
     print(len(jobs))
 
