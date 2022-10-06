@@ -24,7 +24,7 @@ def get_diff_of_two_runs(path_a,path_b):
 
 if __name__ == "__main__":
 
-    diff = get_diff_of_two_runs("./results/[10_04][static_False][greedy][notag].csv", "./results/[10_04][static_True][greedy][notag].csv")
+    diff = get_diff_of_two_runs("results/[10_04][static_False][greedy][notag].csv", "./results/[10_04][static_True][greedy][notag].csv")
     print(diff)
     exit(0)
 

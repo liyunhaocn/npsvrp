@@ -39,10 +39,6 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		// Run the Local Search on the new individual
 
 		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
-		if (offspring->isFeasible && offspring->myCostSol.distance < hust::bks->bestSolFound.RoutesCost) {
-			smartSolver->runSimulatedannealing(offspring);
-		}
-		//smartSolver->runLoaclSearch(offspring);
 
 		// Check if the new individual is the best feasible individual of the population, based on penalizedCost
 		bool isNewBest = population->addIndividual(offspring, true);
@@ -63,7 +59,6 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		if (isNewBest)
 		{
 			if (offspring->isFeasible) {
-				smartSolver->runSimulatedannealing(offspring);
 				isNewBest = population->addIndividual(offspring, false);
 			}
 			
