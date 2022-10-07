@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import collections
 import all_cmds
+from operator import itemgetter
 
 def get_csv_data(file_path):
 
@@ -22,43 +23,40 @@ def get_diff_of_two_runs(path_a,path_b):
             ret.append(name)
     return ret
 
+def write_csv_by_over_write(path, data):
+
+    with open(path, 'w+') as f:
+        csv_write = csv.writer(f)
+        for i in data:
+            csv_write.writerow(i)
+def sort_csv(csv_path):
+    data = get_csv_data(csv_path)
+    data_0 = data[0]
+    data_0.insert(1, "customers_num")
+    data = data[1:]
+    data.sort(key=lambda x: x[0])
+    # for i in data:
+    #     i.insert(1, get_customers_num_from_instance_name(i[0]))
+    data = [data_0] + data
+    write_csv_by_over_write(csv_path, data)
+
+def get_customers_num_from_instance_name(instance_name):
+    return instance_name.split("-")[5].replace("n", "")
+
+
 if __name__ == "__main__":
 
-    diff = get_diff_of_two_runs("./results/[10_04][static_False][greedy][notag].csv", "./results/[10_04][static_True][greedy][notag].csv")
+    sort_csv(r"results/[10_04][dynamic][greedy][notag].csv")
+    sort_csv(r"results/[10_04][static][greedy][notag].csv")
+    sort_csv(r"results/[10_07][dynamic][greedy][hgs].csv")
+    sort_csv(r"results/[10_07][static][greedy][hgs].csv")
+    exit(0)
+
+    diff = get_diff_of_two_runs("results/[10_04][dynamic][greedy][notag].csv",
+                                "results/[10_04][static][greedy][notag].csv")
     print(diff)
     exit(0)
 
-    data_my = get_csv_data("./results/my.csv")
-    data_hgs = get_csv_data("./results/hgs.csv")
-    data_my = data_my[1:]
-    data_hgs = data_hgs[1:]
-
-    compdic = {}
-    for row in data_my:
-        if row[0] in compdic:
-            compdic[row[0]].append(int(row[2]))
-        else:
-            compdic[row[0]] = [int(row[2])]
-
-    instance_names_my = [arr[0] for arr in data_my]
-    instance_names_hgs = [arr[0] for arr in data_hgs]
-
-    print(len(instance_names_my))
-    print(len(set(instance_names_hgs)))
-
-    for name in instance_names_my:
-        if name in instance_names_hgs:
-            pass
-        else:
-            print(f"name:{name} is not in")
-
-    for key, val in compdic.items():
-        if len(val) == 1:
-            # print(key, val, (val[0]-val[1])/val[0]*100)
-            pass
-        else:
-            # print(f"row:{row}")
-            print(f"key:{key}")
 
     # for row in data:
     #     print(row)
