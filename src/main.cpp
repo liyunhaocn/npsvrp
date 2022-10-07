@@ -68,6 +68,50 @@ namespace hust {
 // ./instances/ORTEC-VRPTW-ASYM-8bc13a3f-d1-n421-k40.txt -t 273 -seed 1 -veh -1 -useWallClockTime 1
 //203578
 
+void smartOnly(Params& params){
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Solver smartSolver;
+    hust::Goal goal;
+    // Genetic algorithm
+    INFO("----- STARTING GENETIC ALGORITHM");
+
+    goal.TwoAlgCombine();
+    hust::bks->bestSolFound.printDimacs();
+    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
+    hust::deallocGlobalMem();
+
+}
+
+void hgsAndSmart(Params& params, CommandLine& commandline) {
+
+    Split split(&params);
+
+    //Creating the Split and Local Search structures
+    LocalSearch localSearch(&params);
+    // Initial population
+    INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
+    INFO("----- BUILDING INITIAL POPULATION");
+    Population population(&params, &split, &localSearch);
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Solver smartSolver;
+
+    // Genetic algorithm
+    INFO("----- STARTING GENETIC ALGORITHM");
+    Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
+    solver.run(commandline.config.nbIter, commandline.config.timeLimit);
+
+    smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
+    //saveSolutiontoCsvFile(smartSolver);
+    population.getBestFound()->printCVRPLibFormat();
+
+}
+
 int main(int argc, char* argv[])
 {
 	try
@@ -79,69 +123,10 @@ int main(int argc, char* argv[])
 		INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
 
 		Params params(commandline);
+        
+        smartOnly(params);
+        // hgsAndSmart(params,commandline);
 
-		// Creating the Split and Local Search structures
-		Split split(&params);
-		LocalSearch localSearch(&params);
-
-#if 0
-		hust::globalInput = new hust::Input(params);
-		hust::allocGlobalMem(params.config.seed);
-		hust::globalInput->initInput();
-		hust::Solver smartSolver;
-		//smartSolver.initSolution(0);
-		//smartSolver.minimizeRN(2);
-		//smartSolver.mRLLocalSearch(0, {});
-		hust::Goal goal;
-		// Genetic algorithm
-		INFO("----- STARTING GENETIC ALGORITHM");
-		Genetic hgsSolver(&params, &split, nullptr, &localSearch);
-
-		goal.test(&hgsSolver);
-
-		//goal.callSimulatedannealing();
-		//goal.TwoAlgCombine();
-		//goal.experOnMinRN();
-
-        hust::bks->bestSolFound.printDimacs();
-        saveSolutiontoCsvFile(hust::bks->bestSolFound);
-
-		hust::deallocGlobalMem();
-		return 0;
-#else
-		// Initial population
-		INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
-		INFO("----- BUILDING INITIAL POPULATION");
-		Population population(&params, &split, &localSearch);
-
-		hust::globalInput = new hust::Input(params);
-		hust::allocGlobalMem(params.config.seed);
-		hust::globalInput->initInput();
-		hust::Solver smartSolver;
-		//smartSolver.initSolution(0);
-		//smartSolver.minimizeRN(2);
-		//smartSolver.mRLLocalSearch(0, {});
-		
-		// Genetic algorithm
-		INFO("----- STARTING GENETIC ALGORITHM");
-		Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
-		solver.run(commandline.config.nbIter, commandline.config.timeLimit);
-
-        smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
-        //saveSolutiontoCsvFile(smartSolver);
-		population.getBestFound()->printCVRPLibFormat();
-
-#endif //1
-		// Export the best solution, if it exist
-		//if (population.getBestFound() != nullptr)
-		//{
-			//population.getBestFound()->exportCVRPLibFormat(commandline.config.pathSolution);
-			//population.exportSearchProgress(commandline.config.pathSolution + ".PG.csv", commandline.config.pathInstance, commandline.config.seed);
-			//if (commandline.config.pathBKS != "")
-			//{
-			//	population.exportBKS(commandline.config.pathBKS);
-			//}
-		//}
 	}
 	// ≤‚ ‘÷–Œƒ◊¢ Õ
 	// Catch exceptions
