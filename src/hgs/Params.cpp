@@ -306,6 +306,7 @@ Params::Params(const CommandLine& cl)
 						// Check if the clients are in order
 						if (clientNr != i + 1)
 						{
+                            ERROR("Clients are not in order in the list of time windows");
 							throw std::string("Clients are not in order in the list of time windows");
 						}
 					}
@@ -313,11 +314,13 @@ Params::Params(const CommandLine& cl)
 					// Check the start of the time window of the depot
 					if (cli[0].earliestArrival != 0)
 					{
-						throw std::string("Time window for depot should start at 0");
+                        ERROR("Time window for depot should start at 0");
+                        throw std::string("Time window for depot should start at 0");
 					}
 				}
 				else
 				{
+                    ERROR("Unexpected data in input file: " + content);
 					throw std::string("Unexpected data in input file: " + content);
 				}
 			}

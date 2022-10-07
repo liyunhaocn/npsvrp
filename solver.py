@@ -131,6 +131,7 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None)
     if initial_solution is not None:
         hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
 
+    # log(f"hgs_cmd:{hgs_cmd}")
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
         write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
 
@@ -259,7 +260,7 @@ def log(obj, newline=True, flush=False):
 
 def save_results_csv(csv_path, data_dic):
 
-    fieldnames = ["instance", "cost", "route_mum", "epoch_num", "strategy", "solver_seed", "static", "epoch_tlim", "solution"]
+    fieldnames = ["instance", "customers_num", "cost", "route_mum", "epoch_num", "strategy", "solver_seed", "static", "epoch_tlim", "solution"]
     file_exist = os.path.exists(csv_path)
     # print(f"fieldnames:{fieldnames}")
     with open(csv_path, 'a', encoding='UTF8', newline='') as f:
@@ -328,11 +329,13 @@ if __name__ == "__main__":
             result_dic["solution"] = tools.json_dumps_np(env.final_solutions)
             result_dic["epoch_num"] = len(env.final_solutions)
             is_static = args_dic["static"]
+            run_type = "static" if is_static else "dynamic"
             strategy = args_dic["strategy"]
             run_tag = args_dic["run_tag"]
+            customers_num = result_dic["instance"].split("-")[5].replace("n", "")
+            result_dic["customers_num"] = customers_num
 
-            # save_results_csv(f"./results/[{ymd}][static_{is_static}][{strategy}][{run_tag}].csv", result_dic)
-
+            save_results_csv(f"./results/[{ymd}][{run_type}][{strategy}][{run_tag}].csv", result_dic)
             log(tools.json_dumps_np(env.final_solutions))
     finally:
         pass
