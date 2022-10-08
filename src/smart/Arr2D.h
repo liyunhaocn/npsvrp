@@ -1,7 +1,7 @@
 ////////////////////////////////
-/// 简介:	1.	使用一维数组手工计算下标实现的二维数组.
+/// ???:	1.	?????????????????±???????????.
 /// 
-/// 备注:	1.	
+/// ???:	1.	
 ////////////////////////////////
 
 #ifndef CN_HUST_UTIL_ARR_2D_H
@@ -151,7 +151,7 @@ protected:
     }
 
     void copyData(T *data) {
-        // TODO[szx][1]: what if data is shorter than arr?
+        // [szx][1]: what if data is shorter than arr?
         // OPT[szx][8]: use memcpy() if all callers are POD type.
         std::copy(data, data + len, arr);
     }

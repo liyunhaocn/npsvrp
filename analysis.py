@@ -11,6 +11,7 @@ def get_csv_data(file_path):
         csv_reader = csv.reader(csvfile)  # 使用csv.reader读取csvfile中的文件
         # header = next(csv_reader)        # 读取第一行每一列的标题
         for row in csv_reader:  # 将csv 文件中的数据保存到data中
+            # print(f"row:{len(row)}")
             data.append(row)  # 选择某一列加入到data数组中
     return data
 
@@ -23,6 +24,19 @@ def get_diff_of_two_runs(path_a,path_b):
             ret.append(name)
     return ret
 
+def get_more_than_one_times_in_one_run(inst_path):
+
+    data_instance_name = np.array(get_csv_data(inst_path), dtype=object)[:, 0:1]
+
+    arr = []
+    ret = []
+    for i in data_instance_name:
+        if i in arr:
+            ret.append(i)
+        arr.append(i)
+    return ret
+
+
 def write_csv_by_over_write(path, data):
 
     with open(path, 'w+') as f:
@@ -32,7 +46,6 @@ def write_csv_by_over_write(path, data):
 def sort_csv(csv_path):
     data = get_csv_data(csv_path)
     data_0 = data[0]
-    data_0.insert(1, "customers_num")
     data = data[1:]
     data.sort(key=lambda x: x[0])
     # for i in data:
@@ -46,16 +59,22 @@ def get_customers_num_from_instance_name(instance_name):
 
 if __name__ == "__main__":
 
-    sort_csv(r"results/[10_04][dynamic][greedy][notag].csv")
-    sort_csv(r"results/[10_04][static][greedy][notag].csv")
-    sort_csv(r"results/[10_07][dynamic][greedy][hgs].csv")
-    sort_csv(r"results/[10_07][static][greedy][hgs].csv")
+    # sort_csv(r"results/[10_04][dynamic][greedy][notag].csv")
+    # sort_csv(r"results/[10_04][static][greedy][notag].csv")
+    # sort_csv(r"results/[10_08][static][greedy][smartonly].csv")
+    # sort_csv(r"results/[10_08][dynamic][greedy][smartonly].csv")
+    # exit(0)
+    # get_more_than_one_times_in_one_run(r"results/[10_08][dynamic][greedy][smartonly].csv")
+    # exit(0)
+
+    more_one = get_more_than_one_times_in_one_run("results/[10_08][dynamic][greedy][smartonly].csv")
+    print(f"one_more:{more_one}")
     exit(0)
 
-    diff = get_diff_of_two_runs("results/[10_04][dynamic][greedy][notag].csv",
-                                "results/[10_04][static][greedy][notag].csv")
-    print(diff)
-    exit(0)
+    # diff = get_diff_of_two_runs("results/[10_04][dynamic][greedy][notag].csv",
+    #                             "results/[10_04][static][greedy][notag].csv")
+    # print(diff)
+    # exit(0)
 
 
     # for row in data:

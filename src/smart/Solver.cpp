@@ -864,7 +864,6 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 
 			rPtw = rPtw - oldrPtw;
 
-			//TODO[-1]:这里的距离计算方式改变了
 			DisType cost = input.getDisof2(v,w)
 				+ input.getDisof2(w,vj)
 				- input.getDisof2(v,vj);
@@ -1075,6 +1074,7 @@ bool Solver::initMaxRoute() {
 
 bool Solver::initSolution(int kind) {//5种
 
+    rts.reSet();
 	if (kind == 0) {
 		initBySecOrder();
 	}
@@ -4861,10 +4861,6 @@ Vec<int> Solver::getPtwNodes(Route& r, int ptwKind) {
 			}
 			pt = customers[pt].next;
 		}
-		//TODO[7]:记得注释掉下面的
-		//if (pt != endNode) {
-		//	debug(pt);
-		//}
 	};
 
 	auto findRangeCanDePtw1 = [&]() {
@@ -8332,7 +8328,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 		rReCalRCost(rv);
 		rReCalRCost(rw);
 
-		bks->updateBKSAndPrint(*this);
+//		bks->updateBKSAndPrint(*this);
 		
 		#if CHECKING
 		for (int i = 0; i < rts.cnt; ++i) {
@@ -8378,15 +8374,15 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 	}
 
-	//TODO[lyh][5]:??????±????? ???????????????и???????·????routeCost
+	//TODO[lyh][5]:??????
 	sumRtsCost();
+    bks->updateBKSAndPrint(*this);
 	//auto rc = RoutesCost;
 	//reCalRtsCostSumCost();
 	//if (rc != RoutesCost) {
 	//	DEBUG(rc);
 	//	DEBUG(RoutesCost);
 	//}
-
 	return true;
 }
 
@@ -8447,11 +8443,11 @@ bool Solver::runSimulatedannealing(Individual* indiv) {
 	loadSolutionByArr2D(indiv->chromR);
 	if (penalty > 0) {
 		if (repair()) {
-			Simulatedannealing(1, 100, 50.0, globalCfg->ruinC_);
+			Simulatedannealing(1, 5, 20.0, globalCfg->ruinC_);
 		}
 	}
 	else {
-		Simulatedannealing(1, 100, 50.0, globalCfg->ruinC_);
+		Simulatedannealing(1, 5, 20.0, globalCfg->ruinC_);
 	}
 	exportIndividual(indiv);
 	return true;

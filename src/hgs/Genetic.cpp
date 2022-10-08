@@ -28,18 +28,18 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		// Finally select the best new individual based on bestOfSREXAndOXCrossovers
 		//Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
 		
-		//Individual* offspring = hust::EAX::doEaxWithoutRepair(population->getNonIdenticalParentsBinaryTournament(), candidateOffsprings[2]);
-		//if (offspring == nullptr) {
-		//	offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
-		//}
+		Individual* offspring = hust::EAX::doEaxWithoutRepair(population->getNonIdenticalParentsBinaryTournament(), candidateOffsprings[2]);
+		if (offspring == nullptr) {
+			offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
+		}
 
-		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
+//		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
 
 		/* LOCAL SEARCH */
 		// Run the Local Search on the new individual
 
 		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
-		if (offspring->isFeasible && offspring->myCostSol.distance < hust::bks->bestSolFound.RoutesCost) {
+		if (offspring->isFeasible) {
 			smartSolver->runSimulatedannealing(offspring);
 		}
 		//smartSolver->runLoaclSearch(offspring);

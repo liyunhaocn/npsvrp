@@ -12,7 +12,6 @@ import tools
 from environment import VRPEnvironment, ControllerEnvironment
 from strategies import STRATEGIES
 
-
 def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True):
     # LKH/VRP does not take floats (HGS seems to do)
 
@@ -134,7 +133,9 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None)
     # log(f"hgs_cmd:{hgs_cmd}")
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
         write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
-
+        # TODO[lyh][0]:print sub instance of dynamic
+        # with open("testInstances/x.txt", 'a+', encoding='UTF8', newline='') as f:
+        #     write_vrplib_stdin(f, instance, is_vrptw=True)
         routes = []
         for line in p.stdout:
             line = line.strip()

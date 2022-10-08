@@ -16,7 +16,7 @@ struct Goal {
 	UnorderedMap<int, Vec<Solver>> ppool;
 	//Vec<Vec<Solver>> ppool;
 	Params* para;
-
+    Vec<Solver> population;
 	int curSearchRN = -1;
 
 	Goal();
@@ -46,7 +46,7 @@ struct Goal {
 
 	void getTheRangeMostHope();
 
-	void test(Genetic* hgsSolver);
+	void test();
 };
 
 

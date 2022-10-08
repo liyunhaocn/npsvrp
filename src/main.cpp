@@ -61,14 +61,23 @@ namespace hust {
 }//namespace hust
 
 #if 1
-
+//
  //./instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
 //./instances/ORTEC-VRPTW-ASYM-92bc6975-d1-n273-k20.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
 
 // ./instances/ORTEC-VRPTW-ASYM-8bc13a3f-d1-n421-k40.txt -t 273 -seed 1 -veh -1 -useWallClockTime 1
 //203578
 
-void smartOnly(Params& params){
+void smartOnly(CommandLine& commandline){
+
+    Params params(commandline);
+    if(params.nbClients==1){
+
+        printf("Route #1: 1\n");
+        printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
+        fflush(stdout);
+        return;
+    }
 
     hust::globalInput = new hust::Input(params);
     hust::allocGlobalMem(params.config.seed);
@@ -79,13 +88,16 @@ void smartOnly(Params& params){
     INFO("----- STARTING GENETIC ALGORITHM");
 
     goal.TwoAlgCombine();
+//    goal.test();
     hust::bks->bestSolFound.printDimacs();
     //saveSolutiontoCsvFile(hust::bks->bestSolFound);
     hust::deallocGlobalMem();
 
 }
 
-void hgsAndSmart(Params& params, CommandLine& commandline) {
+void hgsAndSmart(CommandLine& commandline) {
+
+    Params params(commandline);
 
     Split split(&params);
 
@@ -94,12 +106,13 @@ void hgsAndSmart(Params& params, CommandLine& commandline) {
     // Initial population
     INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
     INFO("----- BUILDING INITIAL POPULATION");
-    Population population(&params, &split, &localSearch);
 
     hust::globalInput = new hust::Input(params);
     hust::allocGlobalMem(params.config.seed);
     hust::globalInput->initInput();
     hust::Solver smartSolver;
+
+    Population population(&params, &split, &localSearch,&smartSolver);
 
     // Genetic algorithm
     INFO("----- STARTING GENETIC ALGORITHM");
@@ -122,10 +135,8 @@ int main(int argc, char* argv[])
 		// Reading the data file and initializing some data structures
 		INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
 
-		Params params(commandline);
-        
-        smartOnly(params);
-        // hgsAndSmart(params,commandline);
+//         smartOnly(commandline);
+         hgsAndSmart(commandline);
 
 	}
 	// ≤‚ ‘÷–Œƒ◊¢ Õ

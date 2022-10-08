@@ -99,8 +99,9 @@ bool Input::initInput() {
 
 		auto cmp = [&](const int a, const int b) {
 
+
 			//TODO[-1] 这里的比较方式进行了修改
-			//return disOf[v][a] < disOf[v][b];
+            return getDisof2(v, a) < getDisof2(v, b);
 			//return disOf[v][a] + datas[a].serviceDuration <
 			//	disOf[v][b] + datas[b].serviceDuration;
 
@@ -125,7 +126,6 @@ bool Input::initInput() {
 			int aLinkv = canLinkNode(a, v);
 			int bLinkv = canLinkNode(b, v);
 			if ((aLinkv && bLinkv) || (!aLinkv && !bLinkv)) {
-				//return getDisof2(a, v) < getDisof2(b, v);
 				return getDisof2(v, a) < getDisof2(v, b);
 			}
 			else {
