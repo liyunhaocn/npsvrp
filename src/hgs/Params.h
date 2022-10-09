@@ -45,6 +45,7 @@ struct Client
 	int coordX;				// Coordinate X
 	int coordY;				// Coordinate Y
 	int serviceDuration;	// Service duration
+	int must_dispatch;		// must dispatch
 	int demand;				// Demand
 	int earliestArrival;	// Earliest arrival (when using time windows)
 	int latestArrival;		// Latest arrival (when using time windows)
@@ -149,7 +150,7 @@ public:
 	std::vector<std::vector<int>> correlatedVertices;					// Neighborhood restrictions: For each client, list of nearby clients (size nbClients + 1, but nothing stored for the depot!)
 	int circleSectorOverlapTolerance;									// Tolerance when determining circle sector overlap (0 - 65536)
 	int minCircleSectorSize;											// Minimum circle sector size to enforce (for nonempty routes) (0 - 65536)
-
+	int nbMustDispatch;													// must dispatch µÄÊýÁ¿
 	// Initialization from a given data set
 	Params(const CommandLine&);
 

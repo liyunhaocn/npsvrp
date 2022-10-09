@@ -99,6 +99,11 @@ void hgsAndSmart(CommandLine& commandline) {
 
     Params params(commandline);
 
+	if (params.nbMustDispatch == 0) {
+		printf("Cost 0\n");
+		fflush(stdout);
+		return;
+	}
     Split split(&params);
 
     //Creating the Split and Local Search structures

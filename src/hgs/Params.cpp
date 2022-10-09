@@ -255,6 +255,29 @@ Params::Params(const CommandLine& cl)
 						throw std::string("Expected depot index 1 instead of " + content2);
 					}
 				}
+				else if (content == "MUST_DISPATCH")
+				{
+					nbMustDispatch = 0;
+					for (int i = 0; i <= nbClients; i++)
+					{
+						int clientNr = 0;
+						std::cin >> clientNr >> cli[i].must_dispatch;
+						if (cli[i].must_dispatch == 1) {
+							++nbMustDispatch;
+						}
+						// Check if the clients are in order
+						if (clientNr != i + 1)
+						{
+							throw std::string("Clients are not in order in the list of service times");
+						}
+					}
+					// Check if the service duration of the depot is 0
+					if (cli[0].must_dispatch != 0)
+					{
+						throw std::string("must_dispatch depot should be 0");
+					}
+					hasServiceTimeSection = true;
+				}
 				else if (content == "SERVICE_TIME_SECTION")
 				{
 					for (int i = 0; i <= nbClients; i++)
@@ -350,6 +373,8 @@ Params::Params(const CommandLine& cl)
 			cli[i] = cli[0];
 			cli[i].custNum = i;
 		}
+		
+		//ERROR("nbMustDispatch:",nbMustDispatch);
 	}
 	else {
 		throw std::invalid_argument("Impossible to open instance file: " + config.pathInstance);
