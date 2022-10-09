@@ -30,16 +30,11 @@
 #define LYH_FILELINEADDS(str) ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:" + str)
 #define LYH_FILELINE() ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:")
 
-#if HUST_LYH_NPSRUN
-
-#define INFO(...);
-
+#if 1
+#define INFO(...) hust::println_("[INFO]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
 #else
-
-#define INFO(...) ;
-//#define INFO(...) hust::println_("[INFO]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
-
-#endif // HUST_LYH_NPSRUN
+#define INFO(...);
+#endif // 1
 
 #define DEBUG(...) hust::println_("[DEBUG]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
 #define ERROR(...) hust::println_("[ERROR]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)

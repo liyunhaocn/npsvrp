@@ -218,6 +218,9 @@ Params::Params(const CommandLine& cl)
 
 						cli[i].custNum--;
 						cli[i].polarAngle = CircleSector::positive_mod(static_cast<int>(32768. * atan2(cli[i].coordY - cli[0].coordY, cli[i].coordX - cli[0].coordX) / PI));
+						// 将所有的顾客都置为必须配送
+						cli[i].must_dispatch = 1;
+						nbMustDispatch = nbClients;
 					}
 				}
 				// Read the demand of each client (including the depot, which should have demand 0)

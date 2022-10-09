@@ -734,7 +734,7 @@ public:
 		
 	int CVB2ruinLS(int ruinCusNum);
 
-	Position findBestPosToSplit(Route& r);
+	Vec<Position> findTopKPositionMinCostToSplit(int k);
 	
 	int getARidCanUsed();
 

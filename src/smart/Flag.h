@@ -13,7 +13,7 @@
 
 #include "Arr2D.h"
 
-#define HUST_LYH_NPSRUN 0
+//#define HUST_LYH_NPSRUN 0
 #define CHECKING 0
 
 #define lyhCheckTrue(x) {				\

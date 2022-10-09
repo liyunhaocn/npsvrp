@@ -1,4 +1,6 @@
 
+#include <queue>
+
 #include "EAX.h"
 #include "Problem.h"
 #include "Solver.h"
@@ -7879,23 +7881,48 @@ bool Solver::minimizeRN(int ourTarget) {
 	//INFO("minRN,rts.cnt:",rts.cnt);
 }
 
-Solver::Position Solver::findBestPosToSplit(Route& r) {
+Vec<Solver::Position> Solver::findTopKPositionMinCostToSplit(int k) {
 
-	auto arr = rPutCusInve(r);
+	auto cmp = [&](const Position& x, const Position& y) {
+		return x.cost < y.cost;
+	};
 
-	Position ret;
+	std::priority_queue<Position, Vec<Position>, decltype(cmp)> qu(cmp);
 
-	for (int i = 0; i + 1 < arr.size(); ++i) {
-		int v = arr[i];
-		int vj = arr[i + 1];
-		DisType delt = 0;
-		delt -= input.getDisof2(v,vj);
-		delt += input.getDisof2(0,v);
-		delt += input.getDisof2(0,vj);
-		if (delt < ret.cost) {
-			ret.cost = delt;
-			ret.pos = v;
+	for (int rIndex = 0; rIndex < rts.cnt; ++rIndex) {
+
+		auto arr = rPutCusInve(rts[rIndex]);
+
+		for (int i = 0; i + 1 < arr.size(); ++i) {
+			int v = arr[i];
+			int vj = arr[i + 1];
+			Position post;
+			post.cost = 0;
+			post.pos = v;
+			post.rIndex = rIndex;
+			post.cost -= input.getDisof2(v, vj);
+			post.cost += input.getDisof2(v, 0);
+			post.cost += input.getDisof2(0, vj);
+
+			if (qu.size() < k) {
+				qu.push(post);
+			}
+			else {
+				if (qu.top().cost < post.cost) {
+					continue;
+				}
+				else {
+					qu.push(post);
+					qu.pop();
+				}
+			}
 		}
+	}
+
+	Vec<Position> ret;
+	while (!qu.empty()) {
+		ret.push_back(qu.top());
+		qu.pop();
 	}
 	return ret;
 };
@@ -7923,57 +7950,35 @@ bool Solver::adjustRN(int ourTarget) {
 	}
 	else if (rts.cnt < ourTarget) {
 		
-		while (rts.cnt < ourTarget) {
+		Vec<Position> arrPos = findTopKPositionMinCostToSplit(ourTarget - rts.cnt);
 
-			int index = -1;
-			//int choseNum = 0;
-			//TODO[-1]:这里修改成了顾客平均间距最大的
-			for (int i = 0; i < rts.cnt; ++i) {
-				Route& ri = rts[i];
-
-				if ( ri.rCustCnt>=2) {
-					if (index == -1) {
-						index = i;
-					}
-					else if (ri.routeCost > rts[index].routeCost) {
-						index = i;
-					}
-				}
-			}
+		for (const auto& splitPos:arrPos) {
 
 			int rId = getARidCanUsed();
-			Route r1 = rCreateRoute(rId);
+			Route routerNew = rCreateRoute(rId);
 
-			Route& r = rts[index];
-
-			auto vsp = findBestPosToSplit(r);
+			Route& r = rts.getRouteByRid( customers[splitPos.pos].routeID);
 
 			auto arr = rPutCusInve(r);
-
-			//INFO("vsp", vsp);
-			//printve(arr);
-
 			for (int i = 0; i < arr.size(); ++i) {
 				rRemoveAtPos(r, arr[i]);
-				rInsAtPosPre(r1, r1.tail, arr[i]);
-				if (arr[i] == vsp.pos) {
+				rInsAtPosPre(routerNew, routerNew.tail, arr[i]);
+				if (arr[i] == splitPos.pos) {
 					break;
 				}
 			}
 
-			rUpdateAvQfrom(r1, r1.head);
-			rUpdateZvQfrom(r1, r1.tail);
+			rUpdateAvQfrom(routerNew, routerNew.head);
+			rUpdateZvQfrom(routerNew, routerNew.tail);
 			rUpdateAvQfrom(r, r.head);
 			rUpdateZvQfrom(r, r.tail);
 			rReCalRCost(r);
-			rReCalRCost(r1);
-			rts.push_back(r1);
+			rReCalRCost(routerNew);
+			rts.push_back(routerNew);
 
 			sumRtsCost();
 			sumRtsPen();
-			
 		}
-		//INFO("split adjust rn rts.cnt:", rts.cnt);
 	}
 	else {
 		//INFO("no need adjust rn rts.cnt:", rts.cnt);
@@ -7983,6 +7988,7 @@ bool Solver::adjustRN(int ourTarget) {
 		return true;
 	}
 	else {
+		ERROR("adjust route fail ourTarget:", ourTarget," rts.cnt:",rts.cnt);
 		return false;
 	}
 }
@@ -8491,8 +8497,6 @@ bool BKS::updateBKSAndPrint(Solver& newSol, std::string opt) {
 
 	if (newSol.RoutesCost <= bestSolFound.RoutesCost && newSol.rts.cnt <= globalInput->vehicleCnt) {
 
-#if HUST_LYH_NPSRUN
-#else
 		auto lastRec = bestSolFound.RoutesCost;
 		if (newSol.RoutesCost < bestSolFound.RoutesCost) {
 			INFO("new bks cost:", newSol.RoutesCost,
@@ -8500,7 +8504,6 @@ bool BKS::updateBKSAndPrint(Solver& newSol, std::string opt) {
 				newSol.rts.cnt, "up:",
 				lastRec - newSol.RoutesCost, opt);
 		}
-#endif // HUST_LYH_NPSRUN
 
 		bestSolFound = newSol;
 		ret = true;

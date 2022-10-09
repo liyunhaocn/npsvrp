@@ -132,8 +132,8 @@ void hgsAndSmart(CommandLine& commandline) {
 
 int main(int argc, char* argv[])
 {
-	try
-	{
+	//try
+	//{
 		// Reading the arguments of the program
 		CommandLine commandline(argc, argv);
 
@@ -143,19 +143,15 @@ int main(int argc, char* argv[])
 //         smartOnly(commandline);
          hgsAndSmart(commandline);
 
-	}
-	// ≤‚ ‘÷–Œƒ◊¢ Õ
-	// Catch exceptions
-	catch (const std::string& e)
-	{
-		std::cout << "EXCEPTION | " << e << std::endl;
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << "EXCEPTION | " << e.what() << std::endl;
-	}
-
-	// Return 0 if the program execution was successfull
+	//}
+	//catch (const std::string& e)
+	//{
+	//	std::cout << "EXCEPTION | " << e << std::endl;
+	//}
+	//catch (const std::exception& e)
+	//{
+	//	std::cout << "EXCEPTION | " << e.what() << std::endl;
+	//}
 	return 0;
 }
 
