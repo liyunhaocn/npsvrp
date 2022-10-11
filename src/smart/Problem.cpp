@@ -9,7 +9,7 @@
 
 namespace hust {
 
-Input::Input(Params& para):datas(para.cli),para(para) {
+Input::Input(Params& para):datas(para.cli),para(para),P(para.P) {
 
 	this->custCnt = para.nbClients;
 	this->example = para.instanceName;
@@ -38,8 +38,7 @@ Input::Input(Params& para):datas(para.cli),para(para) {
 
 bool Input::initInput() {
 
-	P = Vec<int>(custCnt + 1, 1);
-
+//	P = Vec<int>(custCnt + 1, 1);
 	double sumq = 0;
 	for (int i = 1; i <= custCnt; ++i) {
 		sumq += datas[i].demand;

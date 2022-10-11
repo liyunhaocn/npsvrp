@@ -64,9 +64,104 @@ namespace hust {
 //
  //./instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
 //./instances/ORTEC-VRPTW-ASYM-92bc6975-d1-n273-k20.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
-
 // ./instances/ORTEC-VRPTW-ASYM-8bc13a3f-d1-n421-k40.txt -t 273 -seed 1 -veh -1 -useWallClockTime 1
 //203578
+
+void getWeight(CommandLine& commandline) {
+
+    Params params(commandline);
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Solver smartSolver;
+    hust::Goal goal;
+//    // Genetic algorithm
+//    INFO("----- STARTING GENETIC ALGORITHM");
+//
+//    goal.TwoAlgCombine();
+//    goal.test();
+//    smartSolver.mRLLocalSearch(0,{});
+    if(params.nbMustDispatch!=-1){
+        ERROR("params.nbMustDispatch!=-1");
+    }
+
+    auto& P = hust::globalInput->P;
+
+    auto getWeightByNear = [&](int nNear)->std::vector<int>{
+        std::vector< std::pair<int,int> > order;
+        order.reserve(params.nbClients+1);
+        order.push_back({0,0});
+        for(int v=1;v<=params.nbClients;++v){
+            int cycler = hust::globalInput->addSTclose[v][nNear];
+            order.push_back({cycler,v});
+        }
+        std::sort(order.begin(),order.end(),
+                  [&](const std::pair<int,int> x, const std::pair<int,int> y){
+                      return x.first<y.first;
+                  });
+        std::vector<int> weight(params.nbClients + 1);
+        int part = 5;
+        if( params.nbClients < part){
+            for(int i=0;i <= params.nbClients;++i){
+                weight[order[i].second] = i+1;
+            }
+            return weight;
+        }
+        int eachPart = params.nbClients/part;
+        for(int i=0;i <= params.nbClients;++i){
+            weight[order[i].second] = i/eachPart+1;
+        }
+        return weight;
+    };
+
+    auto getWeightByDistanceDepot = [&](){
+        std::vector< std::pair<int,int> > order;
+        order.reserve(params.nbClients+1);
+        order.push_back({0,0});
+        for(int v=1;v<=params.nbClients;++v){
+            int distance0 = hust::globalInput->addSTclose[v][0];
+            order.push_back({distance0,v});
+        }
+
+        std::sort(order.begin(),order.end(),
+                  [&](const std::pair<int,int> x, const std::pair<int,int> y){
+                      return x.first > y.first;
+                  });
+
+        std::vector<int> weight(params.nbClients + 1);
+        int part = 5;
+        if( params.nbClients < part){
+            for(int i=0;i <= params.nbClients;++i){
+                weight[order[i].second] = i+1;
+            }
+            return weight;
+        }
+        int eachPart = params.nbClients/part;
+        for(int i=0;i <= params.nbClients;++i){
+            weight[order[i].second] = i/eachPart+1;
+        }
+        return weight;
+    };
+
+    int nNear = params.nbClients/2;
+    auto weightNear = getWeightByNear(nNear);
+    auto weightDepot = getWeightByDistanceDepot();
+
+    for( int i = 0;i <= params.nbClients;++i ){
+        P[i] = 0;
+        P[i] += weightNear[i];
+        P[i] += weightDepot[i];
+    }
+
+    printf("Weight ");
+    for(int i:P){
+        printf("%d ",i);
+    }
+    printf("\n");
+    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
+    hust::deallocGlobalMem();
+}
 
 void smartOnly(CommandLine& commandline){
 
@@ -92,7 +187,21 @@ void smartOnly(CommandLine& commandline){
     hust::bks->bestSolFound.printDimacs();
     //saveSolutiontoCsvFile(hust::bks->bestSolFound);
     hust::deallocGlobalMem();
+}
 
+void doDynamicWithEjection(Params& params){
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+
+    hust::DynamicGoal dynamicGoal(&params);
+
+    auto& P = params.P;
+    dynamicGoal.test();
+
+    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
+    hust::deallocGlobalMem();
 }
 
 void hgsAndSmart(CommandLine& commandline) {
@@ -104,6 +213,23 @@ void hgsAndSmart(CommandLine& commandline) {
 		fflush(stdout);
 		return;
 	}
+
+    if(params.nbClients==1){
+
+        printf("Route #1: 1\n");
+        printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
+        fflush(stdout);
+        return;
+    }
+    if(params.nbMustDispatch == params.nbClients){
+        ;
+    }
+    else if( params.nbMustDispatch != params.nbClients ){
+        doDynamicWithEjection(params);
+        return;
+    }
+
+    ERROR("params.nbMustDispatch:",params.nbMustDispatch);
     Split split(&params);
 
     //Creating the Split and Local Search structures
@@ -129,29 +255,33 @@ void hgsAndSmart(CommandLine& commandline) {
     population.getBestFound()->printCVRPLibFormat();
 
 }
-
 int main(int argc, char* argv[])
 {
-	//try
-	//{
+	try
+	{
 		// Reading the arguments of the program
 		CommandLine commandline(argc, argv);
+        INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
 
-		// Reading the data file and initializing some data structures
-		INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
+        if( commandline.config.call == "getWeight"){
+            getWeight(commandline);
+        }else if(commandline.config.call == "hgsAndSmart"){
+            ERROR("commandline.config.call == hgsAndSmart");
+            hgsAndSmart(commandline);
+        }else if(commandline.config.call == "smartOnly"){
+            ERROR("commandline.config.call == smartOnly");
+            smartOnly(commandline);
+        }
 
-//         smartOnly(commandline);
-         hgsAndSmart(commandline);
-
-	//}
-	//catch (const std::string& e)
-	//{
-	//	std::cout << "EXCEPTION | " << e << std::endl;
-	//}
-	//catch (const std::exception& e)
-	//{
-	//	std::cout << "EXCEPTION | " << e.what() << std::endl;
-	//}
+	}
+	catch (const std::string& e)
+	{
+		std::cout << "EXCEPTION | " << e << std::endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << "EXCEPTION | " << e.what() << std::endl;
+	}
 	return 0;
 }
 

@@ -4,6 +4,99 @@
 
 namespace hust {
 
+DynamicGoal::DynamicGoal(Params* params):params(params),ep(params){
+    for(int i=1;i<=params->nbClients;++i){
+        if( params->cli[i].must_dispatch == 0 ){
+            customers_no_need_dispatch.push_back(i);
+        }
+    }
+}
+
+void DynamicGoal::test() {
+
+    hust::Solver smartSolver;
+    smartSolver.initSolution(0);
+
+    static ProbControl pcRuKind(5);
+    //static ProbControl pcRuKind(3);
+    static ProbControl pcCLKind(6);
+
+    Solver solClone = smartSolver;
+    int perturbkind = pcRuKind.getIndexBasedData();
+
+    Vec<int> ruinCus;
+    if (perturbkind == 0) {
+        ruinCus = smartSolver.ruinGetRuinCusByRound(globalCfg->ruinC_);
+    }
+    else if (perturbkind == 1) {
+        ruinCus = smartSolver.ruinGetRuinCusBySec(globalCfg->ruinC_);
+    }
+    else if (perturbkind == 2) {
+        int avgLen = globalInput->custCnt / smartSolver.rts.cnt;
+        int Lmax = std::min<int>(globalCfg->ruinLmax, avgLen);
+        int ruinKmax = 4 * globalCfg->ruinC_ / (1 + Lmax) - 1;
+        //TODO[-1]:!!!!!!
+        ruinKmax = std::min<int>(smartSolver.rts.cnt - 1, ruinKmax);
+        ruinKmax = std::max<int>(1, ruinKmax);
+        ruinCus = smartSolver.ruinGetRuinCusBySting(ruinKmax, Lmax);
+    }
+    else if(perturbkind==3){
+        // TODO[-1]:随机删除customers
+        ruinCus = smartSolver.ruinGetRuinCusByRand(globalCfg->ruinC_);
+    }
+    else if (perturbkind == 4) {
+        ruinCus = smartSolver.ruinGetRuinCusByRandOneR(globalCfg->ruinC_);
+    }
+    else {
+        ERROR("no this kind of ruin");
+    }
+
+    std::unordered_set<int> rIds;
+    for (int cus : ruinCus) {
+        Route& r = smartSolver.rts.getRouteByRid(smartSolver.customers[cus].routeID);
+        rIds.insert(r.routeID);
+        smartSolver.rRemoveAtPos(r, cus);
+        smartSolver.EPpush_back(cus);
+
+        if (r.rCustCnt == 0) {
+            if (rIds.count(r.routeID)>0) {
+                rIds.erase(rIds.find(r.routeID));
+            }
+            smartSolver.removeOneRouteByRid(r.routeID);
+        }
+    }
+
+    for (auto rid : rIds) {
+        Route& r = smartSolver.rts.getRouteByRid(rid);
+        smartSolver.rUpdateAvQfrom(r, r.head);
+        smartSolver.rUpdateZvQfrom(r, r.tail);
+        smartSolver.rReCalRCost(r);
+    }
+
+    smartSolver.sumRtsCost();
+    smartSolver.sumRtsPen();
+
+    //reCalRtsCostAndPen();
+
+    int clearKind = pcCLKind.getIndexBasedData();
+
+    smartSolver.CVB2ClearEPAllowNewR(clearKind);
+//    bks->updateBKSAndPrint(*this, "out and in");
+
+    auto cuses = EAX::getDiffCusofPb(solClone, smartSolver);
+    if (cuses.size() > 0) {
+        smartSolver.mRLLocalSearch(1, cuses);
+    }
+
+    //TODO[-1]:这里去掉了reCalRtsCostAndPen
+    //reCalRtsCostAndPen();
+
+    if (smartSolver.RoutesCost < solClone.RoutesCost) {
+        ++pcRuKind.data[perturbkind];
+        ++pcCLKind.data[clearKind];
+    }
+}
+
 Goal::Goal() {
 
 	eaxTabuTable = Vec<Vec<bool>>

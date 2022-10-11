@@ -142,7 +142,7 @@ struct Input {
 
 	util::Array2D<int> sectorClose;
 
-	Vec<int> P;
+	Vec<int>& P;
 
 	Input(Params& para);
 

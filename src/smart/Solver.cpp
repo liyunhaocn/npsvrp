@@ -6980,7 +6980,7 @@ int Solver::Simulatedannealing(int kind,int iterMax, double temperature,int ruin
 
 	double j0 = temperature;
 	double jf = 1;
-	double c = pow(jf / j0, 1 / double(iterMax * 3));
+	double c = pow(jf / j0, 1 / double(iterMax));
 	temperature = j0;
 
 	while (++iter < iterMax && !globalInput->para.isTimeLimitExceeded()){
@@ -6990,7 +6990,6 @@ int Solver::Simulatedannealing(int kind,int iterMax, double temperature,int ruin
 		globalRepairSquIter();
 
 		if (kind == 0) {
-			//sStar.ruinLocalSearchNotNewR(globalCfg->ruinC_);
 			sStar.ruinLocalSearchNotNewR(ruinNum);
 		}
 		else if (kind == 1) {
@@ -8449,11 +8448,11 @@ bool Solver::runSimulatedannealing(Individual* indiv) {
 	loadSolutionByArr2D(indiv->chromR);
 	if (penalty > 0) {
 		if (repair()) {
-			Simulatedannealing(1, 5, 20.0, globalCfg->ruinC_);
+			Simulatedannealing(1, 5, 10.0, globalCfg->ruinC_);
 		}
 	}
 	else {
-		Simulatedannealing(1, 5, 20.0, globalCfg->ruinC_);
+		Simulatedannealing(1, 5, 10.0, globalCfg->ruinC_);
 	}
 	exportIndividual(indiv);
 	return true;

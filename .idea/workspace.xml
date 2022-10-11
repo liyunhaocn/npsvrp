@@ -23,26 +23,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="[run] 10_7 smartonly">
-      <change afterPath="$PROJECT_DIR$/src/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/hgs/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/smart/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="[run] 10_8 smarthgs only eax">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Population.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Population.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/commandline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/commandline.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Arr2D.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Arr2D.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/EAX.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Goal.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Problem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Problem.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -95,8 +89,8 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/yunhao/npsvrp/src&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+    &quot;last_opened_file_path&quot;: &quot;/home/yunhao/npsvrp&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -104,7 +98,7 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.jobsch">
+  <component name="RunManager" selected="Python.solver">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -230,7 +224,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="solver" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="solver" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="npsvrp" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -243,7 +237,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-1de83915-d1-n262-k15.txt --epoch_tlim 10 --run_tag smartonly --verbose" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-aa746fc7-d1-n478-k45.txt --epoch_tlim 20 --run_tag smartonly --verbose" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -253,18 +247,17 @@
     </configuration>
     <list>
       <item itemvalue="Python.con" />
+      <item itemvalue="Python.solver" />
       <item itemvalue="Python.all_cmds" />
       <item itemvalue="Python.analysis" />
       <item itemvalue="Python.draw" />
       <item itemvalue="Python.jobsch" />
-      <item itemvalue="Python.solver" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.draw" />
         <item itemvalue="Python.jobsch" />
         <item itemvalue="Python.analysis" />
-        <item itemvalue="Python.solver" />
-        <item itemvalue="Python.draw" />
         <item itemvalue="Python.all_cmds" />
       </list>
     </recent_temporary>
@@ -345,6 +338,31 @@
           <url>file://$PROJECT_DIR$/analysis.py</url>
           <line>30</line>
           <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/solver.py</url>
+          <line>177</line>
+          <option name="timeStamp" value="43" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/solver.py</url>
+          <line>180</line>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/solver.py</url>
+          <line>110</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/solver.py</url>
+          <line>281</line>
+          <option name="timeStamp" value="47" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/solver.py</url>
+          <line>280</line>
+          <option name="timeStamp" value="48" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

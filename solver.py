@@ -1,6 +1,7 @@
 # Solver for Dynamic VRPTW, baseline strategy is to use the static solver HGS-VRPTW repeatedly
 import argparse
 import csv
+import math
 import subprocess
 import sys
 import os
@@ -12,7 +13,7 @@ import tools
 from environment import VRPEnvironment, ControllerEnvironment
 from strategies import STRATEGIES
 
-def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True):
+def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True, weight_arg=[]):
     # LKH/VRP does not take floats (HGS seems to do)
 
     coords = instance['coords']
@@ -82,13 +83,14 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
         ]))
         my_stdin.write("\n")
 
-        must_dispatch = instance["must_dispatch"]
-        my_stdin.write("MUST_DISPATCH\n")
-        my_stdin.write("\n".join([
-            "{}\t{}".format(i + 1, 1 if s else 0)
-            for i, s in enumerate(must_dispatch)
-        ]))
-        my_stdin.write("\n")
+        if "must_dispatch" in instance:
+            must_dispatch = instance["must_dispatch"]
+            my_stdin.write("MUST_DISPATCH\n")
+            my_stdin.write("\n".join([
+                "{}\t{}".format(i + 1, 1 if s else 0)
+                for i, s in enumerate(must_dispatch)
+            ]))
+            my_stdin.write("\n")
 
         if 'release_times' in instance:
             release_times = instance['release_times']
@@ -100,13 +102,53 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
             ]))
             my_stdin.write("\n")
 
+        if len(weight_arg) > 0:
+            my_stdin.write("CUSTOMER_WEIGHT\n")
+            my_stdin.write("\n".join([
+                "{}\t{}".format(i + 1, s)
+                for i, s in enumerate(weight_arg)
+            ]))
+            my_stdin.write("\n")
+
     my_stdin.write("EOF\n")
     my_stdin.flush()
 
+def get_cpp_base_cmd():
 
-def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None):
+    executable = os.path.join('dev', 'SmartRouter')
+    if platform.system() == 'Windows' and os.path.isfile(executable + '.exe'):
+        executable = executable + '.exe'
+    assert os.path.isfile(executable), f"HGS executable {executable} does not exist!"
+
+    cmd = [executable, "readstdin", '-veh', '-1', '-useWallClockTime', '1']
+    return cmd
+
+def get_initial_weight(instance, seed=1):
+    if instance['coords'].shape[0] <= 1:
+        yield []
+        return
+
+    if instance['coords'].shape[0] <= 2:
+        yield [1]
+        return
+
+    cmd_arg = ["-call", "getWeight", '-seed', str(seed)]
+    cmd = get_cpp_base_cmd() + cmd_arg
+
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
+        write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
+        weight = []
+        for line in p.stdout:
+            line = line.strip()
+            if line.startswith('Weight'):
+                weight = [int(x) for x in line.split(" ")[1:]]
+                assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
+                yield weight
+
+def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None, weight_arg=[]):
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
+
     if instance['coords'].shape[0] <= 1:
         yield [], 0
         return
@@ -117,33 +159,21 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None)
         yield solution, cost
         return
 
-    # os.makedirs(tmp_dir, exist_ok=True)
-    # instance_filename = os.path.join(tmp_dir, "problem.vrptw")
-    # tools.write_vrplib(instance_filename, instance, is_vrptw=True)
-
-    executable = os.path.join('dev', 'SmartRouter')
-    # On windows, we may have genvrp.exe
-    if platform.system() == 'Windows' and os.path.isfile(executable + '.exe'):
-        executable = executable + '.exe'
-    assert os.path.isfile(executable), f"HGS executable {executable} does not exist!"
-    # Call HGS solver with unlimited number of vehicles allowed and parse outputs
-    # Subtract two seconds from the time limit to account for writing of the instance and delay in enforcing the time limit by HGS
-
-    hgs_cmd = [
-        executable, "readstdin", "-t", str(max(time_limit - 2, 1)),
-        '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1', "-isNpsRun", "1"
-    ]
+    cmd = get_cpp_base_cmd() + ["-t", str(max(time_limit - 2, 1)), '-seed', str(seed)]
     if initial_solution is None:
         initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
     if initial_solution is not None:
-        hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
+        cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
 
-    # log(f"hgs_cmd:{hgs_cmd}")
-    with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
-        write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
+    cmd += ["-call", "hgsAndSmart"]
+    cmd_str = " ".join(cmd)
+    log(f"cmd_str:{cmd_str}")
+
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
+        write_vrplib_stdin(p.stdin, instance, is_vrptw=True, weight_arg=weight_arg)
         # TODO[lyh][0]:print sub instance of dynamic
-        # with open("testInstances/x.txt", 'a+', encoding='UTF8', newline='') as f:
-        #     write_vrplib_stdin(f, instance, is_vrptw=True)
+        with open("testInstances/x.txt", 'a+', encoding='UTF8', newline='') as f:
+            write_vrplib_stdin(f, instance, is_vrptw=True, weight_arg=weight_arg)
         routes = []
         for line in p.stdout:
             line = line.strip()
@@ -208,7 +238,16 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
     observation, static_info = env.reset()
     epoch_tlim = static_info['epoch_tlim']
     num_requests_postponed = 0
+
+    if static_info["dynamic_context"] is not None:
+        s_start = time.time()
+        weight = np.array(list(get_initial_weight(instance=static_info["dynamic_context"], seed=args.solver_seed)))[0]
+        time_get_weight = math.ceil(time.time() - s_start)
+    else:
+        time_get_weight = 0
+
     while not done:
+
         epoch_instance = observation['epoch_instance']
 
         if args.verbose:
@@ -232,7 +271,18 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
             # Run HGS with time limit and get last solution (= best solution found)
             # Note we use the same solver_seed in each epoch: this is sufficient as for the static problem
             # we will exactly use the solver_seed whereas in the dynamic problem randomness is in the instance
-            solutions = list(solve_static_vrptw(epoch_instance_dispatch, time_limit=epoch_tlim, seed=args.solver_seed))
+            customer_idx = epoch_instance['customer_idx']
+            request_weight = weight[customer_idx]
+            must_dispatch = epoch_instance['must_dispatch']
+            must_dispatch_request_index = must_dispatch.nonzero()
+
+            for i in must_dispatch_request_index:
+                request_weight[i] = 0
+            request_weight[0] = 0
+            solutions = list(solve_static_vrptw(instance=epoch_instance_dispatch,
+                                                time_limit=epoch_tlim-time_get_weight,
+                                                seed=args.solver_seed,
+                                                weight_arg=request_weight))
             assert len(solutions) > 0, f"No solution found during epoch {observation['current_epoch']}"
             epoch_solution, cost = solutions[-1]
 

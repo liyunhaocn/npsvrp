@@ -6,6 +6,45 @@
 
 namespace hust {
 
+struct EjectPool{
+
+    int sumCost = 0;
+    ConfSet container;
+    Params* params;
+    EjectPool(Params* params):params(params), container(params->nbClients+1){}
+    ~EjectPool() { }
+
+    void insert(int v){
+        sumCost += params->P[v];
+        container.ins(v);
+    }
+
+    void remove(int v){
+        if(container.pos[v]==-1){
+            ERROR("container.pos[v]==-1");
+        }
+        sumCost -= params->P[v];
+        container.removeVal(v);
+    }
+
+    int randomPeek() {
+        if( container.cnt == 0 ){
+            ERROR("container.cnt == 0");
+        }
+        int index = myRand->pick(container.cnt);
+        return container.ve[index];
+    }
+};
+
+struct DynamicGoal{
+    Params* params;
+    Solver bksSolution;
+    Vec<int> customers_no_need_dispatch;
+    EjectPool ep;
+    DynamicGoal(Params* params);
+    void test();
+};
+
 struct Goal {
 
 	Vec<Vec<bool>> eaxTabuTable;

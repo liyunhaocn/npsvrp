@@ -26,17 +26,21 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		// First select parents using getNonIdenticalParentsBinaryTournament
 		// Then use the selected parents to create new individuals using OX and SREX
 		// Finally select the best new individual based on bestOfSREXAndOXCrossovers
-		//Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
-		
-		Individual* offspring = hust::EAX::doEaxWithoutRepair(population->getNonIdenticalParentsBinaryTournament(), candidateOffsprings[2]);
-		if (offspring == nullptr) {
-			offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
-		}
-
 //		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
-
-		/* LOCAL SEARCH */
-		// Run the Local Search on the new individual
+		
+		Individual* offspring = nullptr;
+        auto parent = population->getNonIdenticalParentsBinaryTournament();
+        static int eaxCnt=0;
+        static int spCnt=0;
+        offspring = hust::EAX::doEaxWithoutRepair(parent,
+                                                  candidateOffsprings[2]);
+        if (offspring == nullptr) {
+            ++spCnt;
+            offspring = bestOfSREXAndOXCrossovers(parent);
+        }else{
+            ++eaxCnt;
+        }
+//        INFO("eaxCnt:",eaxCnt,"spCnt:",spCnt);
 
 		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
 		if (offspring->isFeasible) {
@@ -62,10 +66,10 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		/* TRACKING THE NUMBER OF ITERATIONS SINCE LAST SOLUTION IMPROVEMENT */
 		if (isNewBest)
 		{
-			if (offspring->isFeasible) {
-				smartSolver->runSimulatedannealing(offspring);
-				isNewBest = population->addIndividual(offspring, false);
-			}
+//			if (offspring->isFeasible) {
+//				smartSolver->runSimulatedannealing(offspring);
+//				isNewBest = population->addIndividual(offspring, false);
+//			}
 			
 			//isNewBest = population->addIndividual(offspring, false);
 			nbIterNonProd = 1;

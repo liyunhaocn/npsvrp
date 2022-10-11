@@ -67,6 +67,7 @@ public:
 		int timeLimit = INT_MAX;		// CPU time limit until termination in seconds. Default value: infinity
 		bool useWallClockTime = false;  // If True, measure wall clock time rather than CPU time
 		std::string pathBKS = "";		// Path to Best Known Solution
+        std::string call = "";
 
 		// Parameters for the Construction Heuristics
 		double fractionGeneratedNearest = 0.05;				// Proportion of individuals constructed by nearest-first
@@ -104,7 +105,6 @@ public:
 		int nbVeh = INT_MAX;								// Number of vehicles
 		int logPoolInterval = 0;							// The verbose level of the algorithm log
 		bool isDimacsRun = false;							// If DIMACS run, print incumbent and avoid other output
-		bool isNpsRun = false;							    // If NeurIPS run, 
 		bool useDynamicParameters = false;					// To use dynamic parameters based on instance attributes
 		std::string pathSolution;							// Solution path
 		int nbGranular = 40;								// Granular search parameter, limits the number of moves in the RI local search
@@ -151,6 +151,7 @@ public:
 	int circleSectorOverlapTolerance;									// Tolerance when determining circle sector overlap (0 - 65536)
 	int minCircleSectorSize;											// Minimum circle sector size to enforce (for nonempty routes) (0 - 65536)
 	int nbMustDispatch;													// must dispatch µÄÊýÁ¿
+	std::vector<int> P;													// customters weight
 	// Initialization from a given data set
 	Params(const CommandLine&);
 

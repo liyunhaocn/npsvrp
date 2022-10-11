@@ -930,6 +930,11 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 
 	pa.loadSolutionByArr2D(parent.first->chromR);
 	pb.loadSolutionByArr2D(parent.second->chromR);
+
+    if( pa.rts.cnt!=pb.rts.cnt ){
+        return nullptr;
+    }
+
 	if (pa.rts.cnt > pb.rts.cnt) {
 		pb.adjustRN(pa.rts.cnt);
 	}
@@ -944,9 +949,13 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 		return nullptr;
 	}
 	auto pc = pa;
-	//int eaxRet = eax.doNaEAXWithoutRepair(pa, pb, pc);
-	int eaxRet = eax.doPrEAXWithoutRepair(pa, pb, pc);
-	
+    int eaxRet = -1;
+    if(myRand->pick(2)==0){
+        eaxRet = eax.doNaEAXWithoutRepair(pa, pb, pc);
+    }else{
+        eaxRet = eax.doPrEAXWithoutRepair(pa, pb, pc);
+    }
+
 	if (eaxRet < 0) {
 		return nullptr;
 	}
