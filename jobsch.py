@@ -56,7 +56,7 @@ if __name__ == "__main__":
         os.system("chmod 777 ./dev/SmartRouter")
 
     # jobs = all_cmds.get_all_static_my_cmds()
-    jobs = all_cmds.get_all_dynamic_my_cmds("smarthgs") + all_cmds.get_all_static_my_cmds("smarthgs")
+    jobs = all_cmds.get_all_dynamic_my_cmds("ruinafterej") + all_cmds.get_all_static_my_cmds("ruinafterej")
     # for job in jobs:
     #     print(job)
     run(jobs, True)

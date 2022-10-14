@@ -32,25 +32,35 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
         auto parent = population->getNonIdenticalParentsBinaryTournament();
         static int eaxCnt=0;
         static int spCnt=0;
-        offspring = hust::EAX::doEaxWithoutRepair(parent,
-                                                  candidateOffsprings[2]);
-        if (offspring == nullptr) {
-            ++spCnt;
+
+        if( params->rng()%3==0 ){
+            offspring = hust::EAX::doEaxWithoutRepair(parent,candidateOffsprings[2]);
+            if (offspring == nullptr) {
+                ++spCnt;
+                offspring = bestOfSREXAndOXCrossovers(parent);
+            }else{
+                ++eaxCnt;
+            }
+        }else {
             offspring = bestOfSREXAndOXCrossovers(parent);
-        }else{
-            ++eaxCnt;
+            ++spCnt;
         }
+//        offspring = bestOfSREXAndOXCrossovers(parent);
 //        INFO("eaxCnt:",eaxCnt,"spCnt:",spCnt);
 
 		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
-		if (offspring->isFeasible) {
-			smartSolver->runSimulatedannealing(offspring);
-		}
+//		if (offspring->isFeasible) {
+//			smartSolver->runSimulatedannealing(offspring);
+//		}
 		//smartSolver->runLoaclSearch(offspring);
-
+        if(offspring->isFeasible && offspring->myCostSol.penalizedCost
+           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
+            smartSolver->runSimulatedannealing(offspring);
+        }
 		// Check if the new individual is the best feasible individual of the population, based on penalizedCost
 		bool isNewBest = population->addIndividual(offspring, true);
-		// In case of infeasibility, repair the individual with a certain probability
+
+        // In case of infeasibility, repair the individual with a certain probability
 		if (!offspring->isFeasible && params->rng() % 100 < (unsigned int) params->config.repairProbability)
 		{
 			// Run the Local Search again, but with penalties for infeasibilities multiplied by 10

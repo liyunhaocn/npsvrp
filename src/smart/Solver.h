@@ -120,11 +120,7 @@ struct RTS {
 		return *this;
 	}
 
-	~RTS() {
-		//debug("~RTS")
-		ve.clear();
-		posOf.clear();
-	}
+	~RTS()=default;
 
 	Route& operator [](int index) {
 
@@ -212,7 +208,7 @@ struct ConfSet {
 	Vec<int> pos;
 	int cnt = 0;
 
-	ConfSet() = delete;
+	ConfSet() {};
 	ConfSet(int maxSize) {
 		cnt = 0;
 		ve = Vec<int>(maxSize + 1, -1);
@@ -238,7 +234,7 @@ struct ConfSet {
 
 	ConfSet& operator = (ConfSet&& cs) noexcept = delete;
 
-	bool reSet() {
+	bool reset() {
 
 		for (int i = 0; i < cnt; ++i) {
 			// 
@@ -250,7 +246,7 @@ struct ConfSet {
 		return true;
 	}
 
-	bool ins(int val) {
+	bool insert(int val) {
 
 		#if CHECKING
 		lyhCheckTrue(val>=0);
@@ -272,7 +268,7 @@ struct ConfSet {
 		return true;
 	}
 
-	bool removeVal(int val) {
+	bool remove(int val) {
 
 		if (val >= pos.size() || val < 0) {
 			return false;
@@ -290,6 +286,21 @@ struct ConfSet {
 		return true;
 	}
 
+    Vec<int>putElementInVector() {
+        return Vec<int>(ve.begin(),ve.begin()+cnt);
+    }
+
+    int size(){
+        return cnt;
+    }
+
+    int randomPeek() {
+        if( cnt == 0 ){
+            ERROR("container.cnt == 0");
+        }
+        int index = myRand->pick(cnt);
+        return ve[index];
+    }
 };
 
 struct RandomX {
@@ -404,11 +415,67 @@ struct NextPermutation {
 
 };
 
+struct WeightedEjectPool{
+
+    int sumCost = 0;
+    ConfSet container;
+    Params* params;
+    WeightedEjectPool(Params* params):params(params), container(params->nbClients+1){}
+
+    WeightedEjectPool(const WeightedEjectPool& ej) {
+        this->container = ej.container;
+        this->sumCost = ej.sumCost;
+        this->params = ej.params;
+    }
+
+    WeightedEjectPool& operator = (const WeightedEjectPool& ej) {
+        if (this != &ej) {
+            this->container = ej.container;
+            this->sumCost = ej.sumCost;
+            this->params = ej.params;
+        }
+        return *this;
+    }
+
+    ~WeightedEjectPool() { }
+
+    void insert(int v){
+        sumCost += params->P[v];
+        container.insert(v);
+    }
+
+    void remove(int v){
+        if(container.pos[v]==-1){
+            ERROR("container.pos[v]==-1");
+        }
+        sumCost -= params->P[v];
+        container.remove(v);
+    }
+
+    int randomPeek() {
+        return container.randomPeek();
+    }
+
+    void reset(){
+        container.reset();
+        sumCost = 0;
+    }
+
+    Vec<int>putElementInVector() {
+        return  container.putElementInVector();
+    }
+
+    int size(){
+        return container.cnt;
+    }
+};
+
 class Solver
 {
 public:
 
 	Input& input;
+    Params* params;
 
 	Vec<Customer> customers;
 
@@ -430,7 +497,9 @@ public:
 	//LL EPIter = 1;
 	int minEPcus = IntInf;
 
-	Route EPr;
+    WeightedEjectPool dynamicEP;
+
+    ConfSet EP;
 
 	struct DeltPen {
 
@@ -541,6 +610,10 @@ public:
 
 	Solver& operator = (const Solver& s);
 
+    inline DisType  getPenaltyRouteCost(){
+        return this->PtwNoWei + this->Pc + this->RoutesCost;
+    }
+
 	// route function
 	Route rCreateRoute(int id);
 
@@ -608,27 +681,17 @@ public:
 
 	bool loadSolutionByArr2D(Vec < Vec<int>> arr2);
 
+    inline DisType  getDeltDistanceCostIfRemoveCustomer(int v){
+        DisType delt = 0;
+        int prev = customers[v].pre;
+        int next = customers[v].next;
+        delt -= input.getDisof2(prev,v);
+        delt -= input.getDisof2(v,next);
+        delt += input.getDisof2(prev,next);
+        return delt;
+    }
+
 	void exportIndividual(Individual* indiv);
-
-	bool EPrReset();
-
-	bool EPrInsTail(int t);
-
-	bool EPrInsHead(int t);
-
-	bool EPrInsAtPos(int pos, int node);
-
-	bool EPpush_back(int v);
-
-	int EPsize();
-
-	Vec<int> EPve();
-
-	bool EPrRemoveAtPos(int a);
-
-	bool EPremoveByVal(int val);
-
-	int EPrGetCusByIndex(int index);
 
 	DeltPen estimatevw(int kind, int v, int w, int oneR);
 
@@ -716,8 +779,6 @@ public:
 
 	static Vec<int>ClearEPOrderContribute;
 
-	void ruinClearEP(int kind);
-
 	int ruinGetSplitDepth(int maxDept);
 
 	Vec<int> ruinGetRuinCusBySting(int ruinK, int ruinL);
@@ -734,13 +795,19 @@ public:
 		
 	int CVB2ruinLS(int ruinCusNum);
 
+    void CVB2BlinkClearEPAllowNewR(int kind);
+
 	Vec<Position> findTopKPositionMinCostToSplit(int k);
 	
 	int getARidCanUsed();
 
-	int CVB2ClearEPAllowNewR(int kind);
+    Vec<int> getRuinCustomers(int perturbkind, int ruinCusNum);
 
-	int Simulatedannealing(int kind,int iterMax, double temperature,int ruinNum);
+    int dynamicRuin(int ruinCusNum);
+
+    Vec<int> dynamicPartialClearDynamicEP(int kind);
+
+	int simulatedannealing(int kind,int iterMax, double temperature,int ruinNum);
 
 	bool doOneTimeRuinPer(int perturbkind, int ruinCusNum,int clearEPKind);
 	
@@ -749,8 +816,6 @@ public:
 	bool ejectLocalSearch();
 
 	bool patternAdjustment(int Irand = -1);
-
-	void perturbBasedejepool(int ruinCusNum);
 
 	Vec<eOneRNode> ejectFromPatialSol();
 

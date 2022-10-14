@@ -79,13 +79,14 @@ struct Configuration {
 	int ruinLmax = 20;
 	//(ruinLmax+1)/2
 	int ruinC_ = 10;
-	int ruinC_Min = 15;
-	int ruinC_Max = 35;
+	int ruinC_Min = 5;
+	int ruinC_Max = 25;
 
-	int ruinWinkacRate = 95; // 100
+	int ruinWinkacRate = 98; // 100
 	//TODO[-1]:为初始化设置了眨眼
-	int initWinkacRate = 50; // 100
+	int initWinkacRate = 80; // 100
 	int abcyWinkacRate = 99; // 100
+    int rateOfDynamicInAndOut = 5;
 
 	std::string tag = "";
 

@@ -112,12 +112,12 @@ bool EAX::classifyEdges(Solver& pa, Solver& pb) {
 		RichEdge& re = richEdges[i];
 		if (re.owner == Owner::Pa) {
 			++GabEsize;
-			paPriE.ins(re.index);
+			paPriE.insert(re.index);
 			adjEdgeTable[re.e.a].push_back(re.index);
 		}
 		else if (re.owner == Owner::Pb) {
 			++GabEsize;
-			pbPriE.ins(re.index);
+			pbPriE.insert(re.index);
 			adjEdgeTable[re.e.b].push_back(re.index);
 		}
 	}
@@ -197,7 +197,7 @@ bool EAX::generateCycles() {
 					}
 				}
 			}
-			paPriEClone.removeVal(reIndex);
+			paPriEClone.remove(reIndex);
 		}
 		else if (lastEdge == Owner::Pa) {
 
@@ -214,7 +214,7 @@ bool EAX::generateCycles() {
 					}
 				}
 			}
-			pbPriEClone.removeVal(reIndex);
+			pbPriEClone.remove(reIndex);
 		}
 
 		#if CHECKING
@@ -468,14 +468,14 @@ int EAX::removeSubring(Solver& pc) {
 	ConfSet cusSet(eaxCusCnt + 1);
 
 	for (int i = 1; i <= eaxCusCnt; ++i) {
-		subCyCus.ins(i);
+		subCyCus.insert(i);
 	}
 
 	for (int i = 0; i < pc.rts.cnt; ++i) {
 		Vec<int> arr = pc.rPutCusInve(pc.rts[i]);
 		for (int c : arr) {
-			subCyCus.removeVal(c);
-			cusSet.ins(c);
+			subCyCus.remove(c);
+			cusSet.insert(c);
 		}
 	}
 
@@ -494,7 +494,7 @@ int EAX::removeSubring(Solver& pc) {
 
 		Solver::Position ret;
 		do {
-			subCyCus.removeVal(w);
+			subCyCus.remove(w);
 			demandInSub += pc.input.datas[w].demand;
 
 			int wj = pc.customers[w].next;
@@ -726,13 +726,13 @@ int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
 
 		//将一个并查集的所有abcyindex保存起来
 		for (int cy : unionArr[uId]) {
-			cyInUnion.ins(cy);
+			cyInUnion.insert(cy);
 		}
 
 		int firstCyIndex = cyInUnion.ve[myRand->pick(cyInUnion.cnt)];
 		std::queue<int> qu;
 		qu.push(firstCyIndex);
-		cyInUnion.removeVal(firstCyIndex);
+		cyInUnion.remove(firstCyIndex);
 
 		while (eset.size() < numABCyUsed && qu.size() > 0) {
 			auto tp = qu.front();
@@ -744,7 +744,7 @@ int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
 			for (int ad : adjs) {
 				if (cyInUnion.pos[ad] >= 0) {
 					qu.push(ad);
-					cyInUnion.removeVal(ad);
+					cyInUnion.remove(ad);
 				}
 			}
 		}
@@ -884,13 +884,13 @@ int EAX::doPrEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
 
 		//将一个并查集的所有abcyindex保存起来
 		for (int cy : unionArr[uId]) {
-			cyInUnion.ins(cy);
+			cyInUnion.insert(cy);
 		}
 
 		int firstCyIndex = cyInUnion.ve[myRand->pick(cyInUnion.cnt)];
 		std::queue<int> qu;
 		qu.push(firstCyIndex);
-		cyInUnion.removeVal(firstCyIndex);
+		cyInUnion.remove(firstCyIndex);
 
 		while (eset.size() < numABCyUsed && qu.size() > 0) {
 			auto tp = qu.front();
@@ -902,7 +902,7 @@ int EAX::doPrEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
 			for (int ad : adjs) {
 				if (cyInUnion.pos[ad] >= 0) {
 					qu.push(ad);
-					cyInUnion.removeVal(ad);
+					cyInUnion.remove(ad);
 				}
 			}
 		}
@@ -948,19 +948,31 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 	if (eax.abCycleSet.size() <= 1) {
 		return nullptr;
 	}
-	auto pc = pa;
+
     int eaxRet = -1;
-    if(myRand->pick(2)==0){
-        eaxRet = eax.doNaEAXWithoutRepair(pa, pb, pc);
-    }else{
-        eaxRet = eax.doPrEAXWithoutRepair(pa, pb, pc);
+    auto retOffspring = pa;
+    for(int i=0;i<10;++i) {
+
+        auto pc = pa;
+        int  retTemp = -1;
+        if (myRand->pick(2) == 0) {
+            retTemp = eax.doNaEAXWithoutRepair(pa, pb, pc);
+        } else {
+            retTemp = eax.doPrEAXWithoutRepair(pa, pb, pc);
+        }
+        if(retTemp != -1){
+            eaxRet = retTemp;
+        }
+        if(pc.getPenaltyRouteCost() < retOffspring.getPenaltyRouteCost()){
+            retOffspring = pc;
+        }
     }
 
 	if (eaxRet < 0) {
 		return nullptr;
 	}
 
-	pc.exportIndividual(offspring);
+    retOffspring.exportIndividual(offspring);
 	return offspring;
 }
 

@@ -30,6 +30,8 @@ namespace hust {
 		myRand = new Random(globalCfg->seed);
 		myRandX = new RandomX(globalCfg->seed);
 
+        globalCfg->seed += myRand->pick(10000);
+
 		INFO("globalCfg->seed:", globalCfg->seed, " ins:", globalInput->example);
 
 		globalCfg->show();
@@ -89,17 +91,19 @@ void getWeight(CommandLine& commandline) {
     auto& P = hust::globalInput->P;
 
     auto getWeightByNear = [&](int nNear)->std::vector<int>{
+
         std::vector< std::pair<int,int> > order;
         order.reserve(params.nbClients+1);
         order.push_back({0,0});
         for(int v=1;v<=params.nbClients;++v){
-            int cycler = hust::globalInput->addSTclose[v][nNear];
+            int w = hust::globalInput->addSTclose[v][nNear];
+            int cycler = hust::globalInput->getDisof2(v,w);
             order.push_back({cycler,v});
         }
         std::sort(order.begin(),order.end(),
-                  [&](const std::pair<int,int> x, const std::pair<int,int> y){
-                      return x.first<y.first;
-                  });
+          [&](const std::pair<int,int> x, const std::pair<int,int> y){
+              return x.first<y.first;
+          });
         std::vector<int> weight(params.nbClients + 1);
         int part = 5;
         if( params.nbClients < part){
@@ -111,6 +115,36 @@ void getWeight(CommandLine& commandline) {
         int eachPart = params.nbClients/part;
         for(int i=0;i <= params.nbClients;++i){
             weight[order[i].second] = i/eachPart+1;
+        }
+        return weight;
+    };
+
+    auto getWeightByNearDelt = [&](int nNear)->std::vector<int>{
+
+        std::vector< std::pair<int,int> > order;
+        order.reserve(params.nbClients+1);
+        order.push_back({0,0});
+        std::vector<int> weight(params.nbClients + 1);
+        for(int v=1;v<=params.nbClients;++v){
+            int vNearSumDeltCost = 0;
+            int nbPair = 0;
+
+            for(int wpos=0;wpos<nNear;++wpos){
+                int w = hust::globalInput->addSTclose[v][wpos];
+                for(int wjpos=0;wjpos<nNear;++wjpos){
+                    int wj = hust::globalInput->addSTclose[v][wjpos];
+                    ++nbPair;
+                    auto delt = params.timeCost.get(w,v);
+                    +params.timeCost.get(v,wj);
+                    -params.timeCost.get(w,wj);
+
+                    vNearSumDeltCost +=delt;
+//                    vNearSumDeltCost = std::max<int>(vNearSumDeltCost,delt);
+
+                }
+            }
+            weight[v] = vNearSumDeltCost/nbPair;
+//            weight[v] = vNearSumDeltCost;
         }
         return weight;
     };
@@ -144,16 +178,19 @@ void getWeight(CommandLine& commandline) {
         return weight;
     };
 
-    int nNear = params.nbClients/2;
-    auto weightNear = getWeightByNear(nNear);
-    auto weightDepot = getWeightByDistanceDepot();
+//    int nNear = params.nbClients/2;
+//    auto weightNear = getWeightByNear(nNear);
+//    auto weightDepot = getWeightByDistanceDepot();
+    auto weightNearDelt =  getWeightByNearDelt(std::min<int>(3,params.nbClients-1));
 
     for( int i = 0;i <= params.nbClients;++i ){
-        P[i] = 0;
-        P[i] += weightNear[i];
-        P[i] += weightDepot[i];
+//        P[i] = weightNearDelt[i] +hust::myRand->pick(params.maxDist);
+        P[i] = weightNearDelt[i];
+//        P[i] = 0;
+//        P[i] += weightNear[i];
+//        P[i] += weightDepot[i];
     }
-
+    P[0] = 0;
     printf("Weight ");
     for(int i:P){
         printf("%d ",i);
@@ -177,11 +214,9 @@ void smartOnly(CommandLine& commandline){
     hust::globalInput = new hust::Input(params);
     hust::allocGlobalMem(params.config.seed);
     hust::globalInput->initInput();
-    hust::Solver smartSolver;
     hust::Goal goal;
     // Genetic algorithm
     INFO("----- STARTING GENETIC ALGORITHM");
-
     goal.TwoAlgCombine();
 //    goal.test();
     hust::bks->bestSolFound.printDimacs();
@@ -208,11 +243,11 @@ void hgsAndSmart(CommandLine& commandline) {
 
     Params params(commandline);
 
-	if (params.nbMustDispatch == 0) {
-		printf("Cost 0\n");
-		fflush(stdout);
-		return;
-	}
+//	if (params.nbMustDispatch == 0) {
+//		printf("Cost 0\n");
+//		fflush(stdout);
+//		return;
+//	}
 
     if(params.nbClients==1){
 
@@ -229,7 +264,7 @@ void hgsAndSmart(CommandLine& commandline) {
         return;
     }
 
-    ERROR("params.nbMustDispatch:",params.nbMustDispatch);
+    ERROR("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
     Split split(&params);
 
     //Creating the Split and Local Search structures
@@ -257,8 +292,8 @@ void hgsAndSmart(CommandLine& commandline) {
 }
 int main(int argc, char* argv[])
 {
-	try
-	{
+//	try
+//	{
 		// Reading the arguments of the program
 		CommandLine commandline(argc, argv);
         INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
@@ -273,15 +308,15 @@ int main(int argc, char* argv[])
             smartOnly(commandline);
         }
 
-	}
-	catch (const std::string& e)
-	{
-		std::cout << "EXCEPTION | " << e << std::endl;
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << "EXCEPTION | " << e.what() << std::endl;
-	}
+//	}
+//	catch (const std::string& e)
+//	{
+//		std::cout << "EXCEPTION | " << e << std::endl;
+//	}
+//	catch (const std::exception& e)
+//	{
+//		std::cout << "EXCEPTION | " << e.what() << std::endl;
+//	}
 	return 0;
 }
 

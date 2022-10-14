@@ -23,21 +23,23 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="[run] 10_8 smarthgs only eax">
+    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="[不可运行]修改EjectPool之前 暂存">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/commandline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/commandline.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Population.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/EAX.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Flag.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Flag.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Goal.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Problem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Problem.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Utility.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Utility.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -237,7 +239,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-aa746fc7-d1-n478-k45.txt --epoch_tlim 20 --run_tag smartonly --verbose" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-13db18b2-d1-n310-k20.txt --epoch_tlim 54 --run_tag smarthgs --verbose" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -255,9 +257,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.draw" />
-        <item itemvalue="Python.jobsch" />
         <item itemvalue="Python.analysis" />
+        <item itemvalue="Python.jobsch" />
+        <item itemvalue="Python.draw" />
         <item itemvalue="Python.all_cmds" />
       </list>
     </recent_temporary>
@@ -290,7 +292,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665137221049</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="[不可运行]修改EjectPool之前 暂存">
+      <created>1665478999219</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1665478999219</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -324,7 +333,8 @@
     <MESSAGE value="test_submission 成功" />
     <MESSAGE value="baseline commit" />
     <MESSAGE value="[run] 10_7 smartonly" />
-    <option name="LAST_COMMIT_MESSAGE" value="[run] 10_7 smartonly" />
+    <MESSAGE value="[不可运行]修改EjectPool之前 暂存" />
+    <option name="LAST_COMMIT_MESSAGE" value="[不可运行]修改EjectPool之前 暂存" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -341,28 +351,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>177</line>
-          <option name="timeStamp" value="43" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>180</line>
-          <option name="timeStamp" value="44" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>110</line>
-          <option name="timeStamp" value="45" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>281</line>
-          <option name="timeStamp" value="47" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>280</line>
-          <option name="timeStamp" value="48" />
+          <line>152</line>
+          <option name="timeStamp" value="54" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

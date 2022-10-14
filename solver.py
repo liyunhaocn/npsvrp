@@ -160,20 +160,21 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None,
         return
 
     cmd = get_cpp_base_cmd() + ["-t", str(max(time_limit - 2, 1)), '-seed', str(seed)]
-    if initial_solution is None:
-        initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
-    if initial_solution is not None:
-        cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
 
     cmd += ["-call", "hgsAndSmart"]
     cmd_str = " ".join(cmd)
     log(f"cmd_str:{cmd_str}")
 
+    if initial_solution is None:
+        initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
+    if initial_solution is not None:
+        cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
+
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
         write_vrplib_stdin(p.stdin, instance, is_vrptw=True, weight_arg=weight_arg)
         # TODO[lyh][0]:print sub instance of dynamic
-        with open("testInstances/x.txt", 'a+', encoding='UTF8', newline='') as f:
-            write_vrplib_stdin(f, instance, is_vrptw=True, weight_arg=weight_arg)
+        # with open("testInstances/x.txt", 'w+', encoding='UTF8', newline='') as f:
+        #     write_vrplib_stdin(f, instance, is_vrptw=True, weight_arg=weight_arg)
         routes = []
         for line in p.stdout:
             line = line.strip()
@@ -238,12 +239,14 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
     observation, static_info = env.reset()
     epoch_tlim = static_info['epoch_tlim']
     num_requests_postponed = 0
-
+    num_epoch = static_info["end_epoch"] + 1
+    current_epoch = observation["current_epoch"]
     if static_info["dynamic_context"] is not None:
         s_start = time.time()
         weight = np.array(list(get_initial_weight(instance=static_info["dynamic_context"], seed=args.solver_seed)))[0]
         time_get_weight = math.ceil(time.time() - s_start)
     else:
+        weight = []
         time_get_weight = 0
 
     while not done:
@@ -271,14 +274,14 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
             # Run HGS with time limit and get last solution (= best solution found)
             # Note we use the same solver_seed in each epoch: this is sufficient as for the static problem
             # we will exactly use the solver_seed whereas in the dynamic problem randomness is in the instance
-            customer_idx = epoch_instance['customer_idx']
-            request_weight = weight[customer_idx]
-            must_dispatch = epoch_instance['must_dispatch']
-            must_dispatch_request_index = must_dispatch.nonzero()
+            customer_idx = epoch_instance_dispatch['customer_idx']
+            if len(weight)>0:
+                # weight_new = np.array([int(x + x/num_epoch*current_epoch) for x in weight])
+                weight_new = weight
+                request_weight = weight_new[customer_idx]
+            else:
+                request_weight = []
 
-            for i in must_dispatch_request_index:
-                request_weight[i] = 0
-            request_weight[0] = 0
             solutions = list(solve_static_vrptw(instance=epoch_instance_dispatch,
                                                 time_limit=epoch_tlim-time_get_weight,
                                                 seed=args.solver_seed,
@@ -373,6 +376,11 @@ if __name__ == "__main__":
             run_oracle(args, env)
         else:
             strategy = STRATEGIES[args.strategy]
+            # now.strftime("%Y-%m-%d, ")
+            h = time.strftime("%H", time.localtime())
+            m = time.strftime("%M", time.localtime())
+            s = time.strftime("%S", time.localtime())
+            args.solver_seed = int(h)*3600 + int(m)*60+int(s)
             reward = run_baseline(args, env, strategy=strategy)
 
         if "instance" in args_dic:
