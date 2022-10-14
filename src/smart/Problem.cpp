@@ -9,7 +9,7 @@
 
 namespace hust {
 
-Input::Input(Params& para):datas(para.cli),para(para),P(para.P) {
+Input::Input(Params& para):para(para),datas(para.cli),P(para.P) {
 
 	this->custCnt = para.nbClients;
 	this->example = para.instanceName;
@@ -137,7 +137,7 @@ bool Input::initInput() {
 	addSTJIsxthcloseOf = util::Array2D<int>(custCnt + 1, custCnt + 1, -1);
 
 	for (int v = 0; v <= custCnt; ++v) {
-		for (std::size_t wpos = 0; wpos < addSTclose.size2(); ++wpos) {
+		for (int wpos = 0; wpos < static_cast<int>(addSTclose.size2()); ++wpos) {
 			int w = addSTclose[v][wpos];
 			addSTJIsxthcloseOf[v][w] = wpos;
 		}
@@ -161,7 +161,7 @@ bool Input::initInput() {
 
 	iInNeicloseOfUnionNeiCloseOfI = Vec< Vec<int> >(custCnt + 1);
 
-	for (std::size_t v = 0; v <= custCnt; ++v) {
+	for (int v = 0; v <= custCnt; ++v) {
 
 		iInNeicloseOfUnionNeiCloseOfI[v] = Vec<int>
 			(addSTclose[v], addSTclose[v] + deNeiSize);

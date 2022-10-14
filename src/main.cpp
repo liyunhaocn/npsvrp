@@ -90,34 +90,34 @@ void getWeight(CommandLine& commandline) {
 
     auto& P = hust::globalInput->P;
 
-    auto getWeightByNear = [&](int nNear)->std::vector<int>{
-
-        std::vector< std::pair<int,int> > order;
-        order.reserve(params.nbClients+1);
-        order.push_back({0,0});
-        for(int v=1;v<=params.nbClients;++v){
-            int w = hust::globalInput->addSTclose[v][nNear];
-            int cycler = hust::globalInput->getDisof2(v,w);
-            order.push_back({cycler,v});
-        }
-        std::sort(order.begin(),order.end(),
-          [&](const std::pair<int,int> x, const std::pair<int,int> y){
-              return x.first<y.first;
-          });
-        std::vector<int> weight(params.nbClients + 1);
-        int part = 5;
-        if( params.nbClients < part){
-            for(int i=0;i <= params.nbClients;++i){
-                weight[order[i].second] = i+1;
-            }
-            return weight;
-        }
-        int eachPart = params.nbClients/part;
-        for(int i=0;i <= params.nbClients;++i){
-            weight[order[i].second] = i/eachPart+1;
-        }
-        return weight;
-    };
+//    auto getWeightByNear = [&](int nNear)->std::vector<int>{
+//
+//        std::vector< std::pair<int,int> > order;
+//        order.reserve(params.nbClients+1);
+//        order.push_back({0,0});
+//        for(int v=1;v<=params.nbClients;++v){
+//            int w = hust::globalInput->addSTclose[v][nNear];
+//            int cycler = hust::globalInput->getDisof2(v,w);
+//            order.push_back({cycler,v});
+//        }
+//        std::sort(order.begin(),order.end(),
+//          [&](const std::pair<int,int> x, const std::pair<int,int> y){
+//              return x.first<y.first;
+//          });
+//        std::vector<int> weight(params.nbClients + 1);
+//        int part = 5;
+//        if( params.nbClients < part){
+//            for(int i=0;i <= params.nbClients;++i){
+//                weight[order[i].second] = i+1;
+//            }
+//            return weight;
+//        }
+//        int eachPart = params.nbClients/part;
+//        for(int i=0;i <= params.nbClients;++i){
+//            weight[order[i].second] = i/eachPart+1;
+//        }
+//        return weight;
+//    };
 
     auto getWeightByNearDelt = [&](int nNear)->std::vector<int>{
 
@@ -134,9 +134,10 @@ void getWeight(CommandLine& commandline) {
                 for(int wjpos=0;wjpos<nNear;++wjpos){
                     int wj = hust::globalInput->addSTclose[v][wjpos];
                     ++nbPair;
-                    auto delt = params.timeCost.get(w,v);
-                    +params.timeCost.get(v,wj);
-                    -params.timeCost.get(w,wj);
+                    auto delt =
+                            params.timeCost.get(w,v)
+                            +params.timeCost.get(v,wj)
+                            -params.timeCost.get(w,wj);
 
                     vNearSumDeltCost +=delt;
 //                    vNearSumDeltCost = std::max<int>(vNearSumDeltCost,delt);
@@ -149,34 +150,34 @@ void getWeight(CommandLine& commandline) {
         return weight;
     };
 
-    auto getWeightByDistanceDepot = [&](){
-        std::vector< std::pair<int,int> > order;
-        order.reserve(params.nbClients+1);
-        order.push_back({0,0});
-        for(int v=1;v<=params.nbClients;++v){
-            int distance0 = hust::globalInput->addSTclose[v][0];
-            order.push_back({distance0,v});
-        }
-
-        std::sort(order.begin(),order.end(),
-                  [&](const std::pair<int,int> x, const std::pair<int,int> y){
-                      return x.first > y.first;
-                  });
-
-        std::vector<int> weight(params.nbClients + 1);
-        int part = 5;
-        if( params.nbClients < part){
-            for(int i=0;i <= params.nbClients;++i){
-                weight[order[i].second] = i+1;
-            }
-            return weight;
-        }
-        int eachPart = params.nbClients/part;
-        for(int i=0;i <= params.nbClients;++i){
-            weight[order[i].second] = i/eachPart+1;
-        }
-        return weight;
-    };
+//    auto getWeightByDistanceDepot = [&](){
+//        std::vector< std::pair<int,int> > order;
+//        order.reserve(params.nbClients+1);
+//        order.push_back({0,0});
+//        for(int v=1;v<=params.nbClients;++v){
+//            int distance0 = hust::globalInput->addSTclose[v][0];
+//            order.push_back({distance0,v});
+//        }
+//
+//        std::sort(order.begin(),order.end(),
+//                  [&](const std::pair<int,int> x, const std::pair<int,int> y){
+//                      return x.first > y.first;
+//                  });
+//
+//        std::vector<int> weight(params.nbClients + 1);
+//        int part = 5;
+//        if( params.nbClients < part){
+//            for(int i=0;i <= params.nbClients;++i){
+//                weight[order[i].second] = i+1;
+//            }
+//            return weight;
+//        }
+//        int eachPart = params.nbClients/part;
+//        for(int i=0;i <= params.nbClients;++i){
+//            weight[order[i].second] = i/eachPart+1;
+//        }
+//        return weight;
+//    };
 
 //    int nNear = params.nbClients/2;
 //    auto weightNear = getWeightByNear(nNear);
@@ -232,7 +233,7 @@ void doDynamicWithEjection(Params& params){
 
     hust::DynamicGoal dynamicGoal(&params);
 
-    auto& P = params.P;
+//    auto& P = params.P;
     dynamicGoal.test();
 
     //saveSolutiontoCsvFile(hust::bks->bestSolFound);

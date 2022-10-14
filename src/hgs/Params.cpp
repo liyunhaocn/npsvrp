@@ -394,10 +394,10 @@ Params::Params(const CommandLine& cl)
 			}
 		}
 		
-		if (cli.size() < nbClients * 3 + 3) {
+		if (static_cast<int>(cli.size()) < nbClients * 3 + 3) {
 			cli.resize(nbClients * 3 + 3);
 		}
-		for (int i = nbClients + 1; i < cli.size(); ++i) {
+		for (int i = nbClients + 1; i < static_cast<int>(cli.size()); ++i) {
 			cli[i] = cli[0];
 			cli[i].custNum = i;
 		}

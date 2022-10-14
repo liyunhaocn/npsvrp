@@ -7,7 +7,11 @@
 
 namespace hust {
 
-EAX::EAX(Solver& pa, Solver& pb) :pointerPa(&pa), pointerPb(&pb), paPriE(2 * (pa.input.custCnt + pa.rts.cnt + 1)), pbPriE(2 * (pb.input.custCnt + pb.rts.cnt + 1)) {
+EAX::EAX(Solver& pa, Solver& pb) :
+paPriE(2 * (pa.input.custCnt + pa.rts.cnt + 1)),
+pbPriE(2 * (pb.input.custCnt + pb.rts.cnt + 1)) ,
+pointerPa(&pa), pointerPb(&pb)
+{
 
 	this->eaxCusCnt = pa.input.custCnt;
 	this->eaxRCnt = pa.rts.cnt;
@@ -139,7 +143,7 @@ bool EAX::generateCycles() {
 	tabuCyIds.clear();
 	abCycleSet.clear();
 
-	for (auto i = 0; i < richEdges.size(); ++i) {
+	for (auto i = 0; i < static_cast<int>(richEdges.size()); ++i) {
 		richEdges[i].visited = false;
 	}
 
@@ -258,7 +262,7 @@ bool EAX::generateCycles() {
 
 			int abcStart = -1;
 			int cnt = 0;
-			for (int i = 0; i < cusVisitTime[curCus].size(); ++i) {
+			for (int i = 0; i < static_cast<int>(cusVisitTime[curCus].size()); ++i) {
 				if (genSize - cusVisitTime[curCus][i] > 0
 					&& (genSize - cusVisitTime[curCus][i]) % 2 == 0) {
 					abcStart = cusVisitTime[curCus][i];
@@ -607,7 +611,7 @@ void EAX::getUnionArr() {
 				0 没能正常修复
 */
 
-int EAX::doNaEAX(Solver& pa, Solver& pb, Solver& pc) {
+int EAX::doNaEAX(Solver& pc) {
 
 	repairSolNum = 0;
 	generSolNum = 1;
@@ -659,13 +663,9 @@ int EAX::doNaEAX(Solver& pa, Solver& pb, Solver& pc) {
 #endif // CHECKING
 
 		bks->updateBKSAndPrint(pc,"doNaEAX after repair");
-		if (pc.RoutesCost == pa.RoutesCost) {
-				
-			/*for (auto id : tabuCyIds) {
-				INFO("id:", id);
-			}*/
-			return 0;
-		}
+//		if (pc.RoutesCost == pa.RoutesCost) {
+//			return 0;
+//		}
 		++repairSolNum;
 		return 1;
 	}
@@ -675,7 +675,7 @@ int EAX::doNaEAX(Solver& pa, Solver& pb, Solver& pc) {
 	return 0;
 }
 
-int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
+int EAX::doPrEAX(Solver& pc) {
 
 	//generateCycles();
 	repairSolNum = 0;
@@ -734,7 +734,7 @@ int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
 		qu.push(firstCyIndex);
 		cyInUnion.remove(firstCyIndex);
 
-		while (eset.size() < numABCyUsed && qu.size() > 0) {
+		while ( static_cast<int>(eset.size()) < numABCyUsed && qu.size() > 0) {
 			auto tp = qu.front();
 			eset.push_back(tp);
 			qu.pop();
@@ -749,7 +749,7 @@ int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
 			}
 		}
 
-		if (eset.size() == numABCyUsed) {
+		if (static_cast<int>(eset.size()) == numABCyUsed) {
 			break;
 		}
 	}
@@ -771,12 +771,10 @@ int EAX::doPrEAX(Solver& pa, Solver& pb, Solver& pc) {
 #endif // CHECKING
 		bks->updateBKSAndPrint(pc, "doPrEAX after repair");
 
-		//++probc.data[numABCyUsed-2];
-
-		if (pc.RoutesCost == pa.RoutesCost) {
-			//debug("same after repair");
-			return 0;
-		}
+//		if (pc.RoutesCost == pa.RoutesCost) {
+//			//debug("same after repair");
+//			return 0;
+//		}
 		++repairSolNum;
 		return 1;
 	}
@@ -815,7 +813,7 @@ Vec<int> EAX::getDiffCusofPb(Solver& pa, Solver& pb) {
 
 }
 
-int EAX::doNaEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
+int EAX::doNaEAXWithoutRepair(Solver& pc) {
 
 	choosecyIndex = -1;
 	auto& order = myRandX->getMN(abCycleSet.size(), abCycleSet.size());
@@ -837,7 +835,7 @@ int EAX::doNaEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
 	return 0;
 }
 
-int EAX::doPrEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
+int EAX::doPrEAXWithoutRepair(Solver& pc) {
 
 	//TODO[lyh][001]:最多放置多少个abcycle[2,(abcyNum)/2],pick 是开区间
 	int abcyNum = abCycleSet.size();
@@ -892,7 +890,7 @@ int EAX::doPrEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
 		qu.push(firstCyIndex);
 		cyInUnion.remove(firstCyIndex);
 
-		while (eset.size() < numABCyUsed && qu.size() > 0) {
+		while ( static_cast<int>(eset.size()) < numABCyUsed && qu.size() > 0) {
 			auto tp = qu.front();
 			eset.push_back(tp);
 			qu.pop();
@@ -907,7 +905,7 @@ int EAX::doPrEAXWithoutRepair(Solver& pa, Solver& pb, Solver& pc) {
 			}
 		}
 
-		if (eset.size() == numABCyUsed) {
+		if ( static_cast<int>(eset.size()) == numABCyUsed) {
 			break;
 		}
 	}
@@ -956,9 +954,9 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
         auto pc = pa;
         int  retTemp = -1;
         if (myRand->pick(2) == 0) {
-            retTemp = eax.doNaEAXWithoutRepair(pa, pb, pc);
+            retTemp = eax.doNaEAXWithoutRepair(pc);
         } else {
-            retTemp = eax.doPrEAXWithoutRepair(pa, pb, pc);
+            retTemp = eax.doPrEAXWithoutRepair(pc);
         }
         if(retTemp != -1){
             eaxRet = retTemp;

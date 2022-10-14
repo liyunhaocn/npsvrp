@@ -111,6 +111,12 @@ struct RTS {
 		posOf = Vec<int>(maxSize, -1);
 	}
 
+    RTS(const RTS& rhs){
+        this->cnt = rhs.cnt;
+        this->ve = rhs.ve;
+        this->posOf = rhs.posOf;
+    }
+
 	RTS& operator = (const RTS& r) {
 		if (this != &r) {
 			cnt = r.cnt;
@@ -125,7 +131,7 @@ struct RTS {
 	Route& operator [](int index) {
 
 #if CHECKING
-		lyhCheckTrue(index < ve.size());
+		lyhCheckTrue(index < static_cast<int>(ve.size()) );
 		lyhCheckTrue(index >= 0);
 #endif // CHECKING
 
@@ -138,7 +144,7 @@ struct RTS {
 		lyhCheckTrue(r1.routeID>=0);
 		#endif // CHECKING
 
-		if (r1.routeID >= posOf.size()) {
+		if (r1.routeID >= static_cast<int>(posOf.size()) ) {
 			size_t newSize = posOf.size() + std::max<size_t>(r1.routeID + 1, posOf.size() / 2 + 1);
 			ve.resize(newSize, Route());
 			posOf.resize(newSize, -1);
@@ -178,7 +184,7 @@ struct RTS {
 
 #if CHECKING
 		lyhCheckTrue(rid >= 0);
-		lyhCheckTrue(rid < posOf.size());
+		lyhCheckTrue(rid < static_cast<int>(posOf.size()));
 		lyhCheckTrue(posOf[rid] >= 0);
 #endif // CHECKING
 
@@ -230,9 +236,8 @@ struct ConfSet {
 		return *this;
 	}
 
-	ConfSet(ConfSet&& cs) noexcept = delete;
-
-	ConfSet& operator = (ConfSet&& cs) noexcept = delete;
+//	ConfSet(ConfSet&& cs) noexcept = delete;
+//	ConfSet& operator = (ConfSet&& cs) noexcept = delete;
 
 	bool reset() {
 
@@ -252,7 +257,7 @@ struct ConfSet {
 		lyhCheckTrue(val>=0);
 		#endif // CHECKING
 
-		if (val >= pos.size()) {
+		if (val >= static_cast<int>(pos.size())) {
 			int newSize = pos.size() + std::max<int>(val + 1, pos.size() / 2 + 1);
 			ve.resize(newSize, -1);
 			pos.resize(newSize, -1);
@@ -270,7 +275,7 @@ struct ConfSet {
 
 	bool remove(int val) {
 
-		if (val >= pos.size() || val < 0) {
+		if (val >= static_cast<int>(pos.size()) || val < 0) {
 			return false;
 		}
 
@@ -385,7 +390,7 @@ public:
 
 struct NextPermutation {
 
-	bool hasNext(Vec<int>& ve, int Kmax, int& k, int N) {
+	bool hasNext(Vec<int>& ve, int& k, int N) {
 
 		if (k == 1 && ve[k] == N) {
 			return false;
@@ -420,7 +425,7 @@ struct WeightedEjectPool{
     int sumCost = 0;
     ConfSet container;
     Params* params;
-    WeightedEjectPool(Params* params):params(params), container(params->nbClients+1){}
+    WeightedEjectPool(Params* params):container(params->nbClients+1),params(params) {}
 
     WeightedEjectPool(const WeightedEjectPool& ej) {
         this->container = ej.container;
@@ -494,12 +499,12 @@ public:
 
 	ConfSet PtwConfRts, PcConfRts;
 
-	//LL EPIter = 1;
-	int minEPcus = IntInf;
-
     WeightedEjectPool dynamicEP;
 
     ConfSet EP;
+
+	//LL EPIter = 1;
+	int minEPcus = IntInf;
 
 	struct DeltPen {
 
@@ -516,13 +521,28 @@ public:
 			PtwOnly = DisInf;
 			deltCost = DisInf;
 		}
+
 		DeltPen(const DeltPen& d) {
-			this->deltPc = d.deltPc;
-			this->deltPtw = d.deltPtw;
-			this->PtwOnly = d.PtwOnly;
-			this->PcOnly = d.PcOnly;
-			this->deltCost = d.deltCost;
+            if(this!=&d) {
+                this->deltPc = d.deltPc;
+                this->deltPtw = d.deltPtw;
+                this->PtwOnly = d.PtwOnly;
+                this->PcOnly = d.PcOnly;
+                this->deltCost = d.deltCost;
+            }
 		}
+
+        DeltPen& operator = (const DeltPen& d) {
+            if(this!=&d) {
+                this->deltPc = d.deltPc;
+                this->deltPtw = d.deltPtw;
+                this->PtwOnly = d.PtwOnly;
+                this->PcOnly = d.PcOnly;
+                this->deltCost = d.deltCost;
+            }
+            return *this;
+        }
+
 	};
 
 	struct TwoNodeMove {
@@ -537,7 +557,7 @@ public:
 			v(v), w(w), kind(kind), deltPen(d) {
 		}
 
-		TwoNodeMove(Vec<int> ve, int kind, DeltPen d) :
+		TwoNodeMove(int kind, DeltPen d) :
 			kind(kind), deltPen(d) {}
 
 		TwoNodeMove() :
@@ -787,7 +807,7 @@ public:
 
 	Vec<int> ruinGetRuinCusByRand(int ruinCusNum);
 		
-	Vec<int> ruinGetRuinCusByRandOneR(int ruinCusNum);
+	Vec<int> ruinGetRuinCusByRandOneR();
 
 	Vec<int> ruinGetRuinCusBySec(int ruinCusNum);
 
@@ -819,9 +839,9 @@ public:
 
 	Vec<eOneRNode> ejectFromPatialSol();
 
-	eOneRNode ejectOneRouteOnlyHasPcMinP(Route& r, int Kmax);
+	eOneRNode ejectOneRouteOnlyHasPcMinP(Route& r);
 
-	eOneRNode ejectOneRouteOnlyP(Route& r, int kind, int Kmax);
+	eOneRNode ejectOneRouteOnlyP(Route& r, int Kmax);
 
 	eOneRNode ejectOneRouteMinPsumGreedy
 	(Route& r, eOneRNode cutBranchNode = eOneRNode());

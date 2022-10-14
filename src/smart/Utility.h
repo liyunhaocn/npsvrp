@@ -30,7 +30,7 @@
 #define LYH_FILELINEADDS(str) ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:" + str)
 #define LYH_FILELINE() ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:")
 
-#if 0
+#if 1
 #define INFO(...) hust::println_("[INFO]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
 #else
 #define INFO(...);

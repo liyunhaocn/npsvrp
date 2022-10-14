@@ -18,7 +18,6 @@ void DynamicGoal::test() {
     solver.initSolution(0);
     solver.simulatedannealing(1,500,50.0,globalCfg->ruinC_);
 
-    DisType cost = solver.RoutesCost + solver.dynamicEP.sumCost;
     hust::Solver best;
     while (!params->isTimeLimitExceeded()){
         solver.dynamicRuin(globalCfg->ruinC_);
@@ -41,7 +40,7 @@ Goal::Goal() {
 DisType Goal::getMinRtCostInPool(int rn) {
 	DisType bestSolInPool = DisInf;
 	auto& pool = ppool[rn];
-	for (int i = 0; i < pool.size(); ++i) {
+	for (int i = 0; i <static_cast<int>(pool.size()); ++i) {
 		bestSolInPool = std::min<DisType>(bestSolInPool, pool[i].RoutesCost);
 	}
 	return bestSolInPool;
@@ -49,7 +48,8 @@ DisType Goal::getMinRtCostInPool(int rn) {
 
 DisType Goal::doTwoKindEAX(Solver& pa, Solver& pb, int kind) {
 
-	int retState = 0; // 0 表示没有成功更新最优解，1表示更新了最优解 -1表示这两个解无法进行eax
+    // 0 表示没有成功更新最优解，1表示更新了最优解 -1表示这两个解无法进行eax
+     int retState = 0;
 
 	EAX eax(pa, pb);
 	eax.generateCycles();
@@ -70,10 +70,10 @@ DisType Goal::doTwoKindEAX(Solver& pa, Solver& pb, int kind) {
 		Solver pc = pa;
 		int eaxState = 0;
 		if (kind == 0) {
-			eaxState = eax.doNaEAX(pa, pb, pc);
+			eaxState = eax.doNaEAX(pc);
 		}
 		else {
-			eaxState = eax.doPrEAX(pa, pb, pc);
+			eaxState = eax.doPrEAX( pc);
 		}
 
 		if (eaxState == -1) {
@@ -594,8 +594,6 @@ int Goal::TwoAlgCombine() {
 
 	std::queue<int>qunext;
 
-	int iterFillqu = 0;
-
 	globalCfg->popSize = globalCfg->popSizeMin;
 
 	auto fillqu = [&]() -> void {
@@ -785,7 +783,7 @@ void Goal::test() {
     //myRand->shuffleVec(ords);
     auto getMinRtCostInPopulation = [&]() {
         DisType bestSolInPool = DisInf;
-        for (int i = 0; i < population.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(population.size()); ++i) {
             bestSolInPool = std::min<DisType>(bestSolInPool, population[i].RoutesCost);
         }
         return bestSolInPool;
