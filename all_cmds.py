@@ -10,6 +10,7 @@ import glob
 static_cmds = []
 
 def get_tlim_of_static(path_path):
+    # return 5
     # "ORTEC-VRPTW-ASYM-00c5356f-d1-n258-k12.txt"
     customers_num = path_path.split("-")[5].replace("n", "")
     # print(f"num:{customers_num}")
@@ -27,6 +28,7 @@ def get_tlim_of_static(path_path):
     return int(time_min * 60 * 1807 / 1981)
 
 def get_tlim_of_dynamic():
+    # return 5
     return int(60 * 1807 / 1981)
 
 def get_all_instances_paths():

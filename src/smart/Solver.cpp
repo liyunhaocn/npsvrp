@@ -4,7 +4,7 @@
 #include "EAX.h"
 #include "Problem.h"
 #include "Solver.h"
-
+#include "../hgs/LocalSearch.h"
 
 namespace hust{
 
@@ -330,7 +330,9 @@ bool Solver::rUpdateAvQfrom(Route& r, int vv) {
 	while (pt != -1) {
 
 		customers[pt].avp =
-			customers[pt].av = customers[ptpre].av + input.getDisof2(ptpre,pt) + input.datas[ptpre].serviceDuration;
+			customers[pt].av = customers[ptpre].av
+            + input.datas[ptpre].serviceDuration
+            + input.getDisof2(ptpre,pt) ;
 
 		customers[pt].TW_X = customers[ptpre].TW_X;
 		customers[pt].TW_X += std::max<DisType>(customers[pt].avp - input.datas[pt].latestArrival, 0);
@@ -742,7 +744,9 @@ Solver::Position Solver::findBestPosInSolForInit(int w) {
 			DisType awp = customers[v].av + input.datas[v].serviceDuration + input.getDisof2(v,w);
 			rtPtw += std::max<DisType>(0, awp - input.datas[w].latestArrival);
 			DisType aw =
-				awp <= input.datas[w].latestArrival ? std::max<DisType>(input.datas[w].earliestArrival, awp) : input.datas[w].latestArrival;
+				awp <= input.datas[w].latestArrival ?
+                std::max<DisType>(input.datas[w].earliestArrival, awp)
+                : input.datas[w].latestArrival;
 
 			DisType avjp = aw + input.datas[w].serviceDuration + input.getDisof2(w,vj);
 			rtPtw += std::max<DisType>(0, avjp - input.datas[vj].latestArrival);
@@ -794,13 +798,8 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 	// 惩罚最大的排在最前面
 	auto updatePool = [&](Position& pos) {
 
-		if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
-
-			if (pos.pen < ret.pen) {
-				ret = pos;
-			}
-			else if (pos.pen == ret.pen) {
-
+        if (pos.pen == 0) {
+            if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
 				if (pos.cost < ret.cost) {
 					// TODO[8]:眨眼率可以调 5%合适？
 					ret = pos;
@@ -939,37 +938,7 @@ bool Solver::initSortOrder(int kind) {
 	Vec<int>que1(input.custCnt);
 	std::iota(que1.begin(), que1.end(), 1);
 
-	auto cmp1 = [&](int x, int y) {
-		return input.getDisof2(0,x) > input.getDisof2(0,y);
-	};
-
-	auto cmp2 = [&](int x, int y) {
-		return input.datas[x].earliestArrival > input.datas[y].earliestArrival;
-	};
-
-	auto cmp3 = [&](int x, int y) {
-		return input.datas[x].latestArrival < input.datas[y].latestArrival;
-	};
-
-    auto cmp4 = [&](int x, int y) {
-        return input.getDisof2(0,x) < input.getDisof2(0,y);
-    };
-
-	if (kind == 1) {
-		std::sort(que1.begin(), que1.end(), cmp1);
-	}
-	else if (kind == 2) {
-		std::sort(que1.begin(), que1.end(), cmp2);
-	}
-	else if (kind == 3) {
-		std::sort(que1.begin(), que1.end(), cmp3);
-	}
-    else if (kind == 4) {
-        std::sort(que1.begin(), que1.end(), cmp4);
-    }
-	else {
-		ERROR("no this kind of initMaxRoute");
-	}
+    sortCustomersOrderByDifferentKind(kind,que1);
 
 	int rid = 0;
 	for (int tp : que1) {
@@ -979,9 +948,10 @@ bool Solver::initSortOrder(int kind) {
 		//Position bestP = findBestPosInSol(tp);
 
 		if (bestP.rIndex != -1 && bestP.pen == 0) {
-			rInsAtPos(rts[bestP.rIndex], bestP.pos, tp);
-			rUpdateAvQfrom(rts[bestP.rIndex], tp);
-			rUpdateZvQfrom(rts[bestP.rIndex], tp);
+            Route& r = rts[bestP.rIndex];
+			rInsAtPos(r, bestP.pos, tp);
+			rUpdateAvQfrom(r, tp);
+			rUpdateZvQfrom(r, tp);
 		}
 		else {
 			Route r1 = rCreateRoute(rid++);
@@ -1074,13 +1044,13 @@ bool Solver::initMaxRoute() {
 bool Solver::initSolution(int kind) {//5种
 
     rts.reSet();
-	if (kind == 0) {
-		initBySecOrder();
+	if (kind <= 5) {
+        initSortOrder(kind);
 	}
-	else if(kind <= 4){
-		initSortOrder(kind);
+	else if(kind <= 6){
+        initBySecOrder();
 	}
-	else if (kind == 5) {
+	else if (kind == 7) {
 		initMaxRoute();
 	}
 	
@@ -5899,9 +5869,9 @@ bool Solver::squeeze() {
 
 		for (int i = 0; i < rts.cnt; ++i) {
 			Route& r = rts[i];
-			if (rPutCusInve(r).size() != r.rCustCnt) {
-				lyhCheckTrue(rPutCusInve(r).size() == r.rCustCnt);
-				lyhCheckTrue(rPutCusInve(r).size() == r.rCustCnt);
+			if (static_cast<int>(rPutCusInve(r).size()) != r.rCustCnt) {
+				lyhCheckTrue( static_cast<int>(rPutCusInve(r).size()) == r.rCustCnt);
+				lyhCheckTrue( static_cast<int>(rPutCusInve(r).size()) == r.rCustCnt);
 			}
 		}
 
@@ -5934,11 +5904,11 @@ bool Solver::squeeze() {
 
 		for (int i = 0; i < rts.cnt; ++i) {
 			Route& r = rts[i];
-			lyhCheckTrue(rPutCusInve(r).size() == r.rCustCnt);
+			lyhCheckTrue(static_cast<int>(rPutCusInve(r).size()) == r.rCustCnt);
 
 			int pt = r.head;
 			while (pt != -1) {
-				lyhCheckTrue(pt <= customers.size());
+				lyhCheckTrue(pt <= static_cast<int>(customers.size()));
 				pt = customers[pt].next;
 			}
 		}
@@ -6404,34 +6374,9 @@ Vec<int> Solver::ruinGetRuinCusBySec(int ruinCusNum) {
 	return cusArr;
 }
 
-bool Solver::doOneTimeRuinPer(int perturbkind, int ruinCusNum, int clearEPKind) {
+bool Solver::doOneTimeRuinPer(int perturbkind, int clearEPKind, int ruinCusNum) {
 
-	Vec<int> ruinCus;
-	if (perturbkind == 0) {
-		ruinCus = ruinGetRuinCusByRound(ruinCusNum);
-	}
-	else if (perturbkind == 1) {
-		ruinCus = ruinGetRuinCusBySec(ruinCusNum);
-	}
-	else if (perturbkind == 2) {
-
-		int avgLen = input.custCnt / rts.cnt;
-		int Lmax = std::min<int>(globalCfg->ruinLmax, avgLen);
-		int ruinKmax = 4 * ruinCusNum / (1 + Lmax) - 1;
-		ruinKmax = std::min<int>(rts.cnt-1, ruinKmax);
-		ruinKmax = std::max<int>(1, ruinKmax);
-
-		ruinCus = ruinGetRuinCusBySting(ruinKmax, Lmax);
-	}
-	else if (perturbkind == 3) {
-		ruinCus = ruinGetRuinCusByRand(ruinCusNum);
-	}
-	else if (perturbkind == 4) {
-		ruinCus = ruinGetRuinCusByRandOneR();
-	}
-	else {
-		ERROR("no this kind of ruin");
-	}
+	Vec<int> ruinCus = getRuinCustomers(perturbkind,ruinCusNum);
 
 	std::unordered_set<int> rIds;
 	for (int cus : ruinCus) {
@@ -6452,17 +6397,10 @@ bool Solver::doOneTimeRuinPer(int perturbkind, int ruinCusNum, int clearEPKind) 
 	sumRtsCost();
 	sumRtsPen();
     CVB2BlinkClearEPAllowNewR(clearEPKind);
-
-	if (penalty == 0) {
-		return true;
-	}
-	else {
-		return false;
-	}
-	return false;
+	return true;
 }
 
-bool Solver::perturbBaseRuin(int perturbkind, int ruinCusNum,int clearEPKind) {
+bool Solver::perturbBaseRuin(int perturbkind, int clearEPKind, int ruinCusNum) {
 
 	ruinCusNum = std::min<int>(ruinCusNum,input.custCnt / 2);
 
@@ -6481,7 +6419,7 @@ bool Solver::perturbBaseRuin(int perturbkind, int ruinCusNum,int clearEPKind) {
 	bool hasPenMinSol = false;
 
 	for (i = 0 ;i < 10 ;++i) {
-		bool noPen = doOneTimeRuinPer(perturbkind,ruinCusNum,clearEPKind);
+		bool noPen = doOneTimeRuinPer(perturbkind,clearEPKind,ruinCusNum);
 		if (noPen) {
 			if (RoutesCost != pClone.RoutesCost) {
 				perSuc = true;
@@ -6550,7 +6488,7 @@ int Solver::ruinLocalSearchNotNewR(int ruinCusNum) {
 		int kind = pcRuinkind.getIndexBasedData();
 		int kindclep = pcClEPkind.getIndexBasedData();
 
-		bool ispertutb = perturbBaseRuin(kind, ruinCusNum, kindclep);
+		bool ispertutb = perturbBaseRuin(kind,kindclep, ruinCusNum );
 		//debug(conti);
 		if (ispertutb) {
 			auto cuses = EAX::getDiffCusofPb(solclone, *this);
@@ -6572,12 +6510,7 @@ int Solver::ruinLocalSearchNotNewR(int ruinCusNum) {
 	return retState;
 }
 
-void Solver::CVB2BlinkClearEPAllowNewR(int kind) {
-
-    // 保存放入节点的路径，放入结束之后只更新这些路径的cost值
-    std::unordered_set<int> insRts;
-    Vec<int> EPArr = EP.putElementInVector();
-
+void Solver::sortCustomersOrderByDifferentKind(int kind,Vec<int>&cusArr){
     auto cmp1 = [&](int a, int b) {
         return input.datas[a].demand > input.datas[b].demand;
     };
@@ -6598,29 +6531,37 @@ void Solver::CVB2BlinkClearEPAllowNewR(int kind) {
         return input.datas[a].latestArrival < input.datas[b].latestArrival;
     };
 
-
     switch (kind) {
         case 0:
-            myRand->shuffleVec(EPArr);
+            myRand->shuffleVec(cusArr);
             break;
         case 1:
-            std::sort(EPArr.begin(), EPArr.end(), cmp1);
+            std::sort(cusArr.begin(), cusArr.end(), cmp1);
             break;
         case 2:
-            std::sort(EPArr.begin(), EPArr.end(), cmp2);
+            std::sort(cusArr.begin(), cusArr.end(), cmp2);
             break;
         case 3:
-            std::sort(EPArr.begin(), EPArr.end(), cmp3);
+            std::sort(cusArr.begin(), cusArr.end(), cmp3);
             break;
         case 4:
-            std::sort(EPArr.begin(), EPArr.end(), cmp4);
+            std::sort(cusArr.begin(), cusArr.end(), cmp4);
             break;
         case 5:
-            std::sort(EPArr.begin(), EPArr.end(), cmp5);
+            std::sort(cusArr.begin(), cusArr.end(), cmp5);
             break;
         default:
             break;
     }
+}
+
+void Solver::CVB2BlinkClearEPAllowNewR(int kind) {
+
+    // 保存放入节点的路径，放入结束之后只更新这些路径的cost值
+    std::unordered_set<int> insRts;
+    Vec<int> EPArr = EP.putElementInVector();
+
+    sortCustomersOrderByDifferentKind(kind,EPArr);
 
     for (int i = 0; i < static_cast<int>(EPArr.size()); ++i) {
         //for (int i = EPArr.size() - 1;i>=0;--i) {
@@ -6706,9 +6647,7 @@ Vec<int> Solver::dynamicPartialClearDynamicEP(int kind) {
 	}
 
     Vec<int> ret;
-    if(penalty>0){
-        ERROR("penalty>0,penalty:",penalty);
-    }
+
 
 	for (int i = 0; i <static_cast<int>(EPArr.size()); ++i) {
 		//for (int i = EPArr.size() - 1;i>=0;--i) {
@@ -6719,7 +6658,8 @@ Vec<int> Solver::dynamicPartialClearDynamicEP(int kind) {
 
 		if (bestPos.pen == 0) {
             if( bestPos.cost - params->P[pt] < 0
-            || myRand->pick(100) < globalCfg->rateOfDynamicInAndOut ){
+            || myRand->pick(100) < globalCfg->rateOfDynamicInAndOut
+            ){
                 Route& r = rts[bestPos.rIndex];
                 insRts.insert(r.routeID);
                 rInsAtPos(r, bestPos.pos, pt);
@@ -6793,31 +6733,68 @@ int Solver::dynamicRuin(int ruinCusNum) {
     //static ProbControl pcRuKind(3);
     static ProbControl pcCLKind(6);
 
-    DisType oldCost = RoutesCost + dynamicEP.sumCost;
+    auto solBestFound = *this;
 
     int perturbkind = pcRuKind.getIndexBasedData();
+    int clearKind = pcCLKind.getIndexBasedData();
+    Vec<int> relevantCustomers;
+
+    Vec<int> ejectedCuses = dynamicPartialClearDynamicEP(clearKind);
+//    Vec<int> ejectedCuses = {dynamicEP.randomPeek()};
+    relevantCustomers.insert(relevantCustomers.end(),ejectedCuses.begin(),ejectedCuses.end());
+
+    int c_1 = myRand->pick(globalCfg->ruinC_Min,globalCfg->ruinC_Max+1);
+    c_1 = std::min<int>(c_1, input.custCnt -1 - dynamicEP.size() );
+    if(c_1>0) {
+        simulatedannealing(1, 10, 100.0, c_1);
+    }
+
+    std::unordered_set<int> newCustomersSet;
+    for(int v:relevantCustomers) {
+        if(customers[v].routeID!=-1){
+            newCustomersSet.insert(v);
+        }
+        for(int wpos=0;wpos<3;++wpos){
+            int w = input.addSTclose[v][wpos];
+            if(customers[w].routeID!=-1){
+                newCustomersSet.insert(w);
+            }
+        }
+    }
+    Vec<int> newCustomers;
+    for(int i:newCustomersSet){
+        newCustomers.push_back(i);
+    }
+    if (newCustomers.size() > 0) {
+        mRLLocalSearch(1, newCustomers);
+    }
+
+    if (RoutesCost + dynamicEP.sumCost < solBestFound.RoutesCost + solBestFound.dynamicEP.sumCost) {
+        ++pcRuKind.data[perturbkind];
+        ++pcCLKind.data[clearKind];
+        solBestFound = *this;
+    }
 
     auto ruinCus = getRuinCustomers(perturbkind,ruinCusNum);
 //    auto ruinCus = dynamicEP.randomPeek()};
 
     std::unordered_set<int> rIds;
-
-    Vec<int> relevantCustomers;
-
     for (int cus : ruinCus) {
-        if( input.datas[cus].must_dispatch == true ) {
+        if( input.datas[cus].must_dispatch == true || customers[cus].routeID==-1) {
             continue;
         }
-
-        if(dynamicEP.size() + 2 < input.custCnt) {
-//            DisType delt = getDeltDistanceCostIfRemoveCustomer(cus);
-
-//        if(  input.P[cus] + delt < 0
-//             || myRand->pick(100) < globalCfg->rateOfDynamicInAndOut ) {
+//        if(dynamicEP.size() + 2 < input.custCnt) {
+        DisType delt = getDeltDistanceCostIfRemoveCustomer(cus);
+        if( dynamicEP.size() < input.custCnt &&
+        (
+                input.P[cus] + delt < 0
+                || myRand->pick(100)<globalCfg->rateOfDynamicInAndOut
+        ) ) {
 //            INFO("input.P[cus]:",input.P[cus],"delt:",delt);
             Route &r = rts.getRouteByRid(customers[cus].routeID);
             rIds.insert(r.routeID);
             rRemoveAtPos(r, cus);
+
             dynamicEP.insert(cus);
             relevantCustomers.push_back(cus);
             if (r.rCustCnt == 0) {
@@ -6839,29 +6816,18 @@ int Solver::dynamicRuin(int ruinCusNum) {
     sumRtsCost();
     sumRtsPen();
 
-    int c_1 = myRand->pick(globalCfg->ruinC_Min,globalCfg->ruinC_Max+1);
-    c_1 = std::min<int>(c_1, input.custCnt -1 -dynamicEP.size() );
-    simulatedannealing(1,100,100.0,c_1);
-
-    int clearKind = pcCLKind.getIndexBasedData();
-
-    Vec<int> ejectedCuses = dynamicPartialClearDynamicEP(clearKind);
-//    Vec<int> ejectedCuses = {dynamicEP.randomPeek()};
-    relevantCustomers.insert(relevantCustomers.end(),ejectedCuses.begin(),ejectedCuses.end());
-
-    std::unordered_set<int> newCustomersSet;
     for(int v:relevantCustomers) {
         if(customers[v].routeID!=-1){
             newCustomersSet.insert(v);
         }
-        for(int wpos=0;wpos<5;++wpos){
+        for(int wpos=0;wpos<3;++wpos){
             int w = input.addSTclose[v][wpos];
             if(customers[w].routeID!=-1){
                 newCustomersSet.insert(w);
             }
         }
     }
-    Vec<int> newCustomers;
+
     for(int i:newCustomersSet){
         newCustomers.push_back(i);
     }
@@ -6871,15 +6837,19 @@ int Solver::dynamicRuin(int ruinCusNum) {
 
     int c_ = myRand->pick(globalCfg->ruinC_Min,globalCfg->ruinC_Max+1);
     c_ = std::min<int>(c_, input.custCnt -1 -dynamicEP.size() );
-    simulatedannealing(1,100,100.0,c_);
-
+    if(c_>0){
+        simulatedannealing(1,10,100.0,c_);
+    }
     //TODO[-1]:这里去掉了reCalRtsCostAndPen
     //reCalRtsCostAndPen();
 
-    if (RoutesCost + dynamicEP.sumCost < oldCost) {
+    if (RoutesCost + dynamicEP.sumCost < solBestFound.RoutesCost + solBestFound.dynamicEP.sumCost) {
         ++pcRuKind.data[perturbkind];
         ++pcCLKind.data[clearKind];
+        solBestFound = *this;
     }
+
+    *this = solBestFound;
     return true;
 }
 
@@ -6892,32 +6862,7 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 	Solver solClone = *this;
 	int perturbkind = pcRuKind.getIndexBasedData();
 
-	Vec<int> ruinCus;
-	if (perturbkind == 0) {
-		ruinCus = ruinGetRuinCusByRound(ruinCusNum);
-	}
-	else if (perturbkind == 1) {
-		ruinCus = ruinGetRuinCusBySec(ruinCusNum);
-	}
-	else if (perturbkind == 2) {
-		int avgLen = input.custCnt / rts.cnt;
-		int Lmax = std::min<int>(globalCfg->ruinLmax, avgLen);
-		int ruinKmax = 4 * ruinCusNum / (1 + Lmax) - 1;
-		//TODO[-1]:!!!!!!
-		ruinKmax = std::min<int>(rts.cnt - 1, ruinKmax);
-		ruinKmax = std::max<int>(1, ruinKmax);
-		ruinCus = ruinGetRuinCusBySting(ruinKmax, Lmax);
-	}
-	else if(perturbkind==3){
-		// TODO[-1]:随机删除customers
-		ruinCus = ruinGetRuinCusByRand(ruinCusNum);
-	}
-	else if (perturbkind == 4) {
-		ruinCus = ruinGetRuinCusByRandOneR();
-	}
-	else {
-		ERROR("no this kind of ruin");
-	}
+	Vec<int> ruinCus = getRuinCustomers(perturbkind,ruinCusNum);
 
 	std::unordered_set<int> rIds;
 	for (int cus : ruinCus) {
@@ -6934,16 +6879,21 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 		}
 	}
 
-	for (auto rid : rIds) {
-		Route& r = rts.getRouteByRid(rid);
-		rUpdateAvQfrom(r, r.head);
-		rUpdateZvQfrom(r, r.tail);
-		rReCalRCost(r);
-	}
+    for (auto rid : rIds) {
+        Route& r = rts.getRouteByRid(rid);
+        rUpdateAvQfrom(r, r.head);
+        rUpdateZvQfrom(r, r.tail);
+        rReCalRCost(r);
+    }
 
-	sumRtsCost();
-	sumRtsPen();
+    sumRtsCost();
+    sumRtsPen();
 
+//    reCalRtsCostAndPen();
+    auto newCus = EAX::getDiffCusofPb(solClone, *this);
+    if (newCus.size() > 0) {
+        mRLLocalSearch(1, newCus);
+    }
 	//reCalRtsCostAndPen();
 
 	int clearKind = pcCLKind.getIndexBasedData();
@@ -6951,13 +6901,21 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 	CVB2BlinkClearEPAllowNewR(clearKind);
 	bks->updateBKSAndPrint(*this, "out and in");
 
-	auto cuses = EAX::getDiffCusofPb(solClone, *this);
-	if (cuses.size() > 0) {
-		mRLLocalSearch(1, cuses);
+	auto changeCustomers = EAX::getDiffCusofPb(solClone, *this);
+	if (changeCustomers.size() > 0) {
+		mRLLocalSearch(1, changeCustomers);
 	}
-
-	//TODO[-1]:这里去掉了reCalRtsCostAndPen
-	//reCalRtsCostAndPen();
+    bks->updateBKSAndPrint(*this, "local search");
+//    Individual* indiv = new Individual(params);
+//    exportIndividual(indiv);
+//    hgsLocalSearch->run(indiv,1.0,1.0);
+//    if(indiv->isFeasible){
+//        loadSolutionByArr2D(indiv->chromR);
+////        INFO("indiv->isFeasible:",indiv->isFeasible);
+//    }
+//    if( penalty > 0 ){
+//        ERROR("penalty > 0");
+//    }
 
 	if (RoutesCost < solClone.RoutesCost) {
 		++pcRuKind.data[perturbkind];
@@ -6977,9 +6935,17 @@ int Solver::simulatedannealing(int kind,int iterMax, double temperature,int ruin
 	double j0 = temperature;
 	double jf = 1;
 	double c = pow(jf / j0, 1 / double(iterMax));
+//	double c = 0.999;
 	temperature = j0;
 
+    if( dynamicEP.size() == input.custCnt || ruinNum <= 0){
+        return false;
+    }
+
 	while (++iter < iterMax && !globalInput->para.isTimeLimitExceeded()){
+        ruinNum = myRand->pick(globalCfg->ruinC_Min,
+                                     globalCfg->ruinC_Max+1);
+        ruinNum = std::min(ruinNum,globalInput->custCnt-1);
 
 		auto sStar = s;
 
@@ -7001,10 +6967,13 @@ int Solver::simulatedannealing(int kind,int iterMax, double temperature,int ruin
 		}
 
 		temperature *= c;
+        if(temperature<1.0){
+            temperature = 100.0;
+        }
 
 		if (sStar.RoutesCost < pBest.RoutesCost) {
 			pBest = sStar;
-			iter = 1;
+//			iter = 1;
 			//temperature = j0;
 		}
 	}
@@ -8143,11 +8112,9 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 	Vec<int> contricus(input.custCnt + 1, 0);
 	//auto maxIt = std::max_element(contribution.begin(), contribution.end());
 	for (auto& i : contribution) { i = (i >> 1) + 1; }
-	//std::sort(moveKindOrder.begin(), moveKindOrder.end(), [&](int a, int b) {
-	//	return contribution[a] > contribution[b];
-	//});
-
-	//printve(moveKindOrder);
+	std::sort(moveKindOrder.begin(), moveKindOrder.end(), [&](int a, int b) {
+		return contribution[a] > contribution[b];
+	});
 
 	auto MRLUpdateM = [&](TwoNodeMove& m) {
 
@@ -8176,10 +8143,6 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 	for (int i : newCus) {
 		qu.push(i);
 	}
-
-	//auto& nei = globalCfg->mRLLocalSearchRange;
-	//Vec<int> bugOrder(nei[1]-nei[0]);
-	//std::iota(bugOrder.begin(), bugOrder.end(), nei[0]);
 
 	auto getMovesGivenRange = [&](int range) {
 
@@ -8371,7 +8334,7 @@ bool Solver::mRLLocalSearch(int hasRange,Vec<int> newCus) {
 
 	//TODO[lyh][5]:??????
 	sumRtsCost();
-    bks->updateBKSAndPrint(*this);
+//    bks->updateBKSAndPrint(*this);
 	//auto rc = RoutesCost;
 	//reCalRtsCostSumCost();
 	//if (rc != RoutesCost) {
@@ -8428,6 +8391,9 @@ bool Solver::runLoaclSearch(Individual* indiv) {
 		}
 	}
 	else {
+        if(RoutesCost < bks->bestSolFound.RoutesCost){
+            bks->bestSolFound = *this;
+        }
 		mRLLocalSearch(0, {});
 	}
 	exportIndividual(indiv);
@@ -8446,7 +8412,7 @@ bool Solver::runSimulatedannealing(Individual* indiv) {
 		}
 	}
 	else {
-		simulatedannealing(1, 10, 50.0, c_);
+		simulatedannealing(1, 50, 50.0, c_);
 	}
 	exportIndividual(indiv);
 	return true;

@@ -949,7 +949,7 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 
     int eaxRet = -1;
     auto retOffspring = pa;
-    for(int i=0;i<10;++i) {
+    for(int i=0;i < 5;++i) {
 
         auto pc = pa;
         int  retTemp = -1;

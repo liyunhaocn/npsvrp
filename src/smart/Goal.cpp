@@ -15,17 +15,29 @@ DynamicGoal::DynamicGoal(Params* params):params(params){
 void DynamicGoal::test() {
 
     hust::Solver solver;
-    solver.initSolution(0);
-    solver.simulatedannealing(1,500,50.0,globalCfg->ruinC_);
+    solver.initSolution(5);
+    hust::Solver best = solver;
+    solver.simulatedannealing(1,20,50.0,globalCfg->ruinC_);
 
-    hust::Solver best;
+    if(solver.RoutesCost + solver.dynamicEP.sumCost < best.RoutesCost + best.dynamicEP.sumCost){
+        INFO("-solver.RoutesCost + solver.dynamicEP.sumCost:",solver.RoutesCost + solver.dynamicEP.sumCost,
+             "dynamicEP.size():",solver.dynamicEP.size());
+        best = solver;
+    }
+
     while (!params->isTimeLimitExceeded()){
+        if(solver.dynamicEP.size()== globalInput->custCnt){
+            break;
+        }
         solver.dynamicRuin(globalCfg->ruinC_);
         if(solver.RoutesCost + solver.dynamicEP.sumCost < best.RoutesCost + best.dynamicEP.sumCost){
-            INFO("solver.RoutesCost + solver.dynamicEP.sumCost:",solver.RoutesCost + solver.dynamicEP.sumCost,
+            INFO("-solver.RoutesCost + solver.dynamicEP.sumCost:",solver.RoutesCost + solver.dynamicEP.sumCost,
             "dynamicEP.size():",solver.dynamicEP.size());
             best = solver;
-        }
+        }else{
+            INFO("+solver.RoutesCost + solver.dynamicEP.sumCost:",solver.RoutesCost + solver.dynamicEP.sumCost,
+                 "dynamicEP.size():",solver.dynamicEP.size());
+        };
     }
     best.printDimacs();
 }
@@ -158,7 +170,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 			int perkind = myRand->pick(5);
 			int clearEPkind = myRand->pick(6);
 			int ruinCusNum = std::min<int>(globalInput->custCnt/2, globalCfg->ruinC_);
-			sclone.perturbBaseRuin(perkind, ruinCusNum, clearEPkind);
+			sclone.perturbBaseRuin(perkind, clearEPkind,ruinCusNum);
 		}
 		else{
             int left = sclone.input.custCnt * 0.2+1;

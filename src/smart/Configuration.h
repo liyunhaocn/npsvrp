@@ -68,7 +68,7 @@ struct Configuration {
 
 	int neiSizeMin = 20;
 	int neiSizeMax = 50;
-	Vec<int> mRLLocalSearchRange = { 10,20 };
+	Vec<int> mRLLocalSearchRange = { 5,15 };
 	//int mRLLSgetAllRange = 50;
 
 	// ruinLocalSearch
@@ -82,9 +82,9 @@ struct Configuration {
 	int ruinC_Min = 5;
 	int ruinC_Max = 25;
 
-	int ruinWinkacRate = 98; // 100
+	int ruinWinkacRate = 97; // 100
 	//TODO[-1]:为初始化设置了眨眼
-	int initWinkacRate = 80; // 100
+	int initWinkacRate = 90; // 100
 	int abcyWinkacRate = 99; // 100
     int rateOfDynamicInAndOut = 5;
 

@@ -42,7 +42,8 @@ typedef std::vector<Individual*> SubPopulation;
 // Class representing the population of a Genetic Algorithm with functionality to write information to files, do binary tournaments, update fitness values etc.
 class Population
 {
-private:
+//private:
+public:
 	Params* params;											// Problem parameters
 	Split* split;											// Split algorithm
 	LocalSearch* localSearch;								// Local search structure
@@ -66,6 +67,15 @@ private:
     void doLocalSearchAndAddIndividual(Individual* indiv);
 
 public:
+
+    inline SubPopulation getFeasibleSubpopulation(){
+        return feasibleSubpopulation;
+    }
+
+    inline SubPopulation getInfeasibleSubpopulation(){
+        return infeasibleSubpopulation;
+    }
+
     // Generates the population. Part of the population is generated randomly and the other part using
     // several construction heuristics. There is variety in the individuals that are constructed using
     // the construction heuristics through the parameters used.

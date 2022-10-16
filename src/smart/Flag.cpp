@@ -35,7 +35,8 @@ hust::util::Array2D<int>* yearTable = nullptr;
 Configuration* globalCfg = nullptr;
 Input* globalInput = nullptr;
 BKS* bks = nullptr;
-//extern Timer* gloalTimer = nullptr;
+LocalSearch* hgsLocalSearch;
+
 int squIter = 1;
 
 void globalRepairSquIter() {

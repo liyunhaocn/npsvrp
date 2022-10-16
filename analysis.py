@@ -22,6 +22,10 @@ def get_diff_of_two_runs(path_a,path_b):
     for name in data_a_instance_name:
         if name not in data_b_instance_name:
             ret.append(name)
+
+    for name in data_b_instance_name:
+        if name not in data_a_instance_name:
+            ret.append(name)
     return ret
 
 def get_more_than_one_times_in_one_run(inst_path):
@@ -59,44 +63,21 @@ def get_customers_num_from_instance_name(instance_name):
 
 if __name__ == "__main__":
 
-    sort_csv(r"results/[10_13][static][greedy][eax10].csv")
-    sort_csv(r"results/[10_13][dynamic][greedy][eax10].csv")
+    sort_csv(r"results/[10_16][dynamic][greedy][perturb].csv")
+    sort_csv(r"results/[10_16][static][greedy][perturb].csv")
     exit(0)
+
     # get_more_than_one_times_in_one_run(r"results/[10_08][dynamic][greedy][smartonly].csv")
     # exit(0)
 
-    more_one = get_more_than_one_times_in_one_run("results/[10_08][dynamic][greedy][smartonly].csv")
-    print(f"one_more:{more_one}")
-    exit(0)
-
-    # diff = get_diff_of_two_runs("results/[10_04][dynamic][greedy][notag].csv",
-    #                             "results/[10_04][static][greedy][notag].csv")
-    # print(diff)
+    # more_one = get_more_than_one_times_in_one_run("results/[10_08][dynamic][greedy][smartonly].csv")
+    # print(f"one_more:{more_one}")
     # exit(0)
 
-
-    # for row in data:
-    #     print(row)
-    # for i in range(len(data)):
-    #     for j in range(i+1, len(data)):
-    #         if data[i][0] == data[j][0]:
-    #             print(f"data[i]:{data[i]}")
-    #             print(f"data[j]:{data[i]}")
-
-    # print([item for item, count in collections.Counter(instance_names).items() if count > 1])
-    ## [1, 2, 5]
-
-    # static_sum_cost = 0
-    # instance_num = 0
-    # for row in data:
-    #     instance_num += 1
-    #     static_sum_cost += int(row[2])
-    #     # print(f"int(row[2]):{int(row[2])}")
-    # print(f"static_sum_cost:{static_sum_cost}")
-    # print(f"instance_num:{instance_num}")
-
-# static_sum_cost:40939732
-# instance_num:249
+    diff = get_diff_of_two_runs(r"results/[10_15][dynamic][greedy][onlyruin].csv",
+                                r"results/[10_04][dynamic][greedy][notag].csv")
+    print(diff)
+    exit(0)
 
 # The instance ORTEC-VRPTW-ASYM-2e2ef021-d1-n210-k17.txt
 # turns out to be infeasible for the static variant.

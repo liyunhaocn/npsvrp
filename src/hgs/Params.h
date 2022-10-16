@@ -63,18 +63,18 @@ public:
 	// Stores all the parameters values (given by using the command line)
 	struct Config
 	{
-		int nbIter = 20000;				// Number of iterations without improvement until termination. Default value: 20,000 iterations
+		int nbIter = 2000;				// Number of iterations without improvement until termination. Default value: 20,000 iterations
 		int timeLimit = INT_MAX;		// CPU time limit until termination in seconds. Default value: infinity
 		bool useWallClockTime = false;  // If True, measure wall clock time rather than CPU time
 		std::string pathBKS = "";		// Path to Best Known Solution
         std::string call = "";
 
 		// Parameters for the Construction Heuristics
-		double fractionGeneratedNearest = 0.20;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedSmart = 0.20;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedFurthest = 0.20;			// Proportion of individuals constructed by furthest-first
-		double fractionGeneratedSweep = 0.20;				// Proportion of individuals constructed by sweep
-		double fractionGeneratedRandomly = 0.20;			// Proportion of individuals constructed randomly
+		double fractionGeneratedNearest = 0.05;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedSmart = 0.05;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedFurthest = 0.05;			// Proportion of individuals constructed by furthest-first
+		double fractionGeneratedSweep = 0.05;				// Proportion of individuals constructed by sweep
+		double fractionGeneratedRandomly = 0.80;			// Proportion of individuals constructed randomly
 		int minSweepFillPercentage = 60;					// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
 															// The maximum vehicle usage is 40% (100/250 routes, see SINTEF BKS),
 															// so take 60% to have some margin (otherwise all remaining orders will be in last route)

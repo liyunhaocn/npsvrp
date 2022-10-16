@@ -90,8 +90,9 @@ void Population::generatePopulation()
         }
 
         Individual indiv(params, false);
-        smartSolver->initSolution(i%4);
-//        smartSolver->initSolution(0);
+        smartSolver->initSolution(0);
+//        smartSolver->initSolution(i%6);
+//        smartSolver->minimizeRN(2);
         smartSolver->exportIndividual(&indiv);
         doLocalSearchAndAddIndividual(&indiv);
     }

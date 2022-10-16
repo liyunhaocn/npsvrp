@@ -43,7 +43,6 @@ namespace hust {
 
 		bks = new BKS();
 		//gloalTimer = new Timer(globalCfg->runTimer);
-
 		return true;
 	}
 
@@ -56,7 +55,9 @@ namespace hust {
 		delete globalInput;
 		delete bks;
 		//delete gloalTimer;
-
+        if(hgsLocalSearch!=nullptr) {
+            delete hgsLocalSearch;
+        }
 		return true;
 	}
 
@@ -68,6 +69,36 @@ namespace hust {
 //./instances/ORTEC-VRPTW-ASYM-92bc6975-d1-n273-k20.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
 // ./instances/ORTEC-VRPTW-ASYM-8bc13a3f-d1-n421-k40.txt -t 273 -seed 1 -veh -1 -useWallClockTime 1
 //203578
+std::vector<int> getWeightByNearDelt(Params& params,int nNear){
+
+    std::vector< std::pair<int,int> > order;
+    order.reserve(params.nbClients+1);
+    order.push_back({0,0});
+    std::vector<int> weight(params.nbClients + 1);
+    for(int v=1;v<=params.nbClients;++v){
+        int vNearSumDeltCost = 0;
+        int nbPair = 0;
+
+        for(int wpos=0;wpos<nNear;++wpos){
+            int w = hust::globalInput->addSTclose[v][wpos];
+            for(int wjpos=0;wjpos<nNear;++wjpos){
+                int wj = hust::globalInput->addSTclose[v][wjpos];
+                ++nbPair;
+                auto delt =
+                        params.timeCost.get(w,v)
+                        +params.timeCost.get(v,wj)
+                        -params.timeCost.get(w,wj);
+
+                vNearSumDeltCost +=delt;
+//                    vNearSumDeltCost = std::max<int>(vNearSumDeltCost,delt);
+
+            }
+        }
+        weight[v] = vNearSumDeltCost/nbPair;
+//            weight[v] = vNearSumDeltCost;
+    }
+    return weight;
+}
 
 void getWeight(CommandLine& commandline) {
 
@@ -85,7 +116,7 @@ void getWeight(CommandLine& commandline) {
 //    goal.test();
 //    smartSolver.mRLLocalSearch(0,{});
     if(params.nbMustDispatch!=-1){
-        ERROR("params.nbMustDispatch!=-1");
+        INFO("params.nbMustDispatch!=-1");
     }
 
     auto& P = hust::globalInput->P;
@@ -119,36 +150,7 @@ void getWeight(CommandLine& commandline) {
 //        return weight;
 //    };
 
-    auto getWeightByNearDelt = [&](int nNear)->std::vector<int>{
 
-        std::vector< std::pair<int,int> > order;
-        order.reserve(params.nbClients+1);
-        order.push_back({0,0});
-        std::vector<int> weight(params.nbClients + 1);
-        for(int v=1;v<=params.nbClients;++v){
-            int vNearSumDeltCost = 0;
-            int nbPair = 0;
-
-            for(int wpos=0;wpos<nNear;++wpos){
-                int w = hust::globalInput->addSTclose[v][wpos];
-                for(int wjpos=0;wjpos<nNear;++wjpos){
-                    int wj = hust::globalInput->addSTclose[v][wjpos];
-                    ++nbPair;
-                    auto delt =
-                            params.timeCost.get(w,v)
-                            +params.timeCost.get(v,wj)
-                            -params.timeCost.get(w,wj);
-
-                    vNearSumDeltCost +=delt;
-//                    vNearSumDeltCost = std::max<int>(vNearSumDeltCost,delt);
-
-                }
-            }
-            weight[v] = vNearSumDeltCost/nbPair;
-//            weight[v] = vNearSumDeltCost;
-        }
-        return weight;
-    };
 
 //    auto getWeightByDistanceDepot = [&](){
 //        std::vector< std::pair<int,int> > order;
@@ -182,7 +184,7 @@ void getWeight(CommandLine& commandline) {
 //    int nNear = params.nbClients/2;
 //    auto weightNear = getWeightByNear(nNear);
 //    auto weightDepot = getWeightByDistanceDepot();
-    auto weightNearDelt =  getWeightByNearDelt(std::min<int>(3,params.nbClients-1));
+    auto weightNearDelt =  getWeightByNearDelt(params, std::min<int>(15,params.nbClients-1));
 
     for( int i = 0;i <= params.nbClients;++i ){
 //        P[i] = weightNearDelt[i] +hust::myRand->pick(params.maxDist);
@@ -233,6 +235,12 @@ void doDynamicWithEjection(Params& params){
 
     hust::DynamicGoal dynamicGoal(&params);
 
+//    std::vector<int> weightNew = getWeightByNearDelt(params,15);
+//
+//    for(int i = 1;i <= params.nbClients;++i){
+//        params.P[i] = weightNew[i] - params.P[i];
+//    }
+
 //    auto& P = params.P;
     dynamicGoal.test();
 
@@ -265,7 +273,7 @@ void hgsAndSmart(CommandLine& commandline) {
         return;
     }
 
-    ERROR("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
+    INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
     Split split(&params);
 
     //Creating the Split and Local Search structures
@@ -279,16 +287,36 @@ void hgsAndSmart(CommandLine& commandline) {
     hust::globalInput->initInput();
     hust::Solver smartSolver;
 
+//    hust::hgsLocalSearch = new LocalSearch(&params);
+//    hust::Solver initBKS;
+//    for(int i=0;i<=5;++i){
+//        smartSolver.initSolution(i);
+//        if(smartSolver.RoutesCost < initBKS.RoutesCost ){
+//            initBKS = smartSolver;
+//        }
+//    }
+//    smartSolver = initBKS;
+//    int c_ = hust::myRand->pick( hust::globalCfg->ruinC_Min,
+//                                 hust::globalCfg->ruinC_Max+1);
+//    c_ = std::min(c_,hust::globalInput->custCnt-1);
+//    smartSolver.simulatedannealing(1,hust::IntInf,100.0,c_);
+//    smartSolver.printDimacs();
+//    return;
+
     Population population(&params, &split, &localSearch,&smartSolver);
 
-    // Genetic algorithm
-    INFO("----- STARTING GENETIC ALGORITHM");
+//  INFO("----- STARTING GENETIC ALGORITHM");
     Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
     solver.run(commandline.config.nbIter, commandline.config.timeLimit);
-
-    smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
-    //saveSolutiontoCsvFile(smartSolver);
+    if( !params.isTimeLimitExceeded() ){
+        smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
+        smartSolver.simulatedannealing(1,hust::IntInf,100.0,hust::globalCfg->ruinC_);
+        Individual* indiv  = population.getBestFound();
+        smartSolver.exportIndividual(indiv);
+        population.addIndividual(indiv, false);
+    }
     population.getBestFound()->printCVRPLibFormat();
+//  saveSolutiontoCsvFile(smartSolver);
 
 }
 int main(int argc, char* argv[])
@@ -302,10 +330,10 @@ int main(int argc, char* argv[])
         if( commandline.config.call == "getWeight"){
             getWeight(commandline);
         }else if(commandline.config.call == "hgsAndSmart"){
-            ERROR("commandline.config.call == hgsAndSmart");
+            INFO("commandline.config.call == hgsAndSmart");
             hgsAndSmart(commandline);
         }else if(commandline.config.call == "smartOnly"){
-            ERROR("commandline.config.call == smartOnly");
+            INFO("commandline.config.call == smartOnly");
             smartOnly(commandline);
         }
 

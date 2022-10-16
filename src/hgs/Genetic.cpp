@@ -33,7 +33,7 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
         static int eaxCnt=0;
         static int spCnt=0;
 
-        if( params->rng()%3==0 ){
+        if( params->rng()%2==0 ){
             offspring = hust::EAX::doEaxWithoutRepair(parent,candidateOffsprings[2]);
             if (offspring == nullptr) {
                 ++spCnt;
@@ -45,6 +45,7 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
             offspring = bestOfSREXAndOXCrossovers(parent);
             ++spCnt;
         }
+
 //        offspring = bestOfSREXAndOXCrossovers(parent);
 //        INFO("eaxCnt:",eaxCnt,"spCnt:",spCnt);
 
@@ -52,7 +53,12 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 //		if (offspring->isFeasible) {
 //			smartSolver->runSimulatedannealing(offspring);
 //		}
-		//smartSolver->runLoaclSearch(offspring);
+//        if (offspring->isFeasible) {
+//            smartSolver->runLoaclSearch(offspring);
+//        }else{
+//            localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
+//        }
+
         if(offspring->isFeasible && offspring->myCostSol.penalizedCost
            < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
             smartSolver->runSimulatedannealing(offspring);
@@ -106,7 +112,38 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		/* FOR TESTS INVOLVING SUCCESSIVE RUNS UNTIL A TIME LIMIT: WE RESET THE ALGORITHM/POPULATION EACH TIME maxIterNonProd IS ATTAINED*/
 		if (timeLimit != INT_MAX && nbIterNonProd == maxIterNonProd && params->config.doRepeatUntilTimeLimit)
 		{
-			population->restart();
+            // TODO[lyh][Genetic]:²»ÖØÆô
+            INFO("ReStart");
+            auto feasibleSubpopulation = population->getFeasibleSubpopulation();
+            auto inFeasibleSubpopulation = population->getInfeasibleSubpopulation();
+            auto mergePopulation = feasibleSubpopulation;
+            for(auto indiv:inFeasibleSubpopulation){
+                mergePopulation.push_back(indiv);
+            }
+
+            for(auto& indiv:feasibleSubpopulation) {
+//                smartSolver->initSolution(0);
+                smartSolver->loadSolutionByArr2D(indiv->chromR);
+
+                int perkind = hust::myRand->pick(5);
+                int clearEPkind = hust::myRand->pick(6);
+                int ruinCusNum = std::min<int>(hust::globalCfg->ruinC_Min,hust::globalCfg->ruinC_Max);
+                ruinCusNum = std::min<int>(ruinCusNum, params->nbClients-1);
+//                smartSolver->perturbBaseRuin(perkind,clearEPkind,ruinCusNum);
+//                smartSolver->doOneTimeRuinPer(perkind,clearEPkind,ruinCusNum);
+//                smartSolver->simulatedannealing(1,1000,100.0,hust::globalCfg->ruinC_);
+                smartSolver->patternAdjustment(500);
+                smartSolver->exportIndividual(indiv);
+            }
+
+            for(auto& indiv:inFeasibleSubpopulation) {
+                smartSolver->loadSolutionByArr2D(indiv->chromR);
+                smartSolver->patternAdjustment(500);
+                smartSolver->exportIndividual(indiv);
+            }
+
+            population->bestSolutionRestart = Individual();
+//			population->restart();
 			nbIterNonProd = 1;
 		}
 

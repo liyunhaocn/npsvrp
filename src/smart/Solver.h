@@ -813,6 +813,8 @@ public:
 
 	int ruinLocalSearchNotNewR(int ruinCusNum);
 		
+	void sortCustomersOrderByDifferentKind(int kind,Vec<int>& cusArr);
+
 	int CVB2ruinLS(int ruinCusNum);
 
     void CVB2BlinkClearEPAllowNewR(int kind);
@@ -829,9 +831,9 @@ public:
 
 	int simulatedannealing(int kind,int iterMax, double temperature,int ruinNum);
 
-	bool doOneTimeRuinPer(int perturbkind, int ruinCusNum,int clearEPKind);
+	bool doOneTimeRuinPer(int perturbkind, int clearEPKind, int ruinCusNum);
 	
-	bool perturbBaseRuin(int perturbkind, int ruinCusNum, int clearEPKind);
+	bool perturbBaseRuin(int perturbkind,int clearEPKin,int ruinCusNumd);
 
 	bool ejectLocalSearch();
 

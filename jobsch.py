@@ -55,8 +55,9 @@ if __name__ == "__main__":
         print("run job schedule on Linux")
         os.system("chmod 777 ./dev/SmartRouter")
 
-    # jobs = all_cmds.get_all_static_my_cmds()
-    jobs = all_cmds.get_all_dynamic_my_cmds("ruinafterej") + all_cmds.get_all_static_my_cmds("ruinafterej")
+    # jobs = all_cmds.get_all_static_my_cmds("testruin")
+    # jobs = all_cmds.get_all_dynamic_my_cmds("testruin")
+    jobs = all_cmds.get_all_dynamic_my_cmds("perturb") + all_cmds.get_all_static_my_cmds("perturb")
     # for job in jobs:
     #     print(job)
     run(jobs, True)

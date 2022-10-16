@@ -23,18 +23,22 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="ruinafter eje&#10;bugfix:可能讲全部的点都放进了dynamicEP中，要检查这个">
+    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="警告消除，&#10;[bugfix]main.cpp:dynamic delt cost减法之间加入了不必要的分号">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_cmds.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Population.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Population.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/EAX.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/EAX.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Flag.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Flag.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Flag.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Flag.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Math.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Math.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Problem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Utility.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Utility.h" afterDir="false" />
@@ -98,7 +102,7 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.jobsch">
+  <component name="RunManager" selected="Python.analysis">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -237,7 +241,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-13db18b2-d1-n310-k20.txt --epoch_tlim 54 --run_tag smarthgs --verbose" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-cc815064-d1-n470-k26.txt --epoch_tlim 54" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -255,8 +259,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.jobsch" />
         <item itemvalue="Python.analysis" />
+        <item itemvalue="Python.jobsch" />
         <item itemvalue="Python.draw" />
         <item itemvalue="Python.all_cmds" />
       </list>
@@ -304,7 +308,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665716815948</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="警告消除，&#10;[bugfix]main.cpp:dynamic delt cost减法之间加入了不必要的分号">
+      <created>1665735699257</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1665735699257</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -340,7 +351,8 @@
     <MESSAGE value="[run] 10_7 smartonly" />
     <MESSAGE value="[不可运行]修改EjectPool之前 暂存" />
     <MESSAGE value="ruinafter eje&#10;bugfix:可能讲全部的点都放进了dynamicEP中，要检查这个" />
-    <option name="LAST_COMMIT_MESSAGE" value="ruinafter eje&#10;bugfix:可能讲全部的点都放进了dynamicEP中，要检查这个" />
+    <MESSAGE value="警告消除，&#10;[bugfix]main.cpp:dynamic delt cost减法之间加入了不必要的分号" />
+    <option name="LAST_COMMIT_MESSAGE" value="警告消除，&#10;[bugfix]main.cpp:dynamic delt cost减法之间加入了不必要的分号" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -352,12 +364,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/analysis.py</url>
-          <line>30</line>
+          <line>34</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>152</line>
+          <line>156</line>
           <option name="timeStamp" value="54" />
         </line-breakpoint>
       </breakpoints>
