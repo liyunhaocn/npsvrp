@@ -457,16 +457,16 @@ void Goal::getTheRangeMostHope() {
 	
 	if (globalInput->custCnt < sol.rts.cnt * 25 ) {
 		//short route
-		globalCfg->popSizeMin = 2;
-		globalCfg->popSizeMax = 6;
-		globalCfg->popSize = globalCfg->popSizeMin;
-		globalCfg->neiSizeMax = 25;
+//		globalCfg->popSizeMin = 2;
+//		globalCfg->popSizeMax = 6;
+		globalCfg->popSize = globalCfg->popSizeMax;
+		globalCfg->neiSizeMax = 15;
 	}
 	else {//long route
-		globalCfg->popSizeMin = 4;
-		globalCfg->popSizeMax = 50;
-		globalCfg->popSize = globalCfg->popSizeMin;
-		globalCfg->neiSizeMax = 35;
+//		globalCfg->popSizeMin = 4;
+//		globalCfg->popSizeMax = 50;
+		globalCfg->popSize = globalCfg->popSizeMax;
+		globalCfg->neiSizeMax = 20;
 	}
 
 	Vec<Solver> poolt(globalCfg->popSizeMax);
@@ -475,11 +475,11 @@ void Goal::getTheRangeMostHope() {
     globalCfg->repairByCusCnt(globalInput->custCnt);
 
 	for (int i = 1; i < globalCfg->popSizeMax; ++i) {
-		int kind = (i == 4 ? 4 : i % 4);
+		int kind =  i % 8;
 		//int kind = (i % 4);
 		poolt[i].initSolution(kind);
 
-		int adjBig = std::min<int>(globalInput->vehicleCnt, poolt[i].rts.cnt + 15);
+		int adjBig = std::min<int>(globalInput->vehicleCnt, poolt[i].rts.cnt + 3);
         adjBig = std::min<int>(adjBig, globalInput->custCnt);
 
 		poolt[i].adjustRN(adjBig);
@@ -604,7 +604,7 @@ int Goal::TwoAlgCombine() {
 
 	getTheRangeMostHope();
 
-	std::queue<int>qunext;
+	std::queue<int> qunext;
 
 	globalCfg->popSize = globalCfg->popSizeMin;
 

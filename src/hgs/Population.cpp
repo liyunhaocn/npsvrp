@@ -90,10 +90,12 @@ void Population::generatePopulation()
         }
 
         Individual indiv(params, false);
-        smartSolver->initSolution(0);
+//        smartSolver->initSolution(3);
+        smartSolver->initSolution(i%8);
 //        smartSolver->initSolution(i%6);
 //        smartSolver->minimizeRN(2);
         smartSolver->exportIndividual(&indiv);
+        split->generalSplit(&indiv,params->nbVehicles);
         doLocalSearchAndAddIndividual(&indiv);
     }
     INFO("Generated ", nofSmartSolverToGenerate, " individuals using smartSolver");

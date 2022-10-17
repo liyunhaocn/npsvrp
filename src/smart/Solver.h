@@ -699,7 +699,7 @@ public:
 
 	bool initSolution(int kind);
 
-	bool loadSolutionByArr2D(Vec < Vec<int>> arr2);
+	bool loadSolutionByArr2D(Vec<Vec<int>>& arr2);
 
     inline DisType  getDeltDistanceCostIfRemoveCustomer(int v){
         DisType delt = 0;

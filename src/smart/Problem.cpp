@@ -100,7 +100,7 @@ bool Input::initInput() {
 
 
 			//TODO[-1] 这里的比较方式进行了修改
-            return getDisof2(v, a) < getDisof2(v, b);
+//            return getDisof2(v, a) < getDisof2(v, b);
 			//return disOf[v][a] + datas[a].serviceDuration <
 			//	disOf[v][b] + datas[b].serviceDuration;
 

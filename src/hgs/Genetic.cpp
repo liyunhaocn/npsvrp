@@ -28,28 +28,24 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		// Finally select the best new individual based on bestOfSREXAndOXCrossovers
 //		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
 		
-		Individual* offspring = nullptr;
         auto parent = population->getNonIdenticalParentsBinaryTournament();
         static int eaxCnt=0;
         static int spCnt=0;
+        Individual* offspring = bestOfSREXAndOXCrossovers(parent);
 
-        if( params->rng()%2==0 ){
-            offspring = hust::EAX::doEaxWithoutRepair(parent,candidateOffsprings[2]);
-            if (offspring == nullptr) {
-                ++spCnt;
-                offspring = bestOfSREXAndOXCrossovers(parent);
-            }else{
-                ++eaxCnt;
-            }
-        }else {
-            offspring = bestOfSREXAndOXCrossovers(parent);
-            ++spCnt;
-        }
+        Individual* EaxOffspring = hust::EAX::doEaxWithoutRepair(parent, candidateOffsprings[4]);
+//        if (EaxOffspring != nullptr) {
+//            split->generalSplit(offspring, params->nbVehicles);
+//            offspring = EaxOffspring->myCostSol.penalizedCost
+//                        < offspring->myCostSol.penalizedCost ?
+//                        EaxOffspring : offspring;
+//        }
 
 //        offspring = bestOfSREXAndOXCrossovers(parent);
 //        INFO("eaxCnt:",eaxCnt,"spCnt:",spCnt);
-
 		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
+
+//        smartSolver->runLoaclSearch(offspring);
 //		if (offspring->isFeasible) {
 //			smartSolver->runSimulatedannealing(offspring);
 //		}
@@ -59,10 +55,10 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 //            localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
 //        }
 
-        if(offspring->isFeasible && offspring->myCostSol.penalizedCost
-           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
-            smartSolver->runSimulatedannealing(offspring);
-        }
+//        if(offspring->isFeasible && offspring->myCostSol.penalizedCost
+//           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
+//            smartSolver->runSimulatedannealing(offspring);
+//        }
 		// Check if the new individual is the best feasible individual of the population, based on penalizedCost
 		bool isNewBest = population->addIndividual(offspring, true);
 
@@ -82,11 +78,6 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		/* TRACKING THE NUMBER OF ITERATIONS SINCE LAST SOLUTION IMPROVEMENT */
 		if (isNewBest)
 		{
-//			if (offspring->isFeasible) {
-//				smartSolver->runSimulatedannealing(offspring);
-//				isNewBest = population->addIndividual(offspring, false);
-//			}
-			
 			//isNewBest = population->addIndividual(offspring, false);
 			nbIterNonProd = 1;
 		}
@@ -114,36 +105,10 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		{
             // TODO[lyh][Genetic]:²»ÖØÆô
             INFO("ReStart");
-            auto feasibleSubpopulation = population->getFeasibleSubpopulation();
-            auto inFeasibleSubpopulation = population->getInfeasibleSubpopulation();
-            auto mergePopulation = feasibleSubpopulation;
-            for(auto indiv:inFeasibleSubpopulation){
-                mergePopulation.push_back(indiv);
-            }
-
-            for(auto& indiv:feasibleSubpopulation) {
-//                smartSolver->initSolution(0);
-                smartSolver->loadSolutionByArr2D(indiv->chromR);
-
-                int perkind = hust::myRand->pick(5);
-                int clearEPkind = hust::myRand->pick(6);
-                int ruinCusNum = std::min<int>(hust::globalCfg->ruinC_Min,hust::globalCfg->ruinC_Max);
-                ruinCusNum = std::min<int>(ruinCusNum, params->nbClients-1);
-//                smartSolver->perturbBaseRuin(perkind,clearEPkind,ruinCusNum);
-//                smartSolver->doOneTimeRuinPer(perkind,clearEPkind,ruinCusNum);
-//                smartSolver->simulatedannealing(1,1000,100.0,hust::globalCfg->ruinC_);
-                smartSolver->patternAdjustment(500);
-                smartSolver->exportIndividual(indiv);
-            }
-
-            for(auto& indiv:inFeasibleSubpopulation) {
-                smartSolver->loadSolutionByArr2D(indiv->chromR);
-                smartSolver->patternAdjustment(500);
-                smartSolver->exportIndividual(indiv);
-            }
-
-            population->bestSolutionRestart = Individual();
-//			population->restart();
+			population->restart();
+//            if(population->getBestFound()!= nullptr) {
+//                population->addIndividual(population->getBestFound(), false);
+//            }
 			nbIterNonProd = 1;
 		}
 

@@ -141,7 +141,7 @@ bool Solver::rReset(Route& r) {
 	while (pt != -1) {
 
 		int ptnext = customers[pt].next;
-		customers[pt].reSet();
+		customers[pt].reset();
 		pt = ptnext;
 	}
 
@@ -714,6 +714,7 @@ Solver::Position Solver::findBestPosInSolForInit(int w) {
 
 	Position bestPos;
 
+    int nbSamePosition = 1;
 	for (int i = 0; i < rts.cnt; ++i) {
 		//debug(i)
 		Route& rt = rts[i];
@@ -769,15 +770,26 @@ Solver::Position Solver::findBestPosInSolForInit(int w) {
 
 			if (pt.pen < bestPos.pen) {
 				bestPos = pt;
+                nbSamePosition = 1;
 			}
 			else if (pt.pen == bestPos.pen) {
-
-				if (pt.cost < bestPos.cost) {
-					if (myRand->pick(100) < globalCfg->initWinkacRate) {
-						bestPos = pt;
-					}
-				}
+                ++nbSamePosition;
+                if (myRand->pick(nbSamePosition) == 0) {
+                    bestPos = pt;
+                }
 			}
+
+//			if (pt.pen < bestPos.pen) {
+//				bestPos = pt;
+//			}
+//			else if (pt.pen == bestPos.pen) {
+//
+//				if (pt.cost < bestPos.cost) {
+//					if (myRand->pick(100) < globalCfg->initWinkacRate) {
+//						bestPos = pt;
+//					}
+//				}
+//			}
 
 			v = vj;
 			vj = customers[vj].next;
@@ -797,15 +809,25 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 
 	// 惩罚最大的排在最前面
 	auto updatePool = [&](Position& pos) {
+//        if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
+//            if(pos.pen < ret.pen){
+//                pos = ret;
+//            }
+//            else if (pos.pen == ret.pen) {
+//                if (pos.cost < ret.cost) {
+//                    // TODO[8]:眨眼率可以调 5%合适？
+//                    ret = pos;
+//                }
+//            }
+//        }
 
         if (pos.pen == 0) {
-            if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
-				if (pos.cost < ret.cost) {
-					// TODO[8]:眨眼率可以调 5%合适？
-					ret = pos;
-				}
-			}
-		}
+            if (pos.cost < ret.cost && myRand->pick(100) < globalCfg->ruinWinkacRate) {
+                // TODO[8]:眨眼率可以调 5%合适？
+                ret = pos;
+            }
+        }
+
 	};
 
 	auto& rtsIndexOrder = myRandX->getMN(rts.cnt, rts.cnt);
@@ -1044,13 +1066,13 @@ bool Solver::initMaxRoute() {
 bool Solver::initSolution(int kind) {//5种
 
     rts.reSet();
-	if (kind <= 5) {
+	if (kind <= 7) {
         initSortOrder(kind);
 	}
-	else if(kind <= 6){
+	else if(kind <= 8){
         initBySecOrder();
 	}
-	else if (kind == 7) {
+	else if (kind == 9) {
 		initMaxRoute();
 	}
 	
@@ -1059,16 +1081,18 @@ bool Solver::initSolution(int kind) {//5种
 	}
 
 	reCalRtsCostAndPen();
-	INFO("init penalty:",penalty);
-	INFO("init rts.size:",rts.cnt);
-	INFO("init rtcost:",RoutesCost);
+	INFO("init penalty:",penalty, " rts.size:",rts.cnt," rtcost:",RoutesCost);
 
 	return true;
 }
 
-bool Solver::loadSolutionByArr2D(Vec < Vec<int>> arr2) {
+bool Solver::loadSolutionByArr2D(Vec<Vec<int>>& arr2) {
 	
 	rts.reSet();
+    for(int i=input.custCnt+1;i<customers.size();++i){
+        customers[i].reset();
+    }
+
 	int rid = 0;
 	for (int i = 0; i < static_cast<int>(arr2.size()); ++i) {
 
@@ -5538,7 +5562,7 @@ bool Solver::managerCusMem(Vec<int>& releaseNodes) {
 					r.tail = i;
 				}
 
-				customers[j].reSet();
+				customers[j].reset();
 				break;
 				--useEnd;
 			}
@@ -6307,6 +6331,22 @@ Vec<int> Solver::ruinGetRuinCusByRandOneR() {
 
 Vec<int> Solver::ruinGetRuinCusBySec(int ruinCusNum) {
 
+    Vec<int> ret;
+    ruinCusNum = std::min<int>(ruinCusNum, input.custCnt - 1);
+    Vec<int> customerOrder(input.custCnt);
+    std::iota(customerOrder.begin(), customerOrder.end(), 1);
+    sort( customerOrder.begin(), customerOrder.end(),[&](int x,int y){
+        return input.datas[x].coordY < input.datas[y].coordY;
+    });
+
+    int beg = myRand->pick(input.custCnt)+1;
+    for(int  i=0;i<ruinCusNum;++i){
+        int c = customerOrder[ (i+beg)%input.custCnt ];
+        if( customers[c].routeID!=-1 ) {
+            ret.push_back(c);
+        }
+    }
+    return ret;
 	//ruinCusNum = myRand->pick(1, ruinCusNum+1);
 
 	ruinCusNum = std::min<int>(ruinCusNum, input.custCnt - 1);
@@ -6511,6 +6551,7 @@ int Solver::ruinLocalSearchNotNewR(int ruinCusNum) {
 }
 
 void Solver::sortCustomersOrderByDifferentKind(int kind,Vec<int>&cusArr){
+
     auto cmp1 = [&](int a, int b) {
         return input.datas[a].demand > input.datas[b].demand;
     };
@@ -6531,6 +6572,14 @@ void Solver::sortCustomersOrderByDifferentKind(int kind,Vec<int>&cusArr){
         return input.datas[a].latestArrival < input.datas[b].latestArrival;
     };
 
+    auto cmp6 = [&](int a, int b) {
+        return input.datas[a].coordX < input.datas[b].coordX;
+    };
+
+    auto cmp7 = [&](int a, int b) {
+        return input.datas[a].coordY < input.datas[b].coordY;
+    };
+
     switch (kind) {
         case 0:
             myRand->shuffleVec(cusArr);
@@ -6549,6 +6598,12 @@ void Solver::sortCustomersOrderByDifferentKind(int kind,Vec<int>&cusArr){
             break;
         case 5:
             std::sort(cusArr.begin(), cusArr.end(), cmp5);
+            break;
+        case 6:
+            std::sort(cusArr.begin(), cusArr.end(), cmp6);
+            break;
+        case 7:
+            std::sort(cusArr.begin(), cusArr.end(), cmp7);
             break;
         default:
             break;
@@ -6916,8 +6971,15 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 //    if( penalty > 0 ){
 //        ERROR("penalty > 0");
 //    }
+//    Individual indiv(params);
+//    exportIndividual(&indiv);
+//    hgsLocalSearch->run(&indiv, params->penaltyCapacity * 10., params->penaltyTimeWarp * 10.);
+//    if(indiv.isFeasible) {
+//        this->loadSolutionByArr2D(indiv.chromR);
+//        bks->updateBKSAndPrint(*this, "hgs");
+//    }
 
-	if (RoutesCost < solClone.RoutesCost) {
+    if (RoutesCost < solClone.RoutesCost) {
 		++pcRuKind.data[perturbkind];
 		++pcCLKind.data[clearKind];
 	}
@@ -8385,17 +8447,7 @@ bool Solver::printDimacs() {
 
 bool Solver::runLoaclSearch(Individual* indiv) {
 	loadSolutionByArr2D(indiv->chromR);
-	if (penalty > 0) {
-		if (repair()) {
-			mRLLocalSearch(0, {});
-		}
-	}
-	else {
-        if(RoutesCost < bks->bestSolFound.RoutesCost){
-            bks->bestSolFound = *this;
-        }
-		mRLLocalSearch(0, {});
-	}
+    mRLLocalSearch(0, {});
 	exportIndividual(indiv);
 	return true;
 }
@@ -8408,11 +8460,11 @@ bool Solver::runSimulatedannealing(Individual* indiv) {
 
 	if (penalty > 0) {
 		if (repair()) {
-			simulatedannealing(1, 50, 50.0, c_ );
+			simulatedannealing(1, 5, 20.0, c_ );
 		}
 	}
 	else {
-		simulatedannealing(1, 50, 50.0, c_);
+		simulatedannealing(1, 5, 20.0, c_);
 	}
 	exportIndividual(indiv);
 	return true;

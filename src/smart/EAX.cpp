@@ -853,7 +853,7 @@ int EAX::doPrEAXWithoutRepair(Solver& pc) {
 	int numABCyUsed = 2;
 	for (int i = 3; i <= putMax; ++i) {
 		// TODO[-1]:这里可以调整 放置多少个abcy
-		if (myRand->pick(100) < 80) {
+		if (myRand->pick(100) < 50) {
 			numABCyUsed = i;
 		}
 		else {
@@ -923,22 +923,20 @@ int EAX::doPrEAXWithoutRepair(Solver& pc) {
 
 Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, Individual* offspring) {
 
+    if( parent.first->myCostSol.nbRoutes != parent.second->myCostSol.nbRoutes ){
+        return nullptr;
+    }
 	Solver pa;
 	Solver pb;
 
 	pa.loadSolutionByArr2D(parent.first->chromR);
 	pb.loadSolutionByArr2D(parent.second->chromR);
 
-    if( pa.rts.cnt!=pb.rts.cnt ){
-        return nullptr;
-    }
-
-	if (pa.rts.cnt > pb.rts.cnt) {
-		pb.adjustRN(pa.rts.cnt);
-	}
-	else if (pa.rts.cnt < pb.rts.cnt) {
-		pa.adjustRN(pb.rts.cnt);
-	}
+//    if( pa.rts.cnt < pb.rts.cnt ){
+//        pa.adjustRN(pb.rts.cnt);
+//    }else if(pb.rts.cnt < pa.rts.cnt){
+//        pb.adjustRN(pa.rts.cnt);
+//    }
 
 	EAX eax(pa, pb);
 	eax.generateCycles();
@@ -949,15 +947,15 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 
     int eaxRet = -1;
     auto retOffspring = pa;
-    for(int i=0;i < 5;++i) {
+    for(int i=0;i < 1;++i) {
 
         auto pc = pa;
         int  retTemp = -1;
-        if (myRand->pick(2) == 0) {
-            retTemp = eax.doNaEAXWithoutRepair(pc);
-        } else {
+//        if (myRand->pick(2) == 0) {
+//            retTemp = eax.doNaEAXWithoutRepair(pc);
+//        } else {
             retTemp = eax.doPrEAXWithoutRepair(pc);
-        }
+//        }
         if(retTemp != -1){
             eaxRet = retTemp;
         }
@@ -969,7 +967,7 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 	if (eaxRet < 0) {
 		return nullptr;
 	}
-
+//    retOffspring.repair();
     retOffspring.exportIndividual(offspring);
 	return offspring;
 }

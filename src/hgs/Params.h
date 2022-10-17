@@ -63,7 +63,7 @@ public:
 	// Stores all the parameters values (given by using the command line)
 	struct Config
 	{
-		int nbIter = 2000;				// Number of iterations without improvement until termination. Default value: 20,000 iterations
+		int nbIter = 20000;				// Number of iterations without improvement until termination. Default value: 20,000 iterations
 		int timeLimit = INT_MAX;		// CPU time limit until termination in seconds. Default value: infinity
 		bool useWallClockTime = false;  // If True, measure wall clock time rather than CPU time
 		std::string pathBKS = "";		// Path to Best Known Solution
@@ -71,14 +71,14 @@ public:
 
 		// Parameters for the Construction Heuristics
 		double fractionGeneratedNearest = 0.05;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedSmart = 0.05;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedSmart = 0.00;				// Proportion of individuals constructed by nearest-first
 		double fractionGeneratedFurthest = 0.05;			// Proportion of individuals constructed by furthest-first
 		double fractionGeneratedSweep = 0.05;				// Proportion of individuals constructed by sweep
-		double fractionGeneratedRandomly = 0.80;			// Proportion of individuals constructed randomly
-		int minSweepFillPercentage = 60;					// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
+		double fractionGeneratedRandomly = 0.85;			// Proportion of individuals constructed randomly
+		int minSweepFillPercentage = 90;					// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
 															// The maximum vehicle usage is 40% (100/250 routes, see SINTEF BKS),
 															// so take 60% to have some margin (otherwise all remaining orders will be in last route)
-		int maxToleratedCapacityViolation = 50;				// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
+		int maxToleratedCapacityViolation = 10;				// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
 		int maxToleratedTimeWarp = 100;						// No real feeling yet for what value makes sense.
 		double initialTimeWarpPenalty = 1.0;				// This was the default until now, but with this value feasible individuals often
 															// become infeasible during the local search in doLocalSearchAndAddIndividual.

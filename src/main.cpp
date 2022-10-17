@@ -203,30 +203,6 @@ void getWeight(CommandLine& commandline) {
     hust::deallocGlobalMem();
 }
 
-void smartOnly(CommandLine& commandline){
-
-    Params params(commandline);
-    if(params.nbClients==1){
-
-        printf("Route #1: 1\n");
-        printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
-        fflush(stdout);
-        return;
-    }
-
-    hust::globalInput = new hust::Input(params);
-    hust::allocGlobalMem(params.config.seed);
-    hust::globalInput->initInput();
-    hust::Goal goal;
-    // Genetic algorithm
-    INFO("----- STARTING GENETIC ALGORITHM");
-    goal.TwoAlgCombine();
-//    goal.test();
-    hust::bks->bestSolFound.printDimacs();
-    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
-    hust::deallocGlobalMem();
-}
-
 void doDynamicWithEjection(Params& params){
 
     hust::globalInput = new hust::Input(params);
@@ -248,6 +224,38 @@ void doDynamicWithEjection(Params& params){
     hust::deallocGlobalMem();
 }
 
+void smartOnly(CommandLine& commandline){
+
+    Params params(commandline);
+    if(params.nbClients==1){
+
+        printf("Route #1: 1\n");
+        printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
+        fflush(stdout);
+        return;
+    }
+
+    if(params.nbMustDispatch == params.nbClients || params.nbMustDispatch == -1){
+        ;
+    }
+    else if( params.nbMustDispatch != params.nbClients ){
+        doDynamicWithEjection(params);
+        return;
+    }
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Goal goal;
+    // Genetic algorithm
+    INFO("----- STARTING GENETIC ALGORITHM");
+    goal.TwoAlgCombine();
+//    goal.test();
+    hust::bks->bestSolFound.printDimacs();
+    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
+    hust::deallocGlobalMem();
+}
+
 void hgsAndSmart(CommandLine& commandline) {
 
     Params params(commandline);
@@ -265,7 +273,7 @@ void hgsAndSmart(CommandLine& commandline) {
         fflush(stdout);
         return;
     }
-    if(params.nbMustDispatch == params.nbClients){
+    if(params.nbMustDispatch == params.nbClients || params.nbMustDispatch == -1){
         ;
     }
     else if( params.nbMustDispatch != params.nbClients ){
@@ -296,10 +304,8 @@ void hgsAndSmart(CommandLine& commandline) {
 //        }
 //    }
 //    smartSolver = initBKS;
-//    int c_ = hust::myRand->pick( hust::globalCfg->ruinC_Min,
-//                                 hust::globalCfg->ruinC_Max+1);
-//    c_ = std::min(c_,hust::globalInput->custCnt-1);
-//    smartSolver.simulatedannealing(1,hust::IntInf,100.0,c_);
+//    smartSolver.initSolution(0);
+//    smartSolver.simulatedannealing(1,hust::IntInf,100.0,hust::globalCfg->ruinC_);
 //    smartSolver.printDimacs();
 //    return;
 

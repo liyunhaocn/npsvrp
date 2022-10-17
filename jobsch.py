@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # jobs = all_cmds.get_all_static_my_cmds("testruin")
     # jobs = all_cmds.get_all_dynamic_my_cmds("testruin")
-    jobs = all_cmds.get_all_dynamic_my_cmds("perturb") + all_cmds.get_all_static_my_cmds("perturb")
+    jobs = all_cmds.get_all_dynamic_my_cmds("hgs") + all_cmds.get_all_static_my_cmds("hgs")
     # for job in jobs:
     #     print(job)
     run(jobs, True)
