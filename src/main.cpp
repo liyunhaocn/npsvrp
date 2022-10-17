@@ -30,6 +30,8 @@ namespace hust {
 		myRand = new Random(globalCfg->seed);
 		myRandX = new RandomX(globalCfg->seed);
 
+        globalCfg->seed += myRand->pick(10000);
+
 		INFO("globalCfg->seed:", globalCfg->seed, " ins:", globalInput->example);
 
 		globalCfg->show();
@@ -41,7 +43,6 @@ namespace hust {
 
 		bks = new BKS();
 		//gloalTimer = new Timer(globalCfg->runTimer);
-
 		return true;
 	}
 
@@ -54,107 +55,303 @@ namespace hust {
 		delete globalInput;
 		delete bks;
 		//delete gloalTimer;
-
+        if(hgsLocalSearch!=nullptr) {
+            delete hgsLocalSearch;
+        }
 		return true;
 	}
 
 }//namespace hust
 
 #if 1
-
+//
  //./instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
 //./instances/ORTEC-VRPTW-ASYM-92bc6975-d1-n273-k20.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0
-
 // ./instances/ORTEC-VRPTW-ASYM-8bc13a3f-d1-n421-k40.txt -t 273 -seed 1 -veh -1 -useWallClockTime 1
 //203578
+std::vector<int> getWeightByNearDelt(Params& params,int nNear){
 
+    std::vector< std::pair<int,int> > order;
+    order.reserve(params.nbClients+1);
+    order.push_back({0,0});
+    std::vector<int> weight(params.nbClients + 1);
+    for(int v=1;v<=params.nbClients;++v){
+        int vNearSumDeltCost = 0;
+        int nbPair = 0;
+
+        for(int wpos=0;wpos<nNear;++wpos){
+            int w = hust::globalInput->addSTclose[v][wpos];
+            for(int wjpos=0;wjpos<nNear;++wjpos){
+                int wj = hust::globalInput->addSTclose[v][wjpos];
+                ++nbPair;
+                auto delt =
+                        params.timeCost.get(w,v)
+                        +params.timeCost.get(v,wj)
+                        -params.timeCost.get(w,wj);
+
+                vNearSumDeltCost +=delt;
+//                    vNearSumDeltCost = std::max<int>(vNearSumDeltCost,delt);
+
+            }
+        }
+        weight[v] = vNearSumDeltCost/nbPair;
+//            weight[v] = vNearSumDeltCost;
+    }
+    return weight;
+}
+
+void getWeight(CommandLine& commandline) {
+
+    Params params(commandline);
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Solver smartSolver;
+    hust::Goal goal;
+//    // Genetic algorithm
+//    INFO("----- STARTING GENETIC ALGORITHM");
+//
+//    goal.TwoAlgCombine();
+//    goal.test();
+//    smartSolver.mRLLocalSearch(0,{});
+    if(params.nbMustDispatch!=-1){
+        INFO("params.nbMustDispatch!=-1");
+    }
+
+    auto& P = hust::globalInput->P;
+
+//    auto getWeightByNear = [&](int nNear)->std::vector<int>{
+//
+//        std::vector< std::pair<int,int> > order;
+//        order.reserve(params.nbClients+1);
+//        order.push_back({0,0});
+//        for(int v=1;v<=params.nbClients;++v){
+//            int w = hust::globalInput->addSTclose[v][nNear];
+//            int cycler = hust::globalInput->getDisof2(v,w);
+//            order.push_back({cycler,v});
+//        }
+//        std::sort(order.begin(),order.end(),
+//          [&](const std::pair<int,int> x, const std::pair<int,int> y){
+//              return x.first<y.first;
+//          });
+//        std::vector<int> weight(params.nbClients + 1);
+//        int part = 5;
+//        if( params.nbClients < part){
+//            for(int i=0;i <= params.nbClients;++i){
+//                weight[order[i].second] = i+1;
+//            }
+//            return weight;
+//        }
+//        int eachPart = params.nbClients/part;
+//        for(int i=0;i <= params.nbClients;++i){
+//            weight[order[i].second] = i/eachPart+1;
+//        }
+//        return weight;
+//    };
+
+
+
+//    auto getWeightByDistanceDepot = [&](){
+//        std::vector< std::pair<int,int> > order;
+//        order.reserve(params.nbClients+1);
+//        order.push_back({0,0});
+//        for(int v=1;v<=params.nbClients;++v){
+//            int distance0 = hust::globalInput->addSTclose[v][0];
+//            order.push_back({distance0,v});
+//        }
+//
+//        std::sort(order.begin(),order.end(),
+//                  [&](const std::pair<int,int> x, const std::pair<int,int> y){
+//                      return x.first > y.first;
+//                  });
+//
+//        std::vector<int> weight(params.nbClients + 1);
+//        int part = 5;
+//        if( params.nbClients < part){
+//            for(int i=0;i <= params.nbClients;++i){
+//                weight[order[i].second] = i+1;
+//            }
+//            return weight;
+//        }
+//        int eachPart = params.nbClients/part;
+//        for(int i=0;i <= params.nbClients;++i){
+//            weight[order[i].second] = i/eachPart+1;
+//        }
+//        return weight;
+//    };
+
+//    int nNear = params.nbClients/2;
+//    auto weightNear = getWeightByNear(nNear);
+//    auto weightDepot = getWeightByDistanceDepot();
+    auto weightNearDelt =  getWeightByNearDelt(params, std::min<int>(15,params.nbClients-1));
+
+    for( int i = 0;i <= params.nbClients;++i ){
+//        P[i] = weightNearDelt[i] +hust::myRand->pick(params.maxDist);
+        P[i] = weightNearDelt[i];
+//        P[i] = 0;
+//        P[i] += weightNear[i];
+//        P[i] += weightDepot[i];
+    }
+    P[0] = 0;
+    printf("Weight ");
+    for(int i:P){
+        printf("%d ",i);
+    }
+    printf("\n");
+    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
+    hust::deallocGlobalMem();
+}
+
+void doDynamicWithEjection(Params& params){
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+
+    hust::DynamicGoal dynamicGoal(&params);
+
+//    std::vector<int> weightNew = getWeightByNearDelt(params,15);
+//
+//    for(int i = 1;i <= params.nbClients;++i){
+//        params.P[i] = weightNew[i] - params.P[i];
+//    }
+
+//    auto& P = params.P;
+    dynamicGoal.test();
+
+    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
+    hust::deallocGlobalMem();
+}
+
+void smartOnly(CommandLine& commandline){
+
+    Params params(commandline);
+    if(params.nbClients==1){
+
+        printf("Route #1: 1\n");
+        printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
+        fflush(stdout);
+        return;
+    }
+
+    if(params.nbMustDispatch == params.nbClients || params.nbMustDispatch == -1){
+        ;
+    }
+    else if( params.nbMustDispatch != params.nbClients ){
+        doDynamicWithEjection(params);
+        return;
+    }
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Goal goal;
+    // Genetic algorithm
+    INFO("----- STARTING GENETIC ALGORITHM");
+    goal.TwoAlgCombine();
+//    goal.test();
+    hust::bks->bestSolFound.printDimacs();
+    //saveSolutiontoCsvFile(hust::bks->bestSolFound);
+    hust::deallocGlobalMem();
+}
+
+void hgsAndSmart(CommandLine& commandline) {
+
+    Params params(commandline);
+
+//	if (params.nbMustDispatch == 0) {
+//		printf("Cost 0\n");
+//		fflush(stdout);
+//		return;
+//	}
+
+    if(params.nbClients==1){
+
+        printf("Route #1: 1\n");
+        printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
+        fflush(stdout);
+        return;
+    }
+    if(params.nbMustDispatch == params.nbClients || params.nbMustDispatch == -1){
+        ;
+    }
+    else if( params.nbMustDispatch != params.nbClients ){
+        doDynamicWithEjection(params);
+        return;
+    }
+
+    INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
+    Split split(&params);
+
+    //Creating the Split and Local Search structures
+    LocalSearch localSearch(&params);
+    // Initial population
+    INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
+    INFO("----- BUILDING INITIAL POPULATION");
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Solver smartSolver;
+
+//    hust::hgsLocalSearch = new LocalSearch(&params);
+//    hust::Solver initBKS;
+//    for(int i=0;i<=5;++i){
+//        smartSolver.initSolution(i);
+//        if(smartSolver.RoutesCost < initBKS.RoutesCost ){
+//            initBKS = smartSolver;
+//        }
+//    }
+//    smartSolver = initBKS;
+//    smartSolver.initSolution(0);
+//    smartSolver.simulatedannealing(1,hust::IntInf,100.0,hust::globalCfg->ruinC_);
+//    smartSolver.printDimacs();
+//    return;
+
+    Population population(&params, &split, &localSearch,&smartSolver);
+
+//  INFO("----- STARTING GENETIC ALGORITHM");
+    Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
+    solver.run(commandline.config.nbIter, commandline.config.timeLimit);
+    if( !params.isTimeLimitExceeded() ){
+        smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
+        smartSolver.simulatedannealing(1,hust::IntInf,100.0,hust::globalCfg->ruinC_);
+        Individual* indiv  = population.getBestFound();
+        smartSolver.exportIndividual(indiv);
+        population.addIndividual(indiv, false);
+    }
+    population.getBestFound()->printCVRPLibFormat();
+//  saveSolutiontoCsvFile(smartSolver);
+
+}
 int main(int argc, char* argv[])
 {
-	try
-	{
+//	try
+//	{
 		// Reading the arguments of the program
 		CommandLine commandline(argc, argv);
+        INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
 
-		// Reading the data file and initializing some data structures
-		INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
+        if( commandline.config.call == "getWeight"){
+            getWeight(commandline);
+        }else if(commandline.config.call == "hgsAndSmart"){
+            INFO("commandline.config.call == hgsAndSmart");
+            hgsAndSmart(commandline);
+        }else if(commandline.config.call == "smartOnly"){
+            INFO("commandline.config.call == smartOnly");
+            smartOnly(commandline);
+        }
 
-		Params params(commandline);
-
-		// Creating the Split and Local Search structures
-		Split split(&params);
-		LocalSearch localSearch(&params);
-
-#if 0
-		hust::globalInput = new hust::Input(params);
-		hust::allocGlobalMem(params.config.seed);
-		hust::globalInput->initInput();
-		hust::Solver smartSolver;
-		//smartSolver.initSolution(0);
-		//smartSolver.minimizeRN(2);
-		//smartSolver.mRLLocalSearch(0, {});
-		hust::Goal goal;
-		// Genetic algorithm
-		INFO("----- STARTING GENETIC ALGORITHM");
-		Genetic hgsSolver(&params, &split, nullptr, &localSearch);
-
-		goal.test(&hgsSolver);
-
-		//goal.callSimulatedannealing();
-		//goal.TwoAlgCombine();
-		//goal.experOnMinRN();
-
-        hust::bks->bestSolFound.printDimacs();
-        saveSolutiontoCsvFile(hust::bks->bestSolFound);
-
-		hust::deallocGlobalMem();
-		return 0;
-#else
-		// Initial population
-		INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
-		INFO("----- BUILDING INITIAL POPULATION");
-		Population population(&params, &split, &localSearch);
-
-		hust::globalInput = new hust::Input(params);
-		hust::allocGlobalMem(params.config.seed);
-		hust::globalInput->initInput();
-		hust::Solver smartSolver;
-		//smartSolver.initSolution(0);
-		//smartSolver.minimizeRN(2);
-		//smartSolver.mRLLocalSearch(0, {});
-		
-		// Genetic algorithm
-		INFO("----- STARTING GENETIC ALGORITHM");
-		Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
-		solver.run(commandline.config.nbIter, commandline.config.timeLimit);
-
-        smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
-        //saveSolutiontoCsvFile(smartSolver);
-		population.getBestFound()->printCVRPLibFormat();
-
-#endif //1
-		// Export the best solution, if it exist
-		//if (population.getBestFound() != nullptr)
-		//{
-			//population.getBestFound()->exportCVRPLibFormat(commandline.config.pathSolution);
-			//population.exportSearchProgress(commandline.config.pathSolution + ".PG.csv", commandline.config.pathInstance, commandline.config.seed);
-			//if (commandline.config.pathBKS != "")
-			//{
-			//	population.exportBKS(commandline.config.pathBKS);
-			//}
-		//}
-	}
-	// ≤‚ ‘÷–Œƒ◊¢ Õ
-	// Catch exceptions
-	catch (const std::string& e)
-	{
-		std::cout << "EXCEPTION | " << e << std::endl;
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << "EXCEPTION | " << e.what() << std::endl;
-	}
-
-	// Return 0 if the program execution was successfull
+//	}
+//	catch (const std::string& e)
+//	{
+//		std::cout << "EXCEPTION | " << e << std::endl;
+//	}
+//	catch (const std::exception& e)
+//	{
+//		std::cout << "EXCEPTION | " << e.what() << std::endl;
+//	}
 	return 0;
 }
 

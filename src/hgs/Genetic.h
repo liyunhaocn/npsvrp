@@ -51,7 +51,7 @@ public:
 // TODO[lyh]:
 public:
 	// The number of new potential offspring created from one individual
-	static const int numberOfCandidateOffsprings = 4;
+	static const int numberOfCandidateOffsprings = 6;
 
 	Params* params;				// Problem parameters
 	Split* split;				// Split algorithm
@@ -60,7 +60,7 @@ public:
 	hust::Solver* smartSolver;
 
 	// Pointers for offspring to edit new offspring in place:
-	// 0 and 1 are reserved for SREX, 2 and 3 are reserved for OX
+	// 0 and 1 are reserved for SREX, 2 and 3 are reserved for OX 4 5 EAX
 	std::array<Individual*, numberOfCandidateOffsprings> candidateOffsprings;
 
 	// Function to do two OX Crossovers for a pair of individuals (the two parents) and return the best individual based on penalizedCost

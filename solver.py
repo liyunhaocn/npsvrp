@@ -1,6 +1,7 @@
 # Solver for Dynamic VRPTW, baseline strategy is to use the static solver HGS-VRPTW repeatedly
 import argparse
 import csv
+import math
 import subprocess
 import sys
 import os
@@ -12,8 +13,11 @@ import tools
 from environment import VRPEnvironment, ControllerEnvironment
 from strategies import STRATEGIES
 
+global_log_info = False
+global_save_current_instance = False
+global_log_error = True
 
-def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True):
+def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True, weight_arg=[]):
     # LKH/VRP does not take floats (HGS seems to do)
 
     coords = instance['coords']
@@ -66,7 +70,6 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
     if is_vrptw:
 
         service_t = instance['service_times']
-        timewi = instance['time_windows']
 
         # Following LKH convention
         my_stdin.write("SERVICE_TIME_SECTION\n")
@@ -76,12 +79,22 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
         ]))
         my_stdin.write("\n")
 
+        timewi = instance['time_windows']
         my_stdin.write("TIME_WINDOW_SECTION\n")
         my_stdin.write("\n".join([
             "{}\t{}\t{}".format(i + 1, l, u)
             for i, (l, u) in enumerate(timewi)
         ]))
         my_stdin.write("\n")
+
+        if "must_dispatch" in instance:
+            must_dispatch = instance["must_dispatch"]
+            my_stdin.write("MUST_DISPATCH\n")
+            my_stdin.write("\n".join([
+                "{}\t{}".format(i + 1, 1 if s else 0)
+                for i, s in enumerate(must_dispatch)
+            ]))
+            my_stdin.write("\n")
 
         if 'release_times' in instance:
             release_times = instance['release_times']
@@ -93,13 +106,53 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
             ]))
             my_stdin.write("\n")
 
+        if len(weight_arg) > 0:
+            my_stdin.write("CUSTOMER_WEIGHT\n")
+            my_stdin.write("\n".join([
+                "{}\t{}".format(i + 1, s)
+                for i, s in enumerate(weight_arg)
+            ]))
+            my_stdin.write("\n")
+
     my_stdin.write("EOF\n")
     my_stdin.flush()
 
+def get_cpp_base_cmd():
 
-def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None):
+    executable = os.path.join('dev', 'SmartRouter')
+    if platform.system() == 'Windows' and os.path.isfile(executable + '.exe'):
+        executable = executable + '.exe'
+    assert os.path.isfile(executable), f"HGS executable {executable} does not exist!"
+
+    cmd = [executable, "readstdin", '-veh', '-1', '-useWallClockTime', '1']
+    return cmd
+
+def get_initial_weight(instance, seed=1):
+    if instance['coords'].shape[0] <= 1:
+        yield []
+        return
+
+    if instance['coords'].shape[0] <= 2:
+        yield [1]
+        return
+
+    cmd_arg = ["-call", "getWeight", '-seed', str(seed)]
+    cmd = get_cpp_base_cmd() + cmd_arg
+
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
+        write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
+        weight = []
+        for line in p.stdout:
+            line = line.strip()
+            if line.startswith('Weight'):
+                weight = [int(x) for x in line.split(" ")[1:]]
+                assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
+                yield weight
+
+def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None, weight_arg=[]):
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
+
     if instance['coords'].shape[0] <= 1:
         yield [], 0
         return
@@ -110,31 +163,22 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None)
         yield solution, cost
         return
 
-    # os.makedirs(tmp_dir, exist_ok=True)
-    # instance_filename = os.path.join(tmp_dir, "problem.vrptw")
-    # tools.write_vrplib(instance_filename, instance, is_vrptw=True)
+    cmd = get_cpp_base_cmd() + ["-t", str(max(time_limit - 2, 1)), '-seed', str(seed)]
 
-    executable = os.path.join('dev', 'SmartRouter')
-    # On windows, we may have genvrp.exe
-    if platform.system() == 'Windows' and os.path.isfile(executable + '.exe'):
-        executable = executable + '.exe'
-    assert os.path.isfile(executable), f"HGS executable {executable} does not exist!"
-    # Call HGS solver with unlimited number of vehicles allowed and parse outputs
-    # Subtract two seconds from the time limit to account for writing of the instance and delay in enforcing the time limit by HGS
+    cmd += ["-call", "hgsAndSmart"]
+    cmd_str = " ".join(cmd)
+    log_info(f"cmd_str:{cmd_str}")
 
-    hgs_cmd = [
-        executable, "readstdin", "-t", str(max(time_limit - 2, 1)),
-        '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1', "-isNpsRun", "1"
-    ]
     if initial_solution is None:
         initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
     if initial_solution is not None:
-        hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
+        cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
 
-    # log(f"hgs_cmd:{hgs_cmd}")
-    with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
-        write_vrplib_stdin(p.stdin, instance, is_vrptw=True)
-
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
+        write_vrplib_stdin(p.stdin, instance, is_vrptw=True, weight_arg=weight_arg)
+        if global_save_current_instance:
+            with open("testInstances/x.txt", 'w+', encoding='UTF8', newline='') as f:
+                write_vrplib_stdin(f, instance, is_vrptw=True, weight_arg=weight_arg)
         routes = []
         for line in p.stdout:
             line = line.strip()
@@ -148,8 +192,8 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None)
                 # End of solution
                 solution = routes
                 cost = int(line.split(" ")[-1].strip())
-                check_cost = tools.validate_static_solution(instance, solution)
-                assert cost == check_cost, "Cost of HGS VRPTW solution could not be validated"
+                # check_cost = tools.validate_static_solution(instance, solution)
+                # assert cost == check_cost, "Cost of HGS VRPTW solution could not be validated"
                 yield solution, cost
                 # Start next solution
                 routes = []
@@ -166,19 +210,19 @@ def run_oracle(args, env):
     # First get hindsight problem (each request will have a release time)
     # As a start solution for the oracle solver, we use the greedy solution
     # This may help the oracle solver to find a good solution more quickly
-    log("Running greedy baseline to get start solution and hindsight problem for oracle solver...")
+    log_info("Running greedy baseline to get start solution and hindsight problem for oracle solver...")
     run_baseline(args, env, strategy='greedy')
     # Get greedy solution as simple list of routes
     greedy_solution = [route for epoch, routes in env.final_solutions.items() for route in routes]
     hindsight_problem = env.get_hindsight_problem()
 
     # Compute oracle solution (separate time limit since epoch_tlim is used for greedy initial solution)
-    log(f"Start computing oracle solution with {len(hindsight_problem['coords'])} requests...")
+    log_info(f"Start computing oracle solution with {len(hindsight_problem['coords'])} requests...")
     oracle_solution = \
     min(solve_static_vrptw(hindsight_problem, time_limit=args.oracle_tlim, initial_solution=greedy_solution),
         key=lambda x: x[1])[0]
     oracle_cost = tools.validate_static_solution(hindsight_problem, oracle_solution)
-    log(f"Found oracle solution with cost {oracle_cost}")
+    log_info(f"Found oracle solution with cost {oracle_cost}")
 
     # Run oracle solution through environment (note: will reset environment again with same seed)
     total_reward = run_baseline(args, env, oracle_solution=oracle_solution)
@@ -199,15 +243,26 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
     observation, static_info = env.reset()
     epoch_tlim = static_info['epoch_tlim']
     num_requests_postponed = 0
+    num_epoch = static_info["end_epoch"] + 1
+    current_epoch = observation["current_epoch"]
+    if static_info["dynamic_context"] is not None:
+        s_start = time.time()
+        weight = np.array(list(get_initial_weight(instance=static_info["dynamic_context"], seed=args.solver_seed)))[0]
+        time_get_weight = math.ceil(time.time() - s_start)
+    else:
+        weight = []
+        time_get_weight = 0
+
     while not done:
+
         epoch_instance = observation['epoch_instance']
 
-        if args.verbose:
-            log(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
+        if global_log_info is True:
+            log_info(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
                 newline=False)
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_new_requests = num_requests_open - num_requests_postponed
-            log(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
+            log_info(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
                 newline=True, flush=True)
 
         if oracle_solution is not None:
@@ -223,18 +278,32 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
             # Run HGS with time limit and get last solution (= best solution found)
             # Note we use the same solver_seed in each epoch: this is sufficient as for the static problem
             # we will exactly use the solver_seed whereas in the dynamic problem randomness is in the instance
-            solutions = list(solve_static_vrptw(epoch_instance_dispatch, time_limit=epoch_tlim, seed=args.solver_seed))
+            customer_idx = epoch_instance_dispatch['customer_idx']
+            if len(weight) > 0:
+                # weight_new = np.array([int(x + x/num_epoch*current_epoch) for x in weight])
+                weight_new = weight
+                request_weight = weight_new[customer_idx]
+                # epoch_instance_dispatch["must_dispatch"][:] = True
+                # epoch_instance_dispatch["must_dispatch"][0] = False
+
+            else:
+                request_weight = []
+
+            solutions = list(solve_static_vrptw(instance=epoch_instance_dispatch,
+                                                time_limit=epoch_tlim-time_get_weight,
+                                                seed=args.solver_seed,
+                                                weight_arg=request_weight))
             assert len(solutions) > 0, f"No solution found during epoch {observation['current_epoch']}"
             epoch_solution, cost = solutions[-1]
 
             # Map HGS solution to indices of corresponding requests
             epoch_solution = [epoch_instance_dispatch['request_idx'][route] for route in epoch_solution]
 
-        if args.verbose:
+        if global_log_info is True:
             num_requests_dispatched = sum([len(route) for route in epoch_solution])
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_requests_postponed = num_requests_open - num_requests_dispatched
-            log(f" {num_requests_dispatched:3d}/{num_requests_open:3d} dispatched and {num_requests_postponed:3d}/{num_requests_open:3d} postponed | Routes: {len(epoch_solution):2d} with cost {cost:6d}")
+            log_info(f" {num_requests_dispatched:3d}/{num_requests_open:3d} dispatched and {num_requests_postponed:3d}/{num_requests_open:3d} postponed | Routes: {len(epoch_solution):2d} with cost {cost:6d}")
 
         # Submit solution to environment
         observation, reward, done, info = env.step(epoch_solution)
@@ -243,13 +312,15 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
 
         total_reward += reward
 
-    if args.verbose:
-        log(f"Cost of solution: {-total_reward}")
+    if global_log_info is True:
+        log_info(f"Cost of solution: {-total_reward}")
 
     return total_reward
 
 
-def log(obj, newline=True, flush=False):
+def log_info(obj, newline=True, flush=False):
+    if global_log_info is False:
+        return
     # Write logs to stderr since program uses stdout to communicate with controller
     sys.stderr.write(str(obj))
     if newline:
@@ -257,6 +328,15 @@ def log(obj, newline=True, flush=False):
     if flush:
         sys.stderr.flush()
 
+def log_error(obj, newline=True, flush=False):
+    if global_log_error is False:
+        return
+    # Write logs to stderr since program uses stdout to communicate with controller
+    sys.stderr.write(str(obj))
+    if newline:
+        sys.stderr.write('\n')
+    if flush:
+        sys.stderr.flush()
 
 def save_results_csv(csv_path, data_dic):
 
@@ -294,6 +374,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
+
+        h = time.strftime("%H", time.localtime())
+        m = time.strftime("%M", time.localtime())
+        s = time.strftime("%S", time.localtime())
+        args.solver_seed = int(h) * 3600 + int(m) * 60 + int(s)
+
         if args.instance is not None:
             env = VRPEnvironment(seed=args.instance_seed, instance=tools.read_vrplib(args.instance),
                                  epoch_tlim=args.epoch_tlim, is_static=args.static)
@@ -302,6 +388,7 @@ if __name__ == "__main__":
             assert args.strategy != "oracle", "Oracle can not run with external controller"
             # Run within external controller
             env = ControllerEnvironment(sys.stdin, sys.stdout)
+            args_dic = {}
 
         # Make sure these parameters are not used by your solver
         args.instance = None
@@ -313,11 +400,12 @@ if __name__ == "__main__":
             run_oracle(args, env)
         else:
             strategy = STRATEGIES[args.strategy]
+            # now.strftime("%Y-%m-%d, ")
             reward = run_baseline(args, env, strategy=strategy)
 
         if "instance" in args_dic:
-            result_dic = args_dic
 
+            result_dic = args_dic
             ymd = time.strftime("%m_%d", time.localtime())
             # print(f"ymd:{ymd}")
             result_dic["cost"] = -reward
@@ -336,6 +424,6 @@ if __name__ == "__main__":
             result_dic["customers_num"] = customers_num
 
             save_results_csv(f"./results/[{ymd}][{run_type}][{strategy}][{run_tag}].csv", result_dic)
-            log(tools.json_dumps_np(env.final_solutions))
+            log_info(tools.json_dumps_np(env.final_solutions))
     finally:
         pass

@@ -6,6 +6,14 @@
 
 namespace hust {
 
+struct DynamicGoal{
+    Params* params;
+    Solver bksSolution;
+    Vec<int> notMustDispatch;
+    DynamicGoal(Params* params);
+    void test();
+};
+
 struct Goal {
 
 	Vec<Vec<bool>> eaxTabuTable;
@@ -16,7 +24,7 @@ struct Goal {
 	UnorderedMap<int, Vec<Solver>> ppool;
 	//Vec<Vec<Solver>> ppool;
 	Params* para;
-
+    Vec<Solver> population;
 	int curSearchRN = -1;
 
 	Goal();
@@ -46,7 +54,7 @@ struct Goal {
 
 	void getTheRangeMostHope();
 
-	void test(Genetic* hgsSolver);
+	void test();
 };
 
 

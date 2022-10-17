@@ -97,7 +97,7 @@ public:
 	Customer() :pre(-1), next(-1), av(0), zv(0), avp(0),
 		zvp(0), TW_X(0), TWX_(0), Q_X(0), QX_(0) {}
 
-	bool reSet() {
+	bool reset() {
 		//id = -1;
 		pre = -1;
 		next = -1;
@@ -142,7 +142,7 @@ struct Input {
 
 	util::Array2D<int> sectorClose;
 
-	Vec<int> P;
+	Vec<int>& P;
 
 	Input(Params& para);
 

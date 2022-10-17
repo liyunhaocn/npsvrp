@@ -40,13 +40,15 @@ Params::Params(const CommandLine& cl)
 	durationLimit = INT_MAX;
 	vehicleCapacity = INT_MAX;
 	isDurationConstraint = false;
-	
+	nbMustDispatch = -1;
+
 	// Read INPUT dataset
 	//std::ifstream inputFile(config.pathInstance);
 	//INFO("cl.config.isNpsRun:", cl.config.isNpsRun);
-	if (cl.config.isNpsRun == false) {
-		auto x = freopen(cl.config.pathInstance.data(), "r", stdin);
-	}
+	if (config.pathInstance == "readstdin") {
+	}else{
+        auto x = freopen(cl.config.pathInstance.data(), "r", stdin);
+    }
 	
 	if (true)
 	{
@@ -130,7 +132,8 @@ Params::Params(const CommandLine& cl)
 					// Need to substract the depot from the number of nodes
 					std::cin >> content2 >> nbClients;
 					nbClients--;
-				}
+                    P.resize(nbClients+1,1);
+                }
 				// Read the type of edge weights
 				else if (content == "EDGE_WEIGHT_TYPE")
 				{
@@ -213,12 +216,18 @@ Params::Params(const CommandLine& cl)
 						// Check if the clients are in order
 						if (cli[i].custNum != i + 1)
 						{
-							throw std::string("Clients are not in order in the list of coordinates");
+							throw std::string("Clients are not in order in the list of coordinates")
+                            + "cli[i].custNum:"+ std::to_string(cli[i].custNum)
+                            + "i + 1:" + std::to_string(i + 1);
 						}
-
 						cli[i].custNum--;
 						cli[i].polarAngle = CircleSector::positive_mod(static_cast<int>(32768. * atan2(cli[i].coordY - cli[0].coordY, cli[i].coordX - cli[0].coordX) / PI));
 					}
+                    // 将所有的顾客都置为必须配送
+                    for (int i = 0; i <= nbClients; i++){
+                        cli[i].must_dispatch = 1;
+                    }
+                    nbMustDispatch = nbClients;
 				}
 				// Read the demand of each client (including the depot, which should have demand 0)
 				else if (content == "DEMAND_SECTION")
@@ -253,6 +262,48 @@ Params::Params(const CommandLine& cl)
 					if (content2 != "1")
 					{
 						throw std::string("Expected depot index 1 instead of " + content2);
+					}
+				}
+                else if (content == "CUSTOMER_WEIGHT")
+                {
+                    for (int i = 0; i <= nbClients; ++i)
+                    {
+                        int clientNr = 0;
+                        std::cin >> clientNr >> P[i];
+                        // Check if the clients are in order
+                        if (clientNr != i + 1)
+                        {
+                            throw std::string("Clients are not in order in the list of CUSTOMER_WEIGHT")
+                            + "clientNr:"+ std::to_string(clientNr)
+                            + "i + 1:" + std::to_string(i + 1);
+                        }
+                    }
+                    // Check if the service duration of the depot is 0
+                    if (P[0] != 0)
+                    {
+                        throw std::string("P[0] should be 0");
+                    }
+                }
+				else if (content == "MUST_DISPATCH")
+				{
+					nbMustDispatch = 0;
+					for (int i = 0; i <= nbClients; i++)
+					{
+						int clientNr = 0;
+						std::cin >> clientNr >> cli[i].must_dispatch;
+						if (cli[i].must_dispatch == 1) {
+							++nbMustDispatch;
+						}
+						// Check if the clients are in order
+						if (clientNr != i + 1)
+						{
+							throw std::string("Clients are not in order in the list of MUST_DISPATCH");
+						}
+					}
+					// Check if the service duration of the depot is 0
+					if (cli[0].must_dispatch != 0)
+					{
+						throw std::string("must_dispatch depot should be 0");
 					}
 				}
 				else if (content == "SERVICE_TIME_SECTION")
@@ -343,13 +394,15 @@ Params::Params(const CommandLine& cl)
 			}
 		}
 		
-		if (cli.size() < nbClients * 3 + 3) {
+		if (static_cast<int>(cli.size()) < nbClients * 3 + 3) {
 			cli.resize(nbClients * 3 + 3);
 		}
-		for (int i = nbClients + 1; i < cli.size(); ++i) {
+		for (int i = nbClients + 1; i < static_cast<int>(cli.size()); ++i) {
 			cli[i] = cli[0];
 			cli[i].custNum = i;
 		}
+		
+		//ERROR("nbMustDispatch:",nbMustDispatch);
 	}
 	else {
 		throw std::invalid_argument("Impossible to open instance file: " + config.pathInstance);

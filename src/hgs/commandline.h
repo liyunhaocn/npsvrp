@@ -66,13 +66,14 @@ public:
 			//{
 			// Get time limit from controller (will also be terminated externally)
 			//config.timeLimit = atoi(argv[2]);
-			if (config.isNpsRun == false) {
-				//../instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1
-				int pos = config.pathInstance.find("/ORTEC");
-				if (pos != -1) {
-					config.pathSolution = "../results" + config.pathInstance.substr(pos) + ".sol";
-				}
-			}
+            if(config.pathInstance == "readstdin"){
+                config.pathSolution = "../results" + config.pathInstance + ".sol";
+            }else{
+                int pos = config.pathInstance.find("/ORTEC");
+                if (pos != -1) {
+                    config.pathSolution = "../results" + config.pathInstance.substr(pos) + ".sol";
+                }
+            }
 
 			//config.isDimacsRun = true;
 			//}
@@ -84,6 +85,8 @@ public:
 					config.pathSolution = std::string(argv[i + 1]);
 				if (std::string(argv[i]) == "-t")
 					config.timeLimit = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-call")
+					config.call = std::string(argv[i + 1]);
 				else if (std::string(argv[i]) == "-useWallClockTime")
 					config.useWallClockTime = atoi(argv[i + 1]) != 0;
 				else if (std::string(argv[i]) == "-it")
@@ -96,8 +99,6 @@ public:
 					config.nbVeh = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-isDimacsRun")
 					config.isDimacsRun = atoi(argv[i + 1]) != 0;
-				else if (std::string(argv[i]) == "-isNpsRun")
-					config.isNpsRun = atoi(argv[i + 1]) != 0;
 				else if (std::string(argv[i]) == "-useDynamicParameters")
 					config.useDynamicParameters = atoi(argv[i + 1]) != 0;
 				else if (std::string(argv[i]) == "-logpool")

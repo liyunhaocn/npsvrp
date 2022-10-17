@@ -45,6 +45,7 @@ struct Client
 	int coordX;				// Coordinate X
 	int coordY;				// Coordinate Y
 	int serviceDuration;	// Service duration
+	int must_dispatch;		// must dispatch
 	int demand;				// Demand
 	int earliestArrival;	// Earliest arrival (when using time windows)
 	int latestArrival;		// Latest arrival (when using time windows)
@@ -66,16 +67,18 @@ public:
 		int timeLimit = INT_MAX;		// CPU time limit until termination in seconds. Default value: infinity
 		bool useWallClockTime = false;  // If True, measure wall clock time rather than CPU time
 		std::string pathBKS = "";		// Path to Best Known Solution
+        std::string call = "";
 
 		// Parameters for the Construction Heuristics
 		double fractionGeneratedNearest = 0.05;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedSmart = 0.00;				// Proportion of individuals constructed by nearest-first
 		double fractionGeneratedFurthest = 0.05;			// Proportion of individuals constructed by furthest-first
 		double fractionGeneratedSweep = 0.05;				// Proportion of individuals constructed by sweep
 		double fractionGeneratedRandomly = 0.85;			// Proportion of individuals constructed randomly
-		int minSweepFillPercentage = 60;					// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
+		int minSweepFillPercentage = 90;					// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
 															// The maximum vehicle usage is 40% (100/250 routes, see SINTEF BKS),
 															// so take 60% to have some margin (otherwise all remaining orders will be in last route)
-		int maxToleratedCapacityViolation = 50;				// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
+		int maxToleratedCapacityViolation = 10;				// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
 		int maxToleratedTimeWarp = 100;						// No real feeling yet for what value makes sense.
 		double initialTimeWarpPenalty = 1.0;				// This was the default until now, but with this value feasible individuals often
 															// become infeasible during the local search in doLocalSearchAndAddIndividual.
@@ -102,7 +105,6 @@ public:
 		int nbVeh = INT_MAX;								// Number of vehicles
 		int logPoolInterval = 0;							// The verbose level of the algorithm log
 		bool isDimacsRun = false;							// If DIMACS run, print incumbent and avoid other output
-		bool isNpsRun = false;							    // If NeurIPS run, 
 		bool useDynamicParameters = false;					// To use dynamic parameters based on instance attributes
 		std::string pathSolution;							// Solution path
 		int nbGranular = 40;								// Granular search parameter, limits the number of moves in the RI local search
@@ -148,7 +150,8 @@ public:
 	std::vector<std::vector<int>> correlatedVertices;					// Neighborhood restrictions: For each client, list of nearby clients (size nbClients + 1, but nothing stored for the depot!)
 	int circleSectorOverlapTolerance;									// Tolerance when determining circle sector overlap (0 - 65536)
 	int minCircleSectorSize;											// Minimum circle sector size to enforce (for nonempty routes) (0 - 65536)
-
+	int nbMustDispatch;													// must dispatch µÄÊýÁ¿
+	std::vector<int> P;													// customters weight
 	// Initialization from a given data set
 	Params(const CommandLine&);
 

@@ -6,7 +6,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>./instances/ORTEC-VRPTW-ASYM-8bc13a3f-d1-n421-k40.txt -t 273 -seed 100 -veh -1 -useWallClockTime 1</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>./instances/ORTEC-VRPTW-ASYM-6f389522-d1-n253-k23.txt -veh -1 -useWallClockTime 1 -t 164 -seed 77021 -call hgsAndSmart</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(SolutionDir)..</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

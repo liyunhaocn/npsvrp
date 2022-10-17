@@ -9,7 +9,7 @@
 
 namespace hust {
 
-Input::Input(Params& para):datas(para.cli),para(para) {
+Input::Input(Params& para):para(para),datas(para.cli),P(para.P) {
 
 	this->custCnt = para.nbClients;
 	this->example = para.instanceName;
@@ -38,8 +38,7 @@ Input::Input(Params& para):datas(para.cli),para(para) {
 
 bool Input::initInput() {
 
-	P = Vec<int>(custCnt + 1, 1);
-
+//	P = Vec<int>(custCnt + 1, 1);
 	double sumq = 0;
 	for (int i = 1; i <= custCnt; ++i) {
 		sumq += datas[i].demand;
@@ -99,8 +98,9 @@ bool Input::initInput() {
 
 		auto cmp = [&](const int a, const int b) {
 
+
 			//TODO[-1] 这里的比较方式进行了修改
-			//return disOf[v][a] < disOf[v][b];
+//            return getDisof2(v, a) < getDisof2(v, b);
 			//return disOf[v][a] + datas[a].serviceDuration <
 			//	disOf[v][b] + datas[b].serviceDuration;
 
@@ -125,7 +125,6 @@ bool Input::initInput() {
 			int aLinkv = canLinkNode(a, v);
 			int bLinkv = canLinkNode(b, v);
 			if ((aLinkv && bLinkv) || (!aLinkv && !bLinkv)) {
-				//return getDisof2(a, v) < getDisof2(b, v);
 				return getDisof2(v, a) < getDisof2(v, b);
 			}
 			else {
@@ -138,7 +137,7 @@ bool Input::initInput() {
 	addSTJIsxthcloseOf = util::Array2D<int>(custCnt + 1, custCnt + 1, -1);
 
 	for (int v = 0; v <= custCnt; ++v) {
-		for (std::size_t wpos = 0; wpos < addSTclose.size2(); ++wpos) {
+		for (int wpos = 0; wpos < static_cast<int>(addSTclose.size2()); ++wpos) {
 			int w = addSTclose[v][wpos];
 			addSTJIsxthcloseOf[v][w] = wpos;
 		}
@@ -162,7 +161,7 @@ bool Input::initInput() {
 
 	iInNeicloseOfUnionNeiCloseOfI = Vec< Vec<int> >(custCnt + 1);
 
-	for (std::size_t v = 0; v <= custCnt; ++v) {
+	for (int v = 0; v <= custCnt; ++v) {
 
 		iInNeicloseOfUnionNeiCloseOfI[v] = Vec<int>
 			(addSTclose[v], addSTclose[v] + deNeiSize);

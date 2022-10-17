@@ -12,8 +12,9 @@
 #include <list>
 
 #include "Arr2D.h"
+#include "../hgs/LocalSearch.h"
 
-#define HUST_LYH_NPSRUN 0
+//#define HUST_LYH_NPSRUN 0
 #define CHECKING 0
 
 #define lyhCheckTrue(x) {				\
@@ -82,6 +83,7 @@ extern hust::util::Array2D<int>* yearTable;
 extern Configuration* globalCfg;
 extern Input* globalInput;
 extern BKS* bks;
+extern LocalSearch* hgsLocalSearch;
 //extern Timer* gloalTimer;
 
 void globalRepairSquIter();

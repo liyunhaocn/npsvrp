@@ -34,6 +34,43 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\hgs\CircleSector.h" />
+    <ClInclude Include="..\..\src\hgs\commandline.h" />
+    <ClInclude Include="..\..\src\hgs\Genetic.h" />
+    <ClInclude Include="..\..\src\hgs\Individual.h" />
+    <ClInclude Include="..\..\src\hgs\LocalSearch.h" />
+    <ClInclude Include="..\..\src\hgs\Matrix.h" />
+    <ClInclude Include="..\..\src\hgs\Params.h" />
+    <ClInclude Include="..\..\src\hgs\Population.h" />
+    <ClInclude Include="..\..\src\hgs\Split.h" />
+    <ClInclude Include="..\..\src\hgs\xorshift128.h" />
+    <ClInclude Include="..\..\src\smart\Arr2D.h" />
+    <ClInclude Include="..\..\src\smart\Configuration.h" />
+    <ClInclude Include="..\..\src\smart\EAX.h" />
+    <ClInclude Include="..\..\src\smart\Exception.h" />
+    <ClInclude Include="..\..\src\smart\Flag.h" />
+    <ClInclude Include="..\..\src\smart\Goal.h" />
+    <ClInclude Include="..\..\src\smart\Math.h" />
+    <ClInclude Include="..\..\src\smart\Problem.h" />
+    <ClInclude Include="..\..\src\smart\Solver.h" />
+    <ClInclude Include="..\..\src\smart\Utility.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\hgs\Genetic.cpp" />
+    <ClCompile Include="..\..\src\hgs\Individual.cpp" />
+    <ClCompile Include="..\..\src\hgs\LocalSearch.cpp" />
+    <ClCompile Include="..\..\src\hgs\Params.cpp" />
+    <ClCompile Include="..\..\src\hgs\Population.cpp" />
+    <ClCompile Include="..\..\src\hgs\Split.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\smart\Configuration.cpp" />
+    <ClCompile Include="..\..\src\smart\EAX.cpp" />
+    <ClCompile Include="..\..\src\smart\Flag.cpp" />
+    <ClCompile Include="..\..\src\smart\Goal.cpp" />
+    <ClCompile Include="..\..\src\smart\Problem.cpp" />
+    <ClCompile Include="..\..\src\smart\Solver.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{a46faf10-6bcb-47e4-a4e3-9d5ebaa16c7c}</ProjectGuid>
     <Keyword>Linux</Keyword>
@@ -77,34 +114,13 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)..\dev</OutDir>
+    <OutDir>$(ProjectDir)..\..\dev</OutDir>
     <TargetName>SmartRouter</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)..\dev</OutDir>
+    <OutDir>$(ProjectDir)..\..\dev</OutDir>
     <TargetName>SmartRouter</TargetName>
   </PropertyGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\Genetic.cpp" />
-    <ClCompile Include="..\..\src\Individual.cpp" />
-    <ClCompile Include="..\..\src\LocalSearch.cpp" />
-    <ClCompile Include="..\..\src\main.cpp" />
-    <ClCompile Include="..\..\src\Params.cpp" />
-    <ClCompile Include="..\..\src\Population.cpp" />
-    <ClCompile Include="..\..\src\Split.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\src\CircleSector.h" />
-    <ClInclude Include="..\..\src\commandline.h" />
-    <ClInclude Include="..\..\src\Genetic.h" />
-    <ClInclude Include="..\..\src\Individual.h" />
-    <ClInclude Include="..\..\src\LocalSearch.h" />
-    <ClInclude Include="..\..\src\Matrix.h" />
-    <ClInclude Include="..\..\src\Params.h" />
-    <ClInclude Include="..\..\src\Population.h" />
-    <ClInclude Include="..\..\src\Split.h" />
-    <ClInclude Include="..\..\src\xorshift128.h" />
-  </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

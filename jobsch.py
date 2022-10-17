@@ -18,6 +18,7 @@ def run(arr, run=True):
     if run == False:
         return 0
 
+    os.system("rm stdcerr/*.txt")
     i = 0
     while True:
         
@@ -31,13 +32,14 @@ def run(arr, run=True):
         cpu_use = psutil.cpu_percent()
 
         if cpu_use > 70:
-            print("n{0}".format(cpu_use), end=' ')
+            pass
+            # print("n{0}".format(cpu_use), end=' ')
         else:
             print("y{0}".format(cpu_use))
             cmd = arr[i]
             print(cpu_use)
             ins = cmd.split("/instances/")[1].split(".txt")[0].replace("/", "")+".txt"
-            cmd = cmd.replace("&", "> ./stdcerr/{0} 2>&1 &".format(ins))
+            cmd = cmd.replace("&", ">> ./stdcerr/{0} 2>&1 &".format(ins))
 
             print("ins:", ins)
             print("sumit job ", i, cmd)
@@ -53,7 +55,8 @@ if __name__ == "__main__":
         print("run job schedule on Linux")
         os.system("chmod 777 ./dev/SmartRouter")
 
-    # jobs = all_cmds.get_all_static_my_cmds()
+    # jobs = all_cmds.get_all_static_my_cmds("testruin")
+    # jobs = all_cmds.get_all_dynamic_my_cmds("testruin")
     jobs = all_cmds.get_all_dynamic_my_cmds("hgs") + all_cmds.get_all_static_my_cmds("hgs")
     # for job in jobs:
     #     print(job)

@@ -26,23 +26,43 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		// First select parents using getNonIdenticalParentsBinaryTournament
 		// Then use the selected parents to create new individuals using OX and SREX
 		// Finally select the best new individual based on bestOfSREXAndOXCrossovers
-		//Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
+//		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
 		
-		//Individual* offspring = hust::EAX::doEaxWithoutRepair(population->getNonIdenticalParentsBinaryTournament(), candidateOffsprings[2]);
-		//if (offspring == nullptr) {
-		//	offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
-		//}
+        auto parent = population->getNonIdenticalParentsBinaryTournament();
+        static int eaxCnt=0;
+        static int spCnt=0;
+        Individual* offspring = bestOfSREXAndOXCrossovers(parent);
 
-		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
+        Individual* EaxOffspring = hust::EAX::doEaxWithoutRepair(parent, candidateOffsprings[4]);
+//        if (EaxOffspring != nullptr) {
+//            split->generalSplit(offspring, params->nbVehicles);
+//            offspring = EaxOffspring->myCostSol.penalizedCost
+//                        < offspring->myCostSol.penalizedCost ?
+//                        EaxOffspring : offspring;
+//        }
 
-		/* LOCAL SEARCH */
-		// Run the Local Search on the new individual
-
+//        offspring = bestOfSREXAndOXCrossovers(parent);
+//        INFO("eaxCnt:",eaxCnt,"spCnt:",spCnt);
 		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
 
+//        smartSolver->runLoaclSearch(offspring);
+//		if (offspring->isFeasible) {
+//			smartSolver->runSimulatedannealing(offspring);
+//		}
+//        if (offspring->isFeasible) {
+//            smartSolver->runLoaclSearch(offspring);
+//        }else{
+//            localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
+//        }
+
+//        if(offspring->isFeasible && offspring->myCostSol.penalizedCost
+//           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
+//            smartSolver->runSimulatedannealing(offspring);
+//        }
 		// Check if the new individual is the best feasible individual of the population, based on penalizedCost
 		bool isNewBest = population->addIndividual(offspring, true);
-		// In case of infeasibility, repair the individual with a certain probability
+
+        // In case of infeasibility, repair the individual with a certain probability
 		if (!offspring->isFeasible && params->rng() % 100 < (unsigned int) params->config.repairProbability)
 		{
 			// Run the Local Search again, but with penalties for infeasibilities multiplied by 10

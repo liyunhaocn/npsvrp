@@ -11,6 +11,8 @@
   </component>
   <component name="CMakeRunConfigurationManager">
     <generated>
+      <config projectName="hust" targetName="smart" />
+      <config projectName="hust" targetName="hgs" />
       <config projectName="hust" targetName="SmartRouter" />
     </generated>
   </component>
@@ -21,14 +23,22 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="">
+    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="【10.16】版本">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_cmds.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clionbuild/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Population.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/EAX.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Problem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Problem.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,10 +53,16 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="CMakeLists.txt" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
@@ -74,8 +90,8 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/yunhao/dev&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+    &quot;last_opened_file_path&quot;: &quot;/home/yunhao/npsvrp&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -83,8 +99,23 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.solver">
-    <configuration name="SmartRouter" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="hust" TARGET_NAME="SmartRouter" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="hust" RUN_TARGET_NAME="SmartRouter">
+  <component name="RunManager" selected="Python.jobsch">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SmartRouter" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="./testInstances/x.txt -t 30 -seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="hust" TARGET_NAME="SmartRouter" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="hust" RUN_TARGET_NAME="SmartRouter">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="hgs" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="hust" TARGET_NAME="hgs" CONFIG_NAME="Debug">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="smart" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="hust" TARGET_NAME="smart" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -194,7 +225,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="solver" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="solver" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="npsvrp" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -207,7 +238,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-2e2ef021-d1-n210-k17.txt --static --epoch_tlim 164 --run_tag notag --verbose" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-cc815064-d1-n470-k26.txt --epoch_tlim 54" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -216,20 +247,19 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.con" />
+      <item itemvalue="Python.solver" />
       <item itemvalue="Python.all_cmds" />
       <item itemvalue="Python.analysis" />
-      <item itemvalue="Python.con" />
       <item itemvalue="Python.draw" />
       <item itemvalue="Python.jobsch" />
-      <item itemvalue="Python.solver" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.solver" />
         <item itemvalue="Python.jobsch" />
         <item itemvalue="Python.analysis" />
-        <item itemvalue="Python.all_cmds" />
         <item itemvalue="Python.draw" />
+        <item itemvalue="Python.all_cmds" />
       </list>
     </recent_temporary>
   </component>
@@ -243,7 +273,9 @@
       <updated>1660839366713</updated>
       <workItem from="1664939440276" duration="1001000" />
       <workItem from="1664940452638" duration="5378000" />
-      <workItem from="1664958442148" duration="5846000" />
+      <workItem from="1664958442148" duration="14066000" />
+      <workItem from="1665136618543" duration="5691000" />
+      <workItem from="1665148755014" duration="483000" />
     </task>
     <task id="LOCAL-00001" summary="[tag][10_4]运行版本 dynamic+static">
       <created>1664899290153</created>
@@ -252,7 +284,42 @@
       <option name="project" value="LOCAL" />
       <updated>1664899290153</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="[run] 10_7 smartonly">
+      <created>1665137221049</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1665137221049</updated>
+    </task>
+    <task id="LOCAL-00003" summary="[不可运行]修改EjectPool之前 暂存">
+      <created>1665478999219</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1665478999219</updated>
+    </task>
+    <task id="LOCAL-00004" summary="ruinafter eje&#10;bugfix:可能讲全部的点都放进了dynamicEP中，要检查这个">
+      <created>1665716815948</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1665716815948</updated>
+    </task>
+    <task id="LOCAL-00005" summary="警告消除，&#10;[bugfix]main.cpp:dynamic delt cost减法之间加入了不必要的分号">
+      <created>1665735699257</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1665735699257</updated>
+    </task>
+    <task id="LOCAL-00006" summary="【10.16】版本">
+      <created>1665888664136</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1665888664136</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -263,7 +330,34 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="master" />
+                </option>
+              </RecentGroup>
+            </list>
           </value>
         </entry>
       </map>
@@ -272,7 +366,13 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="[tag][10_4]运行版本 dynamic+static" />
     <MESSAGE value="test_submission 成功" />
-    <option name="LAST_COMMIT_MESSAGE" value="test_submission 成功" />
+    <MESSAGE value="baseline commit" />
+    <MESSAGE value="[run] 10_7 smartonly" />
+    <MESSAGE value="[不可运行]修改EjectPool之前 暂存" />
+    <MESSAGE value="ruinafter eje&#10;bugfix:可能讲全部的点都放进了dynamicEP中，要检查这个" />
+    <MESSAGE value="警告消除，&#10;[bugfix]main.cpp:dynamic delt cost减法之间加入了不必要的分号" />
+    <MESSAGE value="【10.16】版本" />
+    <option name="LAST_COMMIT_MESSAGE" value="【10.16】版本" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -281,6 +381,16 @@
           <url>file://$PROJECT_DIR$/draw.py</url>
           <line>45</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/analysis.py</url>
+          <line>34</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/solver.py</url>
+          <line>156</line>
+          <option name="timeStamp" value="54" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

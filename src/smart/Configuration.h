@@ -40,12 +40,12 @@ struct Configuration {
 	//int yearTabuLen = 20;
 	//int yearTabuRand = 10;
 
-	int popSize = 4;
-	int popSizeMin = 4;
+	int popSize = 80;
+	int popSizeMin = 40;
 	// TODO[lyh][config.h][-1]:popSizeMax 原来是 50;
-	int popSizeMax = 5;
+	int popSizeMax = 80;
 	//int repairExitStep = 50;
-	int repairExitStep = 5;
+	int repairExitStep = 50;
 
 	//int initFindPosPqSize = 20;
 	//int findBestPosForRuinPqSize = 10;
@@ -79,13 +79,14 @@ struct Configuration {
 	int ruinLmax = 20;
 	//(ruinLmax+1)/2
 	int ruinC_ = 15;
-	int ruinC_Min = 15;
-	int ruinC_Max = 35;
+	int ruinC_Min = 5;
+	int ruinC_Max = 20;
 
-	int ruinWinkacRate = 90; // 100
+	int ruinWinkacRate = 97; // 100
 	//TODO[-1]:为初始化设置了眨眼
-	int initWinkacRate = 80; // 100
+	int initWinkacRate = 20; // 100
 	int abcyWinkacRate = 99; // 100
+    int rateOfDynamicInAndOut = 5;
 
 	std::string tag = "";
 

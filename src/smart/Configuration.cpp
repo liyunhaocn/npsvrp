@@ -31,10 +31,16 @@ void Configuration::repairByCusCnt(int cusCnt) {
 	mRLLocalSearchRange[0] = std::min<int>(cusCnt-1, mRLLocalSearchRange[0]);
 	mRLLocalSearchRange[1] = std::min<int>(cusCnt-1, mRLLocalSearchRange[1]);
 	//mRLLSgetAllRange = std::min<int>(cusCnt, mRLLSgetAllRange);
+    neiSizeMin = std::min<int>(cusCnt-1,neiSizeMin);
+    neiSizeMax = std::min<int>(cusCnt-1,neiSizeMax);
 
-	ruinLocalSearchNextNeiBroad = std::min<int>(cusCnt-1, ruinLocalSearchNextNeiBroad);
-
+    ruinLocalSearchNextNeiBroad = std::min<int>(cusCnt-1, ruinLocalSearchNextNeiBroad);
 	ruinC_ = std::min<int>(cusCnt - 1, ruinC_);
+
+    ruinLmax = std::min<int>(cusCnt - 1,ruinLmax);
+    ruinC_Min = std::min<int>(cusCnt - 1,ruinC_Min);
+    ruinC_Max = std::min<int>(cusCnt - 1,ruinC_Max);
+
 }
 
 static std::string getHelpInfo() {

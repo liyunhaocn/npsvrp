@@ -111,6 +111,12 @@ struct RTS {
 		posOf = Vec<int>(maxSize, -1);
 	}
 
+    RTS(const RTS& rhs){
+        this->cnt = rhs.cnt;
+        this->ve = rhs.ve;
+        this->posOf = rhs.posOf;
+    }
+
 	RTS& operator = (const RTS& r) {
 		if (this != &r) {
 			cnt = r.cnt;
@@ -120,16 +126,12 @@ struct RTS {
 		return *this;
 	}
 
-	~RTS() {
-		//debug("~RTS")
-		ve.clear();
-		posOf.clear();
-	}
+	~RTS()=default;
 
 	Route& operator [](int index) {
 
 #if CHECKING
-		lyhCheckTrue(index < ve.size());
+		lyhCheckTrue(index < static_cast<int>(ve.size()) );
 		lyhCheckTrue(index >= 0);
 #endif // CHECKING
 
@@ -142,7 +144,7 @@ struct RTS {
 		lyhCheckTrue(r1.routeID>=0);
 		#endif // CHECKING
 
-		if (r1.routeID >= posOf.size()) {
+		if (r1.routeID >= static_cast<int>(posOf.size()) ) {
 			size_t newSize = posOf.size() + std::max<size_t>(r1.routeID + 1, posOf.size() / 2 + 1);
 			ve.resize(newSize, Route());
 			posOf.resize(newSize, -1);
@@ -182,7 +184,7 @@ struct RTS {
 
 #if CHECKING
 		lyhCheckTrue(rid >= 0);
-		lyhCheckTrue(rid < posOf.size());
+		lyhCheckTrue(rid < static_cast<int>(posOf.size()));
 		lyhCheckTrue(posOf[rid] >= 0);
 #endif // CHECKING
 
@@ -212,7 +214,7 @@ struct ConfSet {
 	Vec<int> pos;
 	int cnt = 0;
 
-	ConfSet() = delete;
+	ConfSet() {};
 	ConfSet(int maxSize) {
 		cnt = 0;
 		ve = Vec<int>(maxSize + 1, -1);
@@ -234,11 +236,10 @@ struct ConfSet {
 		return *this;
 	}
 
-	ConfSet(ConfSet&& cs) noexcept = delete;
+//	ConfSet(ConfSet&& cs) noexcept = delete;
+//	ConfSet& operator = (ConfSet&& cs) noexcept = delete;
 
-	ConfSet& operator = (ConfSet&& cs) noexcept = delete;
-
-	bool reSet() {
+	bool reset() {
 
 		for (int i = 0; i < cnt; ++i) {
 			// 
@@ -250,13 +251,13 @@ struct ConfSet {
 		return true;
 	}
 
-	bool ins(int val) {
+	bool insert(int val) {
 
 		#if CHECKING
 		lyhCheckTrue(val>=0);
 		#endif // CHECKING
 
-		if (val >= pos.size()) {
+		if (val >= static_cast<int>(pos.size())) {
 			int newSize = pos.size() + std::max<int>(val + 1, pos.size() / 2 + 1);
 			ve.resize(newSize, -1);
 			pos.resize(newSize, -1);
@@ -272,9 +273,9 @@ struct ConfSet {
 		return true;
 	}
 
-	bool removeVal(int val) {
+	bool remove(int val) {
 
-		if (val >= pos.size() || val < 0) {
+		if (val >= static_cast<int>(pos.size()) || val < 0) {
 			return false;
 		}
 
@@ -290,6 +291,21 @@ struct ConfSet {
 		return true;
 	}
 
+    Vec<int>putElementInVector() {
+        return Vec<int>(ve.begin(),ve.begin()+cnt);
+    }
+
+    int size(){
+        return cnt;
+    }
+
+    int randomPeek() {
+        if( cnt == 0 ){
+            ERROR("container.cnt == 0");
+        }
+        int index = myRand->pick(cnt);
+        return ve[index];
+    }
 };
 
 struct RandomX {
@@ -374,7 +390,7 @@ public:
 
 struct NextPermutation {
 
-	bool hasNext(Vec<int>& ve, int Kmax, int& k, int N) {
+	bool hasNext(Vec<int>& ve, int& k, int N) {
 
 		if (k == 1 && ve[k] == N) {
 			return false;
@@ -404,11 +420,67 @@ struct NextPermutation {
 
 };
 
+struct WeightedEjectPool{
+
+    int sumCost = 0;
+    ConfSet container;
+    Params* params;
+    WeightedEjectPool(Params* params):container(params->nbClients+1),params(params) {}
+
+    WeightedEjectPool(const WeightedEjectPool& ej) {
+        this->container = ej.container;
+        this->sumCost = ej.sumCost;
+        this->params = ej.params;
+    }
+
+    WeightedEjectPool& operator = (const WeightedEjectPool& ej) {
+        if (this != &ej) {
+            this->container = ej.container;
+            this->sumCost = ej.sumCost;
+            this->params = ej.params;
+        }
+        return *this;
+    }
+
+    ~WeightedEjectPool() { }
+
+    void insert(int v){
+        sumCost += params->P[v];
+        container.insert(v);
+    }
+
+    void remove(int v){
+        if(container.pos[v]==-1){
+            ERROR("container.pos[v]==-1");
+        }
+        sumCost -= params->P[v];
+        container.remove(v);
+    }
+
+    int randomPeek() {
+        return container.randomPeek();
+    }
+
+    void reset(){
+        container.reset();
+        sumCost = 0;
+    }
+
+    Vec<int>putElementInVector() {
+        return  container.putElementInVector();
+    }
+
+    int size(){
+        return container.cnt;
+    }
+};
+
 class Solver
 {
 public:
 
 	Input& input;
+    Params* params;
 
 	Vec<Customer> customers;
 
@@ -427,10 +499,12 @@ public:
 
 	ConfSet PtwConfRts, PcConfRts;
 
+    WeightedEjectPool dynamicEP;
+
+    ConfSet EP;
+
 	//LL EPIter = 1;
 	int minEPcus = IntInf;
-
-	Route EPr;
 
 	struct DeltPen {
 
@@ -447,13 +521,28 @@ public:
 			PtwOnly = DisInf;
 			deltCost = DisInf;
 		}
+
 		DeltPen(const DeltPen& d) {
-			this->deltPc = d.deltPc;
-			this->deltPtw = d.deltPtw;
-			this->PtwOnly = d.PtwOnly;
-			this->PcOnly = d.PcOnly;
-			this->deltCost = d.deltCost;
+            if(this!=&d) {
+                this->deltPc = d.deltPc;
+                this->deltPtw = d.deltPtw;
+                this->PtwOnly = d.PtwOnly;
+                this->PcOnly = d.PcOnly;
+                this->deltCost = d.deltCost;
+            }
 		}
+
+        DeltPen& operator = (const DeltPen& d) {
+            if(this!=&d) {
+                this->deltPc = d.deltPc;
+                this->deltPtw = d.deltPtw;
+                this->PtwOnly = d.PtwOnly;
+                this->PcOnly = d.PcOnly;
+                this->deltCost = d.deltCost;
+            }
+            return *this;
+        }
+
 	};
 
 	struct TwoNodeMove {
@@ -468,7 +557,7 @@ public:
 			v(v), w(w), kind(kind), deltPen(d) {
 		}
 
-		TwoNodeMove(Vec<int> ve, int kind, DeltPen d) :
+		TwoNodeMove(int kind, DeltPen d) :
 			kind(kind), deltPen(d) {}
 
 		TwoNodeMove() :
@@ -541,6 +630,10 @@ public:
 
 	Solver& operator = (const Solver& s);
 
+    inline DisType  getPenaltyRouteCost(){
+        return this->PtwNoWei + this->Pc + this->RoutesCost;
+    }
+
 	// route function
 	Route rCreateRoute(int id);
 
@@ -606,29 +699,19 @@ public:
 
 	bool initSolution(int kind);
 
-	bool loadSolutionByArr2D(Vec < Vec<int>> arr2);
+	bool loadSolutionByArr2D(Vec<Vec<int>>& arr2);
+
+    inline DisType  getDeltDistanceCostIfRemoveCustomer(int v){
+        DisType delt = 0;
+        int prev = customers[v].pre;
+        int next = customers[v].next;
+        delt -= input.getDisof2(prev,v);
+        delt -= input.getDisof2(v,next);
+        delt += input.getDisof2(prev,next);
+        return delt;
+    }
 
 	void exportIndividual(Individual* indiv);
-
-	bool EPrReset();
-
-	bool EPrInsTail(int t);
-
-	bool EPrInsHead(int t);
-
-	bool EPrInsAtPos(int pos, int node);
-
-	bool EPpush_back(int v);
-
-	int EPsize();
-
-	Vec<int> EPve();
-
-	bool EPrRemoveAtPos(int a);
-
-	bool EPremoveByVal(int val);
-
-	int EPrGetCusByIndex(int index);
 
 	DeltPen estimatevw(int kind, int v, int w, int oneR);
 
@@ -716,8 +799,6 @@ public:
 
 	static Vec<int>ClearEPOrderContribute;
 
-	void ruinClearEP(int kind);
-
 	int ruinGetSplitDepth(int maxDept);
 
 	Vec<int> ruinGetRuinCusBySting(int ruinK, int ruinL);
@@ -726,37 +807,43 @@ public:
 
 	Vec<int> ruinGetRuinCusByRand(int ruinCusNum);
 		
-	Vec<int> ruinGetRuinCusByRandOneR(int ruinCusNum);
+	Vec<int> ruinGetRuinCusByRandOneR();
 
 	Vec<int> ruinGetRuinCusBySec(int ruinCusNum);
 
 	int ruinLocalSearchNotNewR(int ruinCusNum);
 		
+	void sortCustomersOrderByDifferentKind(int kind,Vec<int>& cusArr);
+
 	int CVB2ruinLS(int ruinCusNum);
 
-	Position findBestPosToSplit(Route& r);
+    void CVB2BlinkClearEPAllowNewR(int kind);
+
+	Vec<Position> findTopKPositionMinCostToSplit(int k);
 	
 	int getARidCanUsed();
 
-	int CVB2ClearEPAllowNewR(int kind);
+    Vec<int> getRuinCustomers(int perturbkind, int ruinCusNum);
 
-	int Simulatedannealing(int kind,int iterMax, double temperature,int ruinNum);
+    int dynamicRuin(int ruinCusNum);
 
-	bool doOneTimeRuinPer(int perturbkind, int ruinCusNum,int clearEPKind);
+    Vec<int> dynamicPartialClearDynamicEP(int kind);
+
+	int simulatedannealing(int kind,int iterMax, double temperature,int ruinNum);
+
+	bool doOneTimeRuinPer(int perturbkind, int clearEPKind, int ruinCusNum);
 	
-	bool perturbBaseRuin(int perturbkind, int ruinCusNum, int clearEPKind);
+	bool perturbBaseRuin(int perturbkind,int clearEPKin,int ruinCusNumd);
 
 	bool ejectLocalSearch();
 
 	bool patternAdjustment(int Irand = -1);
 
-	void perturbBasedejepool(int ruinCusNum);
-
 	Vec<eOneRNode> ejectFromPatialSol();
 
-	eOneRNode ejectOneRouteOnlyHasPcMinP(Route& r, int Kmax);
+	eOneRNode ejectOneRouteOnlyHasPcMinP(Route& r);
 
-	eOneRNode ejectOneRouteOnlyP(Route& r, int kind, int Kmax);
+	eOneRNode ejectOneRouteOnlyP(Route& r, int Kmax);
 
 	eOneRNode ejectOneRouteMinPsumGreedy
 	(Route& r, eOneRNode cutBranchNode = eOneRNode());
