@@ -5,4 +5,9 @@
     <DebuggerWorkingDirectory>$(OutDir)..\</DebuggerWorkingDirectory>
     <DebuggerFlavor>LinuxWSLDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DebuggerWorkingDirectory>$(OutDir)..\</DebuggerWorkingDirectory>
+    <DebuggerFlavor>LinuxWSLDebugger</DebuggerFlavor>
+    <RemoteDebuggerCommandArguments>./instances/ORTEC-VRPTW-ASYM-6f389522-d1-n253-k23.txt -veh -1 -useWallClockTime 1 -t 164 -seed 77021 -call hgsAndSmart</RemoteDebuggerCommandArguments>
+  </PropertyGroup>
 </Project>

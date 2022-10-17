@@ -56,7 +56,7 @@ public:
         }
         return *this;
     }
-    Array2D& operator=(Array2D &&a) {
+    Array2D& operator=(Array2D &&a) noexcept {
         if (this != &a) {
             delete[] arr;
             arr = a.arr;
