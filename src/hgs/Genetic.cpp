@@ -215,7 +215,8 @@ void Genetic::doOXcrossoverStar(Individual* result, std::pair<const Individual*,
 		}
 	}
 	
-	int resultChromTIndex = params->rng()%params->nbClients;
+//	int resultChromTIndex = params->rng()%params->nbClients;
+	int resultChromTIndex = 0;
 
 	// Fill the remaining elements in the order given by the second parent
 	for (int c : reamin) {
