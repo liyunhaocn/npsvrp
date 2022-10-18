@@ -187,6 +187,63 @@ void Genetic::doOXcrossover(Individual* result, std::pair<const Individual*, con
 	split->generalSplit(result, params->nbVehicles);
 }
 
+
+void Genetic::doOXcrossoverStar(Individual* result, std::pair<const Individual*, const Individual*> parents)
+{
+	// Frequency vector to track the clients which have been inserted already
+	std::vector<bool> freqClient = std::vector<bool>(params->nbClients + 1, false);
+
+	// Copy in place the elements from start to end (possibly "wrapping around" the end of the array)
+	int paNbRoute = parents.first->myCostSol.nbRoutes;
+	int nbStartCustomer = (params->rng()%paNbRoute) + 1;
+	auto& arr = hust::myRandX->getMN(params->nbClients, nbStartCustomer);
+	std::sort(arr.begin(),arr.begin()+nbStartCustomer);
+
+	std::fill(result->chromT.begin(), result->chromT.end(),-1);
+	for (int i=0; i+1 < nbStartCustomer;i+=2){
+	
+		for (int j = arr[i]; j <= arr[i + 1]; ++j) {
+			result->chromT[j] = parents.first->chromT[j];
+			freqClient[result->chromT[j]] = true;
+		}
+	}
+
+	std::vector<int> reamin;
+	for (int c :parents.second->chromT ) {
+		if (freqClient[c] == false) {
+			reamin.push_back(c);
+		}
+	}
+	
+	int resultChromTIndex = params->rng()%params->nbClients;
+
+	// Fill the remaining elements in the order given by the second parent
+	for (int c : reamin) {
+		while (result->chromT[resultChromTIndex % params->nbClients] != -1) {
+			++resultChromTIndex;
+			resultChromTIndex %= params->nbClients;
+		}
+		result->chromT[resultChromTIndex] = c;
+		++resultChromTIndex;
+		resultChromTIndex %= params->nbClients;
+	}
+	// Completing the individual with the Split algorithm
+	split->generalSplit(result, params->nbVehicles);
+}
+
+Individual* Genetic::crossoverOXStar(std::pair<const Individual*, const Individual*> parents)
+{
+
+	// Create two individuals using OX
+	doOXcrossoverStar(candidateOffsprings[4], parents);
+	doOXcrossoverStar(candidateOffsprings[5], parents);
+
+	// Return the best individual of the two, based on penalizedCost
+	return candidateOffsprings[4]->myCostSol.penalizedCost < candidateOffsprings[5]->myCostSol.penalizedCost
+		? candidateOffsprings[4]
+		: candidateOffsprings[5];
+}
+
 Individual* Genetic::crossoverSREX(std::pair<const Individual*, const Individual*> parents)
 {
 	// Get the number of routes of both parents
@@ -449,7 +506,8 @@ void Genetic::insertUnplannedTasks(Individual* offspring, std::unordered_set<int
 Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, const Individual*> parents)
 {
 	// Create two individuals, one with OX and one with SREX
-	Individual* offspringOX = crossoverOX(parents);
+	//Individual* offspringOX = crossoverOX(parents);
+	Individual* offspringOX = crossoverOXStar(parents);
 	Individual* offspringSREX = crossoverSREX(parents);
 
 	//Return the best individual, based on penalizedCost
