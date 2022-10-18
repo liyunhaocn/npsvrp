@@ -6,4 +6,4 @@ draws
 /cmake-build-debug/
 /CMakeFiles/
 /stdcerr/
-/.idea/workspace.xml
+!/.idea/workspace.xml
