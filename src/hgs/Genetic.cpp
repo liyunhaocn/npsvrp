@@ -33,7 +33,7 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
         static int spCnt=0;
         Individual* offspring = bestOfSREXAndOXCrossovers(parent);
 
-        Individual* EaxOffspring = hust::EAX::doEaxWithoutRepair(parent, candidateOffsprings[4]);
+//        Individual* EaxOffspring = hust::EAX::doEaxWithoutRepair(parent, candidateOffsprings[4]);
 //        if (EaxOffspring != nullptr) {
 //            split->generalSplit(offspring, params->nbVehicles);
 //            offspring = EaxOffspring->myCostSol.penalizedCost
