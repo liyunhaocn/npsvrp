@@ -25,8 +25,6 @@
   <component name="ChangeListManager">
     <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="10.18 hgsinit 随机生成占10%，换了随机种子引擎">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -235,12 +233,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.con" />
-      <item itemvalue="Python.solver" />
       <item itemvalue="Python.all_cmds" />
       <item itemvalue="Python.analysis" />
+      <item itemvalue="Python.con" />
       <item itemvalue="Python.draw" />
       <item itemvalue="Python.jobsch" />
+      <item itemvalue="Python.solver" />
     </list>
     <recent_temporary>
       <list>

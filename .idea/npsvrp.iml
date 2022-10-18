@@ -8,6 +8,16 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/env" />
+      <excludeFolder url="file://$MODULE_DIR$/src/cmake-build-debug/CMakeFiles/3.23.2/CompilerIdC/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/src/cmake-build-debug/CMakeFiles/3.23.2/CompilerIdCXX/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/src/cmake-build-release/CMakeFiles/3.23.2/CompilerIdC/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/src/cmake-build-release/CMakeFiles/3.23.2/CompilerIdCXX/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/submissions/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-debug" />
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-release" />
+      <excludeFolder url="file://$MODULE_DIR$/CMakeFiles" />
+      <excludeFolder url="file://$MODULE_DIR$/draws" />
+      <excludeFolder url="file://$MODULE_DIR$/stdcerr" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
