@@ -21,7 +21,7 @@ Params::Params(const CommandLine& cl)
 	// Read and create some parameter values from the commandline
 	config = cl.config;
 	nbVehicles = config.nbVeh;
-	rng = XorShift128(config.seed);
+	rng = SmartRandomGenerator(config.seed);
 	startWallClockTime = std::chrono::system_clock::now();
 	startCPUTime = std::clock();
 

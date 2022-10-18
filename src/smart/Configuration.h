@@ -40,12 +40,12 @@ struct Configuration {
 	//int yearTabuLen = 20;
 	//int yearTabuRand = 10;
 
-	int popSize = 80;
-	int popSizeMin = 40;
+	int popSize = 30;
+	int popSizeMin = 10;
 	// TODO[lyh][config.h][-1]:popSizeMax Ô­À´ÊÇ 50;
-	int popSizeMax = 80;
+	int popSizeMax = 30;
 	//int repairExitStep = 50;
-	int repairExitStep = 50;
+	int repairExitStep = 5;
 
 	//int initFindPosPqSize = 20;
 	//int findBestPosForRuinPqSize = 10;

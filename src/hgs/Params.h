@@ -70,16 +70,16 @@ public:
         std::string call = "";
 
 		// Parameters for the Construction Heuristics
-		double fractionGeneratedNearest = 0.05;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedSmart = 0.00;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedFurthest = 0.05;			// Proportion of individuals constructed by furthest-first
-		double fractionGeneratedSweep = 0.05;				// Proportion of individuals constructed by sweep
-		double fractionGeneratedRandomly = 0.85;			// Proportion of individuals constructed randomly
-		int minSweepFillPercentage = 90;					// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
+		double fractionGeneratedNearest = 0.20;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedSmart = 0.20;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedFurthest = 0.20;			// Proportion of individuals constructed by furthest-first
+		double fractionGeneratedSweep = 0.20;				// Proportion of individuals constructed by sweep
+		double fractionGeneratedRandomly = 0.10;			// Proportion of individuals constructed randomly
+		int minSweepFillPercentage = 90; //60				// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
 															// The maximum vehicle usage is 40% (100/250 routes, see SINTEF BKS),
 															// so take 60% to have some margin (otherwise all remaining orders will be in last route)
-		int maxToleratedCapacityViolation = 10;				// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
-		int maxToleratedTimeWarp = 100;						// No real feeling yet for what value makes sense.
+		int maxToleratedCapacityViolation = 10;	//50		// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
+		int maxToleratedTimeWarp = 20;//100					// No real feeling yet for what value makes sense.
 		double initialTimeWarpPenalty = 1.0;				// This was the default until now, but with this value feasible individuals often
 															// become infeasible during the local search in doLocalSearchAndAddIndividual.
 															// With initialTimeWarpPenalty = 10, this does not happen.
@@ -120,7 +120,7 @@ public:
 	};
 
 	Config config;						// Stores all the parameter values
-	XorShift128 rng;					// Fast random number generator
+    SmartRandomGenerator rng;			// Fast random number generator
 	std::chrono::system_clock::time_point startWallClockTime;			// Start wall clock time of this object (should be constructed at start of program)
 	std::clock_t startCPUTime;			// Start CPU time of this object
 

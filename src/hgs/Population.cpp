@@ -91,7 +91,7 @@ void Population::generatePopulation()
 
         Individual indiv(params, false);
 //        smartSolver->initSolution(3);
-        smartSolver->initSolution(i%8);
+        smartSolver->initSolution(i%9);
 //        smartSolver->initSolution(i%6);
 //        smartSolver->minimizeRN(2);
         smartSolver->exportIndividual(&indiv);

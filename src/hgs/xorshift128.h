@@ -3,11 +3,14 @@
 #define XORSHIFT128_H
 
 #include <limits.h>
+#include <random>
 
 // This is a Xorshift random number generators, also called shift-register generators, which is a pseudorandom number generators.
 // It generates the next number in the sequence by repeatedly taking the 'exclusive or' (the ^ operator) of a number with a bit-shifted version of itself.
 // For more information, see: https://en.wikipedia.org/wiki/Xorshift
-class XorShift128
+
+using SmartRandomGenerator = std::mt19937;
+class XorShift128_HGS
 {
     // This random number generator uses 4 numbers.
     // Those numbers are used to repeatedly take the 'exclusive or' of a number with a bit-shifted version of itself.
@@ -17,7 +20,7 @@ public:
     typedef unsigned result_type;
 
     // Constructor of the Xorshift random number generator, given a seed stored as state_[0]
-    XorShift128(const int seed = 42)
+    XorShift128_HGS(const int seed = 42)
     {
         state_[0] = seed;
         state_[1] = 123456789;

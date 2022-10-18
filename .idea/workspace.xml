@@ -23,22 +23,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="【10.16】版本">
+    <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="10.18 hgs">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Population.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/xorshift128.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/xorshift128.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/EAX.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Problem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Problem.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Utility.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Utility.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +58,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="hgsbase" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -319,7 +317,14 @@
       <option name="project" value="LOCAL" />
       <updated>1665888664136</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="10.18 hgs">
+      <created>1666060389690</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1666060389690</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -372,7 +377,8 @@
     <MESSAGE value="ruinafter eje&#10;bugfix:可能讲全部的点都放进了dynamicEP中，要检查这个" />
     <MESSAGE value="警告消除，&#10;[bugfix]main.cpp:dynamic delt cost减法之间加入了不必要的分号" />
     <MESSAGE value="【10.16】版本" />
-    <option name="LAST_COMMIT_MESSAGE" value="【10.16】版本" />
+    <MESSAGE value="10.18 hgs" />
+    <option name="LAST_COMMIT_MESSAGE" value="10.18 hgs" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

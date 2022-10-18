@@ -8460,11 +8460,11 @@ bool Solver::runSimulatedannealing(Individual* indiv) {
 
 	if (penalty > 0) {
 		if (repair()) {
-			simulatedannealing(1, 5, 20.0, c_ );
+			simulatedannealing(1, 1, myRand->pick(100)+1, c_ );
 		}
 	}
 	else {
-		simulatedannealing(1, 5, 20.0, c_);
+		simulatedannealing(1, 1, myRand->pick(100)+1, c_);
 	}
 	exportIndividual(indiv);
 	return true;

@@ -312,7 +312,7 @@ struct RandomX {
 
 public:
 
-	using Generator = hust::XorShift128;
+	using Generator = SmartRandomGenerator;
 
 	RandomX(unsigned seed) : rgen(seed) { initMpLLArr(); }
 	RandomX() : rgen(generateSeed()) { initMpLLArr(); }
