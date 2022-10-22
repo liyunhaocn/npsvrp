@@ -252,7 +252,8 @@ public:
 	void run(Individual* indiv, double penaltyCapacityLS, double penaltyTimeWarpLS);
 
 	// Initialize data for construction heuristics
-	void initializeConstruction(Individual* indiv, std::vector<NodeToInsert>* nodesToInsert);
+//	void initializeConstruction(Individual* indiv, std::vector<NodeToInsert>* nodesToInsert);
+	void initializeConstruction(std::vector<NodeToInsert>* nodesToInsert);
 
 	// Construct an individual using a heuristic with a maximum allowed violation of capacity and a
 	// maximum allowed time warp. If not all clients can be assigned given the tolerances, the

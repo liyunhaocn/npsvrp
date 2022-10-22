@@ -13,46 +13,31 @@
 
 void Genetic::run(int maxIterNonProd, int timeLimit)
 {
-	if (params->nbClients == 1)
-	{
-		// Edge case: with 1 client, crossover will fail, genetic algorithm makes no sense
-		return;
-	}
 	// Do iterations of the Genetic Algorithm, until more then maxIterNonProd consecutive iterations without improvement or a time limit (in seconds) is reached
 	int nbIterNonProd = 1;
 	for (int nbIter = 0; nbIterNonProd <= maxIterNonProd && !params->isTimeLimitExceeded(); nbIter++)
 	{
-		/* SELECTION AND CROSSOVER */
-		// First select parents using getNonIdenticalParentsBinaryTournament
-		// Then use the selected parents to create new individuals using OX and SREX
-		// Finally select the best new individual based on bestOfSREXAndOXCrossovers
-//		Individual* offspring = bestOfSREXAndOXCrossovers(population->getNonIdenticalParentsBinaryTournament());
-		
+        if(params->isTimeLimitExceeded()){
+            break;
+        }
         auto parent = population->getNonIdenticalParentsBinaryTournament();
-        static int eaxCnt=0;
-        static int spCnt=0;
-        Individual* offspring = bestOfSREXAndOXCrossovers(parent);
+        int level = 0;
+        if(nbIterNonProd <= 300){
+            level = 0;
+        }else{
+            level = 1;
+        }
+        Individual* offspring = bestOfSREXAndOXCrossovers(parent,level);
 
-//        Individual* EaxOffspring = hust::EAX::doEaxWithoutRepair(parent, candidateOffsprings[4]);
-//        if (EaxOffspring != nullptr) {
-////            split->generalSplit(offspring, params->nbVehicles);
-//            offspring = EaxOffspring->myCostSol.penalizedCost
-//                        < offspring->myCostSol.penalizedCost ?
-//                        EaxOffspring : offspring;
-//        }
+		localSearch->run(offspring,
+                         params->penaltyCapacity,
+                         params->penaltyTimeWarp);
 
-		localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
-
-//		if (offspring->isFeasible) {
-//			smartSolver->runSimulatedannealing(offspring);
-//		}
-//        if (offspring->isFeasible) {
-//            smartSolver->runLoaclSearch(offspring);
-//        }else{
-//            localSearch->run(offspring, params->penaltyCapacity, params->penaltyTimeWarp);
-//        }
-
-//        if(offspring->isFeasible && offspring->myCostSol.penalizedCost
+        if( hust::globalCfg->isHgsRuinWhenGetBKS==1){
+            smartSolver->runSimulatedannealing(offspring);
+        }
+//        if( hust::globalCfg->isHgsRuinWhenGetBKS==1 &&
+//            offspring->isFeasible && offspring->myCostSol.penalizedCost
 //           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
 //            smartSolver->runSimulatedannealing(offspring);
 //        }
@@ -101,11 +86,23 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		if (timeLimit != INT_MAX && nbIterNonProd == maxIterNonProd && params->config.doRepeatUntilTimeLimit)
 		{
             // TODO[lyh][Genetic]:不重启
+            if(params->config.isBreakNotReStart ==1 ){
+                break;
+            }
             INFO("ReStart");
-			population->restart();
-//            if(population->getBestFound()!= nullptr) {
-//                population->addIndividual(population->getBestFound(), false);
+//            for(auto& indiv:population->feasibleSubpopulation){
+//                smartSolver->loadIndividual(indiv);
+//                smartSolver->perturbBaseRuin(params->nbClients/2);
+//                smartSolver->exportIndividual(indiv);
 //            }
+//            for(auto& indiv:population->infeasibleSubpopulation){
+//                smartSolver->loadIndividual(indiv);
+//                smartSolver->perturbBaseRuin(params->nbClients/2);
+//                smartSolver->exportIndividual(indiv);
+//            }
+//            population->bestSolutionRestart = Individual();
+
+			population->restart();
 			nbIterNonProd = 1;
 		}
 
@@ -117,8 +114,12 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 			))
 		{
 			// Note: changing nbGranular also changes how often the order is reshuffled
+            int old = params->config.nbGranular;
 			params->config.nbGranular += params->config.growNbGranularSize;
-			params->SetCorrelatedVertices();
+            params->config.nbGranular = std::min<int>(40,params->config.nbGranular);
+            if(params->config.nbGranular!=old) {
+                params->SetCorrelatedVertices();
+            }
 		}
 
 		// Increase the minimumPopulationSize by growPopulationSize every certain number of iterations, if growPopulationSize is greater than 0
@@ -133,19 +134,242 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 	}
 }
 
+void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
+
+    using namespace hust;
+    int poolSize = pool.size();
+
+    if(poolSize < 2){
+        return;
+    }
+    INFO("poolSize:", poolSize);
+
+    auto& ords = myRandX->getMN(poolSize, poolSize);
+    //myRand->shuffleVec(ords);
+
+    auto getMinRtCostInPool = [&]() -> DisType {
+        DisType bestSolInPool = DisInf;
+        for (int i = 0; i <static_cast<int>(pool.size()); ++i) {
+            bestSolInPool = std::min<DisType>(bestSolInPool, pool[i]->myCostSol.penalizedCost);
+        }
+        return bestSolInPool;
+    };
+
+    DisType bestSolInPool = getMinRtCostInPool();
+    Solver pa;
+    Solver pb;
+    Solver pc;
+
+    //TODO[-1]:naMA这里改10了
+
+    for (int ct = 0; ct < 10; ct++) {
+        if(params->isTimeLimitExceeded()){
+            break;
+        }
+
+        hust::myRand->shuffleVec(ords);
+        for (int i = 0; i < poolSize; ++i) {
+
+            if(params->isTimeLimitExceeded()){
+                break;
+            }
+            int paIndex = ords[i];
+            int pbIndex = ords[(i + 1) % poolSize];
+            pa.loadIndividual(pool[paIndex]);
+            pb.loadIndividual(pool[pbIndex]);
+            pc = pa;
+
+            int eaxReturn = EAX::doTwoKindEAX(pa, pb, pc, 1);
+
+            if(eaxReturn==-1){
+                continue;
+            }
+
+            int replace = EAX::updateWhichPaPbUsePc(pa,pb,pc);
+            if( replace == 1 ){
+                pc.exportIndividual(pool[paIndex]);
+            }else if(replace==2){
+                pc.exportIndividual(pool[pbIndex]);
+            }
+        }
+
+        DisType curBest = getMinRtCostInPool();
+        if (curBest < bestSolInPool ) {
+            bestSolInPool = curBest;
+            ct = 0;
+        }
+    }
+
+    //TODO[-1]:naMA这里改10了
+    bestSolInPool = getMinRtCostInPool();
+
+    for (int ct = 0; ct < 10; ct++) {
+        if(params->isTimeLimitExceeded()){
+            break;
+        }
+        myRand->shuffleVec(ords);
+        for (int i = 0; i < poolSize; ++i) {
+
+            if(params->isTimeLimitExceeded()){
+                break;
+            }
+
+            int paIndex = ords[i];
+            int pbIndex = ords[(i + 1) % poolSize];
+            pa.loadIndividual(pool[paIndex]);
+            pb.loadIndividual(pool[pbIndex]);
+            pc = pa;
+            int eaxReturn = EAX::doTwoKindEAX(pa, pb, pc, 1);
+
+            if(eaxReturn==-1){
+                continue;
+            }
+
+            int replace = EAX::updateWhichPaPbUsePc(pa,pb,pc);
+            if( replace == 1 ){
+                pc.exportIndividual(pool[paIndex]);
+            }else if(replace==2){
+                pc.exportIndividual(pool[pbIndex]);
+            }
+        }
+//TODO[lyh][eaxup]
+        DisType curBest = getMinRtCostInPool();
+        if (curBest < bestSolInPool) {
+            bestSolInPool = curBest;
+            ct = 0;
+        }
+    }
+
+    bks->bestSolFound.exportIndividual(candidateOffsprings[7]);
+    population->updateBestSolutionOverall(candidateOffsprings[7]);
+
+    INFO("getMinRtCostInPool():", getMinRtCostInPool());
+}
+
+void Genetic::runMA(){
+
+    using namespace hust;
+    std::map<int,std::vector<Individual*>> individualsGroupByRouterNum;
+    auto& feasibleIndividuals = population->feasibleSubpopulation;
+
+    for(auto& indiv:feasibleIndividuals){
+        int nbRoutes = indiv->myCostSol.nbRoutes;
+        individualsGroupByRouterNum[nbRoutes].push_back(indiv);
+    }
+    std::vector<Individual*> pool;
+
+    for(auto& it:individualsGroupByRouterNum){
+        INFO("it.first:",it.first);
+        (void)it;
+    }
+
+    pool = individualsGroupByRouterNum.begin()->second;
+    for(auto& it:individualsGroupByRouterNum){
+        if(params->isTimeLimitExceeded()){
+            break;
+        }
+        runMAOfPopulation(it.second);
+    }
+}
+
+void Genetic::runRuin(){
+
+//    auto& pop = population->feasibleSubpopulation;
+//    if(pop.size()==0){
+//        return;
+//    }
+//    auto best = pop[(params->rng()%pop.size())];
+    auto best = population->getBestFound();
+    if(best == nullptr){
+        return;
+    }
+    smartSolver->loadIndividual(best);
+
+    hust::Solver pBest = *smartSolver;
+    hust::Solver s = *smartSolver;
+
+    int iter = 1;
+    int iterMax = 1000;
+    double temperature = 100.0;
+    double j0 = temperature;
+//	double jf = 1;
+//	double c = pow(jf / j0, 1 / double(iterMax));
+    double c = 0.999;
+    temperature = j0;
+
+    if( smartSolver->dynamicEP.size() == params->nbClients){
+        return;
+    }
+    int ruinNum = hust::myRand->pick(hust::globalCfg->ruinC_Min,
+                                     hust::globalCfg->ruinC_Max+1);
+        ruinNum = std::min(ruinNum,params->nbClients-1);
+
+    while (++iter <= iterMax && !params->isTimeLimitExceeded()){
+
+        ruinNum = hust::myRand->pick(hust::globalCfg->ruinC_Min,
+                                         hust::globalCfg->ruinC_Max+1);
+        ruinNum = std::min(ruinNum,params->nbClients-1);
+
+        auto sStar = s;
+
+        hust::globalRepairSquIter();
+
+        sStar.CVB2ruinLS(ruinNum);
+
+        hust::bks->updateBKSAndPrint(sStar,"from ruin sStart");
+
+        hust::DisType delt = temperature * log(double(hust::myRand->pick(1, 1000000)) / (double)1000000);
+
+        if (sStar.RoutesCost < s.RoutesCost - delt) {
+            s = sStar;
+
+        }
+
+        temperature *= c;
+        if(temperature<1.0){
+            temperature = 100.0;
+        }
+
+        if (sStar.RoutesCost < pBest.RoutesCost) {
+            pBest = sStar;
+            iter=0;
+//            sStar.exportIndividual(candidateOffsprings[7]);
+//            population->addIndividual(candidateOffsprings[7], false);
+        }
+    }
+
+    pBest.exportIndividual(candidateOffsprings[7]);
+    if( candidateOffsprings[7]->myCostSol.penalizedCost < best->myCostSol.penalizedCost - MY_EPSILON ) {
+        population->addIndividual(candidateOffsprings[7], false);
+    }
+}
+
 Individual* Genetic::crossoverOX(std::pair<const Individual*, const Individual*> parents)
 {
 	// Picking the start and end of the crossover zone
-	int start = params->rng() % params->nbClients;
-	int end = params->rng() % params->nbClients;
+//	int start = params->rng() % params->nbClients;
+//	int end = params->rng() % params->nbClients;
+//	while (end == start)
+//	{
+//		end = params->rng() % params->nbClients;
+//	}
 
-	// If the start and end overlap, change the end of the crossover zone
-	while (end == start)
-	{
-		end = params->rng() % params->nbClients;
-	}
+// TODO[lyh][ox]:
+    int start = params->rng() % params->nbClients;
+    int minWidth = params->nbClients*0.10;
+    int maxWidth = params->nbClients*0.90;
 
-	// Create two individuals using OX
+    minWidth = std::max<int>(minWidth,1);
+    maxWidth = std::min<int>(maxWidth,params->nbClients-1);
+
+    int end = (start + (params->rng() % maxWidth)) % params->nbClients;
+    int width = end>=start?end-start+1:end+params->nbClients-start+1;
+
+    while (width>maxWidth || width<minWidth){
+        end = (start + (params->rng() % maxWidth)) % params->nbClients;
+        width = end>=start?end-start+1:end+params->nbClients-start+1;
+    }
+
 	doOXcrossover(candidateOffsprings[2], parents, start, end);
 	doOXcrossover(candidateOffsprings[3], parents, start, end);
 
@@ -192,21 +416,38 @@ void Genetic::doOXcrossoverStar(Individual* result, std::pair<const Individual*,
 {
 	// Frequency vector to track the clients which have been inserted already
 	std::vector<bool> freqClient = std::vector<bool>(params->nbClients + 1, false);
+    std::fill(result->chromT.begin(), result->chromT.end(),-1);
 
-	// Copy in place the elements from start to end (possibly "wrapping around" the end of the array)
 	int paNbRoute = parents.first->myCostSol.nbRoutes;
-	int nbStartCustomer = (params->rng()%paNbRoute) + 1;
-	auto& arr = hust::myRandX->getMN(params->nbClients, nbStartCustomer);
-	std::sort(arr.begin(),arr.begin()+nbStartCustomer);
-
-	std::fill(result->chromT.begin(), result->chromT.end(),-1);
-	for (int i=0; i+1 < nbStartCustomer;i+=2){
-	
-		for (int j = arr[i]; j <= arr[i + 1]; ++j) {
-			result->chromT[j] = parents.first->chromT[j];
-			freqClient[result->chromT[j]] = true;
+	int nbStartIndexeschromT = (params->rng()%paNbRoute) + 1;
+    nbStartIndexeschromT = std::min<int>(6,nbStartIndexeschromT);
+	auto& arr = hust::myRandX->getMN(params->nbClients, nbStartIndexeschromT);
+	std::sort(arr.begin(),arr.begin()+nbStartIndexeschromT);
+	for (int i = params->rng() % 2 ; i < nbStartIndexeschromT;i+=2){
+        int begin = arr[i];
+        int end = arr[(i + 1)%nbStartIndexeschromT];
+		for (int j = begin;; ++j) {
+            int t = j%params->nbClients;
+			result->chromT[t] = parents.first->chromT[t];
+			freqClient[result->chromT[t]] = true;
+            if(t == end){
+                break;
+            }
 		}
 	}
+
+//    int start = params->rng() % params->nbClients;
+//    int minWidth = params->nbClients*0.10;
+//    int maxWidth = params->nbClients*0.60;
+//    minWidth = std::max<int>(minWidth,1);
+//    maxWidth = std::min<int>(maxWidth,params->nbClients-1);
+//    int nbGetFromFirstParent = hust::myRand->pick(minWidth,maxWidth+1);
+//    auto& arr = hust::myRandX->getMN(params->nbClients, nbGetFromFirstParent);
+//    std::sort(arr.begin(),arr.begin()+nbGetFromFirstParent);
+//	for (int i = 0 ; i < nbGetFromFirstParent ; ++i){
+//        result->chromT[i] = parents.first->chromT[i];
+//        freqClient[result->chromT[i]] = true;
+//	}
 
 	std::vector<int> reamin;
 	for (int c :parents.second->chromT ) {
@@ -504,17 +745,38 @@ void Genetic::insertUnplannedTasks(Individual* offspring, std::unordered_set<int
 	}
 }
 
-Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, const Individual*> parents)
+Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, const Individual*> parents,int level)
 {
 	// Create two individuals, one with OX and one with SREX
-	//Individual* offspringOX = crossoverOX(parents);
-	Individual* offspringOX = crossoverOXStar(parents);
-	Individual* offspringSREX = crossoverSREX(parents);
+    std::vector<Individual*> offsprings(5, nullptr);
+    offsprings[0] = crossoverSREX(parents);
+    offsprings[1] = crossoverOX(parents);
 
+    if(level==1){
+        offsprings[2] = crossoverOXStar(parents);
+        offsprings[3] = hust::EAX::doEaxWithoutRepair(parents, candidateOffsprings[6]);
+
+//        smartSolver->loadIndividual(parents.first);
+//        smartSolver->perturbBaseRuin(hust::globalCfg->ruinC_*2);
+//        smartSolver->exportIndividual(candidateOffsprings[7]);
+//        split->generalSplit(candidateOffsprings[7],params->nbClients);
+//        offsprings[4] = candidateOffsprings[7];
+    }
+
+    Individual* best = nullptr;
+    for(auto& offs:offsprings){
+        if(offs!= nullptr){
+            if( best == nullptr){
+                best = offs;
+            }else{
+                if(offs ->myCostSol.penalizedCost < best->myCostSol.penalizedCost ){
+                    best = offs;
+                }
+            }
+        }
+    }
 	//Return the best individual, based on penalizedCost
-	return offspringOX->myCostSol.penalizedCost < offspringSREX->myCostSol.penalizedCost
-		? offspringOX
-		: offspringSREX;
+	return best;
 }
 
 Genetic::Genetic(Params* params, Split* split, Population* population, LocalSearch* localSearch,hust::Solver* smartSolver) 

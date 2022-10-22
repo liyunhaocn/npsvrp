@@ -35,23 +35,20 @@ struct Configuration {
 	int yearTabuRand = 10;
 
 	// TODO[0]:看需不需要频繁构造 1000 stepC2_8_7 需要20s C1_6_6 需要6s
-	int ejectLSMaxIter = 100;
+	int ejectLSMaxIter = 500;
 
 	//int yearTabuLen = 20;
 	//int yearTabuRand = 10;
 
 	int popSize = 30;
-	int popSizeMin = 10;
-	// TODO[lyh][config.h][-1]:popSizeMax 原来是 50;
-	int popSizeMax = 30;
 	//int repairExitStep = 50;
-	int repairExitStep = 5;
+	int repairExitStep = 5; //5
 
 	//int initFindPosPqSize = 20;
 	//int findBestPosForRuinPqSize = 10;
 	//int findBestPosInSolPqSize = 3;//64
 
-	int naEaxCh = 20;
+	int naEaxCh = 10;
 	//int naEaxCh = 20;
 
 	//patternAdjustment参数
@@ -75,10 +72,12 @@ struct Configuration {
 	int ruinLocalSearchNextNeiBroad = 5;
 
 	int ruinSplitRate = 0; // %100 means ruinSplitRate%
-	
+
+    int isHgsRuinWhenGetBKS = 0;
+
 	int ruinLmax = 20;
 	//(ruinLmax+1)/2
-	int ruinC_ = 15;
+	int ruinC_ = 5;
 	int ruinC_Min = 5;
 	int ruinC_Max = 20;
 
@@ -98,6 +97,8 @@ struct Configuration {
 
 	void solveCommandLine(int argc, char* argv[]);
 
+    const static int NBPerturbKind = 5;
+    const static int NBClearEPKind = 6;
 };
 
 }

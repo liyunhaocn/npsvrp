@@ -308,86 +308,6 @@ struct ConfSet {
     }
 };
 
-struct RandomX {
-
-public:
-
-	using Generator = SmartRandomGenerator;
-
-	RandomX(unsigned seed) : rgen(seed) { initMpLLArr(); }
-	RandomX() : rgen(generateSeed()) { initMpLLArr(); }
-
-	RandomX(const RandomX& rhs) {
-		this->mpLLArr = rhs.mpLLArr;
-		this->maxRange = rhs.maxRange;
-		this->rgen = rhs.rgen;
-	}
-
-	Vec< Vec<int> > mpLLArr;
-
-	int maxRange = 1001;
-
-	bool initMpLLArr() {
-		mpLLArr = Vec< Vec<int> >(maxRange);
-
-		for (int m = 1; m < maxRange;++m) {
-			mpLLArr[m] = Vec<int>(m, 0);
-			auto& arr = mpLLArr[m];
-			std::iota(arr.begin(), arr.end(), 0);
-		}
-		return true;
-	}
-
-	static unsigned generateSeed() {
-		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-		return seed;
-	}
-
-	Generator::result_type operator()() { return rgen(); }
-
-	// pick with probability of (numerator / denominator).
-	bool isPicked(unsigned numerator, unsigned denominator) {
-		return ((rgen() % denominator) < numerator);
-	}
-
-	// pick from [min, max).
-	int pick(int min, int max) {
-		return ((rgen() % (max - min)) + min);
-	}
-	// pick from [0, max).
-	int pick(int max) {
-		return (rgen() % max);
-	}
-
-	Vec<int>& getMN(int M, int N) {
-
-		if (M >= maxRange) {
-			mpLLArr.resize(M * 2 + 1);
-			maxRange = M * 2 + 1;
-		}
-
-		Vec<int>& ve = mpLLArr[M];
-
-		if (ve.empty()) {
-			mpLLArr[M] = Vec<int>(M, 0);
-			auto& arr = mpLLArr[M];
-			std::iota(arr.begin(),arr.end(),0);
-		}
-
-		for (int i = 0; i < N; ++i) {
-			int index = pick(i, M);
-			std::swap(ve[i], ve[index]);
-		}
-		return ve;
-	}
-
-	RandomX& operator = (RandomX&& rhs) noexcept = delete;
-
-	RandomX& operator = (const RandomX& rhs) = delete;
-
-	Generator rgen;
-};
-
 struct NextPermutation {
 
 	bool hasNext(Vec<int>& ve, int& k, int N) {
@@ -699,7 +619,7 @@ public:
 
 	bool initSolution(int kind);
 
-	bool loadSolutionByArr2D(Vec<Vec<int>>& arr2);
+	bool loadIndividual(const Individual* indiv);
 
     inline DisType  getDeltDistanceCostIfRemoveCustomer(int v){
         DisType delt = 0;
@@ -811,8 +731,6 @@ public:
 
 	Vec<int> ruinGetRuinCusBySec(int ruinCusNum);
 
-	int ruinLocalSearchNotNewR(int ruinCusNum);
-		
 	void sortCustomersOrderByDifferentKind(int kind,Vec<int>& cusArr);
 
 	int CVB2ruinLS(int ruinCusNum);
@@ -829,11 +747,9 @@ public:
 
     Vec<int> dynamicPartialClearDynamicEP(int kind);
 
-	int simulatedannealing(int kind,int iterMax, double temperature,int ruinNum);
+	int simulatedannealing(int iterMax, double temperature,int ruinNum);
 
-	bool doOneTimeRuinPer(int perturbkind, int clearEPKind, int ruinCusNum);
-	
-	bool perturbBaseRuin(int perturbkind,int clearEPKin,int ruinCusNumd);
+	bool perturbBaseRuin(int ruinCusNum);
 
 	bool ejectLocalSearch();
 

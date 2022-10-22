@@ -70,34 +70,34 @@ public:
         std::string call = "";
 
 		// Parameters for the Construction Heuristics
-		double fractionGeneratedNearest = 0.20;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedSmart = 0.20;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedFurthest = 0.20;			// Proportion of individuals constructed by furthest-first
-		double fractionGeneratedSweep = 0.20;				// Proportion of individuals constructed by sweep
-		double fractionGeneratedRandomly = 0.10;			// Proportion of individuals constructed randomly
-		int minSweepFillPercentage = 90; //60				// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
+		double fractionGeneratedNearest = 0.10;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedSmart = 0.10;				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedFurthest = 00.10;			// Proportion of individuals constructed by furthest-first
+		double fractionGeneratedSweep = 0.10;				// Proportion of individuals constructed by sweep
+		double fractionGeneratedRandomly = 0.60;			// Proportion of individuals constructed randomly
+		int minSweepFillPercentage = 80; //60				// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
 															// The maximum vehicle usage is 40% (100/250 routes, see SINTEF BKS),
 															// so take 60% to have some margin (otherwise all remaining orders will be in last route)
-		int maxToleratedCapacityViolation = 10;	//50		// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
-		int maxToleratedTimeWarp = 20;//100					// No real feeling yet for what value makes sense.
-		double initialTimeWarpPenalty = 1.0;				// This was the default until now, but with this value feasible individuals often
+		int maxToleratedCapacityViolation = 30;	//50		// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
+		int maxToleratedTimeWarp = 40;//100					// No real feeling yet for what value makes sense.
+		double initialTimeWarpPenalty = 10.0;	//1.0			// This was the default until now, but with this value feasible individuals often
 															// become infeasible during the local search in doLocalSearchAndAddIndividual.
 															// With initialTimeWarpPenalty = 10, this does not happen.
 		double penaltyBooster = 2.;							// Set to value > 0, so penalty will get multiplied by this value (instead of default 1.2) if num feasible == 0
 
 		// Parameters of the Genetic Algorithm
-		int minimumPopulationSize = 25;							// Minimum population size
-		int generationSize = 40;								// Number of solutions created before reaching the maximum population size (i.e., generation size)
+		int minimumPopulationSize = 25;	//25						// Minimum population size
+		int generationSize = 25;	//40						// Number of solutions created before reaching the maximum population size (i.e., generation size)
 		int nbElite = 4;										// Number of elite individuals (reduced in HGS-2020)
 		int nbClose = 5;										// Number of closest solutions/individuals considered when calculating diversity contribution
-		double targetFeasible = 0.2;							// Reference proportion for the number of feasible individuals, used for the adaptation of the penalty parameters
+		double targetFeasible = 0.2; //0.2							// Reference proportion for the number of feasible individuals, used for the adaptation of the penalty parameters
 		int repairProbability = 50;								// Integer (0-100) representing repair probability if individual is infeasible after local search
-		int growNbGranularAfterNonImprovementIterations = 5000; // The number of iterations without improvements after which the nbGranular is grown
+		int growNbGranularAfterNonImprovementIterations = 5000; //5000 // The number of iterations without improvements after which the nbGranular is grown
 		int growNbGranularAfterIterations = 0;					// The number of iteration after which the nbGranular is grown
-		int growNbGranularSize = 0;								// The number nbGranular is increase by
-		int growPopulationAfterNonImprovementIterations = 5000; // The number of iterations without improvements after which the minimumPopulationSize is grown
+		int growNbGranularSize = 0;		//0 					// The number nbGranular is increase by
+		int growPopulationAfterNonImprovementIterations = 5000; //5000     // The number of iterations without improvements after which the minimumPopulationSize is grown
 		int growPopulationAfterIterations = 0;					// The number of iteration after which minimumPopulationSize is grown
-		int growPopulationSize = 0;								// The number minimumPopulationSize is increase by
+		int growPopulationSize = 0;	//0							// The number minimumPopulationSize is increase by
 		double diversityWeight = 0.;							// Weight for diversity criterium, if 0, weight is 1 - nbElite / populationSize
 		std::string initialSolution = "";						// Initial solution, represented as 'giant tour' with 0 for depot: 1 2 3 0 4 5 6
 
@@ -105,19 +105,21 @@ public:
 		int nbVeh = INT_MAX;								// Number of vehicles
 		int logPoolInterval = 0;							// The verbose level of the algorithm log
 		bool isDimacsRun = false;							// If DIMACS run, print incumbent and avoid other output
-		bool useDynamicParameters = false;					// To use dynamic parameters based on instance attributes
+		bool useDynamicParameters = true;	//false				// To use dynamic parameters based on instance attributes
 		std::string pathSolution;							// Solution path
-		int nbGranular = 40;								// Granular search parameter, limits the number of moves in the RI local search
+		// TODO[lyh][nbGranular]
+        int nbGranular = 40;	//40						// Granular search parameter, limits the number of moves in the RI local search
 		int intensificationProbabilityLS = 15;				// Probability intensification moves are performed during LS ([0-100])
 		bool useSwapStarTW = true;							// Use TW swap star
 		bool skipSwapStarDist = false;						// Skip normal swap star based on distance
-		int circleSectorOverlapToleranceDegrees = 0;		// Margin to take (in degrees 0 - 359) to determine overlap of circle sectors for SWAP*
+		int circleSectorOverlapToleranceDegrees = 0;//0	// Margin to take (in degrees 0 - 359) to determine overlap of circle sectors for SWAP*
 		int minCircleSectorSizeDegrees = 15;				// Minimum size (in degrees) for circle sectors such that even small circle sectors have 'overlap'
 		int seed = 0;										// Random seed. Default value: 0
 		std::string pathInstance;							// Instance path
 		bool useSymmetricCorrelatedVertices = false;		// When correlation matrix is symmetric
 		bool doRepeatUntilTimeLimit = true;					// When to repeat the algorithm when max nr of iter is reached, but time limit is not
-	};
+	    int isBreakNotReStart = false;
+    };
 
 	Config config;						// Stores all the parameter values
     SmartRandomGenerator rng;			// Fast random number generator

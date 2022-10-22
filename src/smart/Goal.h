@@ -33,7 +33,7 @@ struct Goal {
 
 	DisType getMinRtCostInPool(int rn);
 
-	DisType doTwoKindEAX(Solver& pa, Solver& pb, int kind);
+//	DisType doTwoKindEAX(Solver& pa, Solver& pb, int kind);
 
 	bool perturbOneSol(Solver& sol);
 

@@ -228,8 +228,11 @@ bool Population::addIndividual(const Individual* indiv, bool updateFeasible)
 		bestSolutionRestart = *indiv;
 		if (indiv->myCostSol.penalizedCost < bestSolutionOverall.myCostSol.penalizedCost - MY_EPSILON)
 		{
-			bestSolutionOverall = *indiv;
-			searchProgress.push_back({ params->getTimeElapsedSeconds(),bestSolutionOverall.myCostSol.penalizedCost });
+//            auto delt = indiv->myCostSol.penalizedCost - bestSolutionOverall.myCostSol.penalizedCost;
+//			INFO("delt:",delt);
+
+            bestSolutionOverall = *indiv;
+//			searchProgress.push_back({ params->getTimeElapsedSeconds(),bestSolutionOverall.myCostSol.penalizedCost });
 			if (params->config.isDimacsRun){
 				// Since the controller may kill the script at any time, directly write output
 				// bestSolutionOverall.exportCVRPLibFormat(params->config.pathSolution);
@@ -353,11 +356,13 @@ void Population::managePenalties()
 	}
 	else if (fractionFeasibleLoad < params->config.targetFeasible - 0.05 && params->penaltyCapacity < 100000.)
 	{
-		params->penaltyCapacity = std::min(params->penaltyCapacity * 1.2, 100000.);
+//		params->penaltyCapacity = std::min(params->penaltyCapacity * 1.2, 100000.);
+		params->penaltyCapacity = std::min(params->penaltyCapacity * 2, 100000.);
 	}
 	else if (fractionFeasibleLoad > params->config.targetFeasible + 0.05 && params->penaltyCapacity > 0.1)
 	{
-		params->penaltyCapacity = std::max(params->penaltyCapacity * 0.85, 0.1);
+//		params->penaltyCapacity = std::max(params->penaltyCapacity * 0.85, 0.1);
+		params->penaltyCapacity = std::max(params->penaltyCapacity * 0.5, 0.1);
 	}
 
 	// Setting some bounds [0.1,100000] to the penalty values for safety
@@ -368,11 +373,13 @@ void Population::managePenalties()
 	}
 	else if (fractionFeasibleTimeWarp < params->config.targetFeasible - 0.05 && params->penaltyTimeWarp < 100000.)
 	{
-		params->penaltyTimeWarp = std::min(params->penaltyTimeWarp * 1.2, 100000.);
+//		params->penaltyTimeWarp = std::min(params->penaltyTimeWarp * 1.2, 100000.);
+		params->penaltyTimeWarp = std::min(params->penaltyTimeWarp * 2, 100000.);
 	}
 	else if (fractionFeasibleTimeWarp > params->config.targetFeasible + 0.05 && params->penaltyTimeWarp > 0.1)
 	{
-		params->penaltyTimeWarp = std::max(params->penaltyTimeWarp * 0.85, 0.1);
+//		params->penaltyTimeWarp = std::max(params->penaltyTimeWarp * 0.85, 0.1);
+		params->penaltyTimeWarp = std::max(params->penaltyTimeWarp * 0.5, 0.1);
 	}
 
 	// Update the evaluations
@@ -566,6 +573,13 @@ double Population::getAverageCost(const SubPopulation& pop)
 		return -1.0;
 	}
 }
+void Population::updateBestSolutionOverall(Individual*indiv) {
+// Track best solution
+    if (indiv-> isFeasible && indiv->myCostSol.penalizedCost
+            < bestSolutionOverall.myCostSol.penalizedCost - MY_EPSILON) {
+            bestSolutionOverall = *indiv;
+    }
+}
 
 void Population::exportBKS(std::string fileName)
 {
@@ -586,17 +600,17 @@ void Population::exportBKS(std::string fileName)
 	}
 }
 
-void Population::exportSearchProgress(std::string fileName, std::string instanceName, int seedRNG)
-{
-	// Create the file to write to
-	std::ofstream myfile(fileName);
+//void Population::exportSearchProgress(std::string fileName, std::string instanceName, int seedRNG)
+//{
+//	// Create the file to write to
+//	std::ofstream myfile(fileName);
 
 	// Write the costs of the best solutions over time
-	for (std::pair<clock_t, double> state : searchProgress)
-	{
-		myfile << instanceName << ";" << seedRNG << ";" << state.second << ";" << static_cast<double>(state.first) / CLOCKS_PER_SEC << std::endl;
-	}
-}
+//	for (std::pair<clock_t, double> state : searchProgress)
+//	{
+//		myfile << instanceName << ";" << seedRNG << ";" << state.second << ";" << static_cast<double>(state.first) / CLOCKS_PER_SEC << std::endl;
+//	}
+//}
 
 void Population::exportPopulation(int nbIter, std::string fileName)
 {

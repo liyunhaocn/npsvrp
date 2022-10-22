@@ -23,14 +23,12 @@ namespace hust {
 		//globalCfg->solveCommandLine(argc, argv);
 		globalCfg->seed = seed;
 
-		//globalCfg->seed = 1645192521;
+//		globalCfg->seed = 1645192521;
 		//globalCfg->seed = 1645192521;
 		//globalCfg->seed = 1645199481;
 
 		myRand = new Random(globalCfg->seed);
 		myRandX = new RandomX(globalCfg->seed);
-
-        globalCfg->seed += myRand->pick(10000);
 
 		INFO("globalCfg->seed:", globalCfg->seed, " ins:", globalInput->example);
 
@@ -265,7 +263,7 @@ void hgsAndSmart(CommandLine& commandline) {
 //		return;
 //	}
 
-    if(params.nbClients==1){
+    if(params.nbClients==1) {
 
         printf("Route #1: 1\n");
         printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
@@ -280,48 +278,62 @@ void hgsAndSmart(CommandLine& commandline) {
         return;
     }
 
-    INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
-    Split split(&params);
-
-    //Creating the Split and Local Search structures
-    LocalSearch localSearch(&params);
-    // Initial population
-    INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
-    INFO("----- BUILDING INITIAL POPULATION");
-
     hust::globalInput = new hust::Input(params);
     hust::allocGlobalMem(params.config.seed);
     hust::globalInput->initInput();
+    hust::Goal goal;
+
+    if(params.nbClients <= 300){
+//        goal.TwoAlgCombine();
+//        hust::bks->bestSolFound.printDimacs();
+        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
+        params.config.isBreakNotReStart = 0;
+        params.config.nbIter = 5000;
+        params.config.intensificationProbabilityLS = 25;
+
+    }else if(  params.nbClients <= 500){
+        //params.nbClients(300,500]
+        params.config.intensificationProbabilityLS = 100;
+        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
+    }else{
+        //params.nbClients > 500
+        params.config.intensificationProbabilityLS = 50;
+        params.config.useDynamicParameters = true;
+    }
+
+    INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
+    Split split(&params);
+    LocalSearch localSearch(&params);
+    INFO("----- INSTANCE LOADED WITH ", params.nbClients, " CLIENTS AND ", params.nbVehicles," VEHICLES");
     hust::Solver smartSolver;
 
-//    hust::hgsLocalSearch = new LocalSearch(&params);
-//    hust::Solver initBKS;
-//    for(int i=0;i<=9;++i){
-//        smartSolver.initSolution(i);
-//        if(smartSolver.RoutesCost < initBKS.RoutesCost ){
-//            initBKS = smartSolver;
-//        }
-//    }
-//    smartSolver = initBKS;
-//    smartSolver.initSolution(0);
-//    smartSolver.simulatedannealing(1,hust::IntInf,100.0,hust::globalCfg->ruinC_);
-//    smartSolver.printDimacs();
-//    return;
-
     Population population(&params, &split, &localSearch,&smartSolver);
-
-//  INFO("----- STARTING GENETIC ALGORITHM");
     Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
-    solver.run(commandline.config.nbIter, commandline.config.timeLimit);
-    if( !params.isTimeLimitExceeded() ){
-        smartSolver.loadSolutionByArr2D(population.getBestFound()->chromR);
-        smartSolver.simulatedannealing(1,hust::IntInf,100.0,hust::globalCfg->ruinC_);
-        Individual* indiv  = population.getBestFound();
-        smartSolver.exportIndividual(indiv);
-        population.addIndividual(indiv, false);
+
+    if(params.nbClients<=300){
+
+        while (!params.isTimeLimitExceeded()) {
+            solver.run(params.config.nbIter, params.config.timeLimit);
+            if(params.isTimeLimitExceeded()){
+                break;
+            }
+//            solver.runMA();
+//            population.restart();
+//            if(params.isTimeLimitExceeded()){
+//                break;
+//            }
+        }
+        population.getBestFound()->printCVRPLibFormat();
+
+    }else if(  params.nbClients <= 500){
+        solver.run(params.config.nbIter, params.config.timeLimit);
+        population.getBestFound()->printCVRPLibFormat();
+    }else{
+        solver.run(params.config.nbIter, params.config.timeLimit);
+        population.getBestFound()->printCVRPLibFormat();
     }
-    population.getBestFound()->printCVRPLibFormat();
-//  saveSolutiontoCsvFile(smartSolver);
+    hust::deallocGlobalMem();
+
 }
 
 int main(int argc, char* argv[])

@@ -63,8 +63,11 @@ def get_customers_num_from_instance_name(instance_name):
 
 if __name__ == "__main__":
 
-    sort_csv(r"results/[10_18][dynamic][greedy][hgsinit].csv")
-    sort_csv(r"results/[10_18][static][greedy][hgsinit].csv")
+    sort_csv(r"results/[10_22][static][greedy][t1].csv")
+    exit(0)
+
+    sort_csv(r"results/[10_20][dynamic][greedy][oxStar].csv")
+    sort_csv(r"results/[10_20][static][greedy][oxStar].csv")
     exit(0)
 
     # get_more_than_one_times_in_one_run(r"results/[10_08][dynamic][greedy][smartonly].csv")

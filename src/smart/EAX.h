@@ -144,8 +144,13 @@ public:
 	
 	static Vec<int> getDiffCusofPb(Solver& pa, Solver& pb);
 
-	static Individual* doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, Individual* offspring);
+	static Individual* doEaxWithoutRepair(std::pair<const Individual*, const Individual*> parent, Individual* offspring);
 
+    static DisType doTwoKindEAX(Solver& pa, Solver& pb,Solver& pc, int kind);
+
+    static void updatePaPbUsePc(Solver& pa,Solver&pb,Solver&pc);
+
+    static int updateWhichPaPbUsePc(Solver& pa,Solver& pb,Solver& pc);
 };
 
 }

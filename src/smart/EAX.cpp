@@ -853,7 +853,7 @@ int EAX::doPrEAXWithoutRepair(Solver& pc) {
 	int numABCyUsed = 2;
 	for (int i = 3; i <= putMax; ++i) {
 		// TODO[-1]:这里可以调整 放置多少个abcy
-		if (myRand->pick(100) < 50) {
+		if (myRand->pick(100) < 90) {
 			numABCyUsed = i;
 		}
 		else {
@@ -921,7 +921,7 @@ int EAX::doPrEAXWithoutRepair(Solver& pc) {
 	return 0;
 }
 
-Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, Individual* offspring) {
+Individual* EAX::doEaxWithoutRepair(std::pair<const Individual*, const Individual*> parent, Individual* offspring) {
 
     if( parent.first->myCostSol.nbRoutes != parent.second->myCostSol.nbRoutes ){
         return nullptr;
@@ -929,8 +929,8 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 	Solver pa;
 	Solver pb;
 
-	pa.loadSolutionByArr2D(parent.first->chromR);
-	pb.loadSolutionByArr2D(parent.second->chromR);
+	pa.loadIndividual(parent.first);
+	pb.loadIndividual(parent.second);
 
 //    if( pa.rts.cnt < pb.rts.cnt ){
 //        pa.adjustRN(pb.rts.cnt);
@@ -947,7 +947,7 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 
     int eaxRet = -1;
     auto retOffspring = pa;
-    for(int i=0;i < 1;++i) {
+    for(int i=0;i < 10;++i) {
 
         auto pc = pa;
         int  retTemp = -1;
@@ -970,6 +970,131 @@ Individual* EAX::doEaxWithoutRepair(std::pair<Individual*, Individual*> parent, 
 //    retOffspring.repair();
     retOffspring.exportIndividual(offspring);
 	return offspring;
+}
+
+DisType EAX::doTwoKindEAX(Solver& pa, Solver& pb, Solver& pc, int kind) {
+
+    // 0 表示没有成功更新最优解，1表示更新了最优解 -1表示这两个解无法进行eax
+//    int retState = 0;
+
+    EAX eax(pa, pb);
+    eax.generateCycles();
+
+    if (eax.abCycleSet.size() <= 1) {
+        return -1;
+    }
+    if (kind == 1 && eax.abCycleSet.size() < 4) {
+        return -1;
+    }
+
+    int contiNotRepair = 1;
+
+    for (int ch = 1; ch <= globalCfg->naEaxCh; ++ch) {
+        if(globalInput->para.isTimeLimitExceeded()){
+            break;
+        }
+        Solver pcTemp = pa;
+        int eaxState = 0;
+        if (kind == 0) {
+            eaxState = eax.doNaEAX(pcTemp);
+        }
+        else {
+            eaxState = eax.doPrEAX( pcTemp);
+        }
+
+        if (eaxState == -1) {
+            //break;
+            eax.generateCycles();
+            continue;
+        }
+
+        //++genSol;
+        if (eax.repairSolNum == 0) {
+            ++contiNotRepair;
+            if (contiNotRepair >= 3) {
+                eax.generateCycles();
+            }
+            continue;
+        }
+        else {
+            contiNotRepair = 1;
+        }
+
+        //++repSol;
+        auto newCus = EAX::getDiffCusofPb(pa, pcTemp);
+
+        if (newCus.size() > 0) {
+//			pc.mRLLocalSearch(0, {});
+            pcTemp.mRLLocalSearch(1, newCus);
+        }
+        else {
+            //debug("pa is same as pa");
+        }
+
+        if (pcTemp.RoutesCost < pc.RoutesCost) {
+            pc = pcTemp;
+
+            bool isup = bks->updateBKSAndPrint(pcTemp," eax ls, kind:" + std::to_string(kind));
+            if (isup) {
+                ch = 1;
+//                retState = 1;
+                //INFO("bestSolFound cost:", bestSolFound.RoutesCost, ", kind, "choosecyIndex:", eax.choosecyIndex, "chooseuId:", eax.unionIndex);
+            }
+        }
+    }
+//    paBest.Simulatedannealing(1,100,50,std::min<int>(globalInput->custCnt-1,15));
+    return pc.RoutesCost;
+}
+
+void EAX::updatePaPbUsePc(Solver& pa,Solver& pb,Solver& pc){
+
+    if (pc.RoutesCost < pa.RoutesCost) {
+        if (pc.RoutesCost < pb.RoutesCost) {
+            auto diffwithPa = EAX::getDiffCusofPb(pc, pa);
+            auto diffwithPb = EAX::getDiffCusofPb(pc, pb);
+            if (diffwithPa.size() <= diffwithPb.size()) {
+                pa = pc;
+            }
+            else {
+                //INFO("replace with pb,kind:", kind);
+                pb = pc;
+            }
+        }
+        else {
+            pa = pc;
+        }
+    }
+}
+
+int EAX::updateWhichPaPbUsePc(Solver& pa,Solver& pb,Solver& pc){
+
+    if (pc.RoutesCost < pa.RoutesCost) {
+        if (pc.RoutesCost < pb.RoutesCost) {
+            auto diffwithPa = EAX::getDiffCusofPb(pc, pa);
+            auto diffwithPb = EAX::getDiffCusofPb(pc, pb);
+            if (diffwithPa.size() <= diffwithPb.size()) {
+//                pa = pc;
+                return 1;
+            }
+            else {
+                //INFO("replace with pb,kind:", kind);
+//                pb = pc;
+                return 2;
+            }
+        }
+        else {
+//            pa = pc;
+            return 1;
+        }
+    }else{
+        return 1;
+        INFO("EAX:pc.RouterCost > pa.RouterCost");
+        if(myRand->pick(100) < 20){
+
+            return 1;
+        }
+    };
+    return -1;
 }
 
 }

@@ -165,6 +165,7 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None,
 
     cmd = get_cpp_base_cmd() + ["-t", str(max(time_limit - 2, 1)), '-seed', str(seed)]
 
+    # cmd += ["-call", "smartOnly"]
     cmd += ["-call", "hgsAndSmart"]
     cmd_str = " ".join(cmd)
     log_info(f"cmd_str:{cmd_str}")

@@ -13,7 +13,7 @@
 #include "commandline.h"
 #include "CircleSector.h"
 
-#pragma warning(disable:4996)
+//#pragma warning(disable:4996)
 
 
 Params::Params(const CommandLine& cl)
@@ -48,6 +48,9 @@ Params::Params(const CommandLine& cl)
 	if (config.pathInstance == "readstdin") {
 	}else{
         auto x = freopen(cl.config.pathInstance.data(), "r", stdin);
+        if(x== nullptr){
+            throw std::string("x== nullptr = freopen");
+        }
     }
 	
 	if (true)
@@ -439,7 +442,7 @@ Params::Params(const CommandLine& cl)
 		// Calculate an upper bound for the number of stops per route based on capacities
 		double stopsPerRoute = vehicleCapacity / (totalDemand / nbClients);
 		// Routes are large when more than 25 stops per route
-		bool hasLargeRoutes = stopsPerRoute > 25;
+		bool hasLargeRoutes = stopsPerRoute > 20;
 		// Get the time horizon (by using the time window of the depot)
 		int horizon = cli[0].latestArrival - cli[0].earliestArrival;
 		int nbLargeTW = 0;
@@ -461,10 +464,12 @@ Params::Params(const CommandLine& cl)
 		{
 			config.nbGranular = 40;
 			// Grow neighborhood and population size
-			config.growNbGranularAfterIterations = 10000;
+//			config.growNbGranularAfterIterations = 10000;
+			config.growNbGranularAfterIterations = 2000;
 			config.growNbGranularSize = 5;
-			config.growPopulationAfterIterations = 10000;
-			config.growPopulationSize = 5;
+//			config.growPopulationAfterIterations = 10000;
+//			config.growPopulationAfterIterations = 2000;
+//			config.growPopulationSize = 5;
 			// Intensify occasionally
 			config.intensificationProbabilityLS = 15;
 		}
@@ -525,7 +530,7 @@ Params::Params(const CommandLine& cl)
 	// Compute order proximities once
 	orderProximities = std::vector<std::vector<std::pair<double, int>>>(nbClients + 1);
 	// Loop over all clients (excluding the depot)
-	for (int i = 1; i <= nbClients; i++)
+	for (int i = 0; i <= nbClients; i++)
 	{
 		// Remove all elements from the vector
 		auto& orderProximity = orderProximities[i];

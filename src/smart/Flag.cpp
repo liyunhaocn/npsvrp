@@ -8,20 +8,6 @@ namespace hust {
 int IntInf = INT_MAX/10;
 long long int LLInf = LLONG_MAX / 10;
 
-double PI_1 = 3.14159265359;
-double PI_2 = PI_1 / 2;
-double PI_4 = PI_1 / 4;
-double PI_8 = PI_1 / 8;
-double PI_16 = PI_1 / 16;
-double PI_32 = PI_1 / 32;
-
-int vd2pi = 65536;
-int vdpi = vd2pi/2;
-int vd2fpi = vdpi/2;
-int vd4fpi = vd2fpi/2;
-int vd8fpi = vd4fpi/2;
-int vd16fpi = vd8fpi/2;
-
 // dimacs «10
 int disMul = 10000;
 DisType DisInf = LLInf;

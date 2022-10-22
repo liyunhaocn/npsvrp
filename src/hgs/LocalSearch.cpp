@@ -7,6 +7,7 @@
 #include "Individual.h"
 #include "CircleSector.h"
 #include "Params.h"
+#include "../smart/Flag.h"
 
 bool operator==(const TimeWindowData& twData1, const TimeWindowData& twData2)
 {
@@ -23,7 +24,7 @@ bool cmpd(double a, double b, double eps = 1e-5)
 	return std::fabs(a - b) < eps;
 }
 
-void LocalSearch::initializeConstruction(Individual* indiv, std::vector<NodeToInsert>* nodesToInsert)
+void LocalSearch::initializeConstruction(std::vector<NodeToInsert>* nodesToInsert)
 {
 	// Initialize datastructures relevant for constructions.
 	// Local search-related data structures are not initialized.
@@ -84,7 +85,8 @@ void LocalSearch::initializeConstruction(Individual* indiv, std::vector<NodeToIn
 void LocalSearch::constructIndividualBySweep(int fillPercentage, Individual* indiv)
 {
 	std::vector<NodeToInsert> nodesToInsert;
-	initializeConstruction(indiv, &nodesToInsert);
+//	initializeConstruction(indiv, &nodesToInsert);
+	initializeConstruction(&nodesToInsert);
 
 	std::vector< std::vector< int > > nodeIndicesPerRoute;
 
@@ -187,7 +189,8 @@ void LocalSearch::constructIndividualWithSeedOrder(int toleratedCapacityViolatio
 	bool useSeedClientFurthestFromDepot, Individual* indiv)
 {
 	std::vector<NodeToInsert> nodesToInsert;
-	initializeConstruction(indiv, &nodesToInsert);
+	initializeConstruction(&nodesToInsert);
+//	initializeConstruction(indiv, &nodesToInsert);
 
 	std::set<int> unassignedNodeIndices;
 	for (int i = 1; i <= params->nbClients; i++)
@@ -328,6 +331,9 @@ void LocalSearch::run(Individual* indiv, double penaltyCapacityLS, double penalt
 	searchCompleted = false;
 	for (loopID = 0; !searchCompleted; loopID++)
 	{
+        if(params->isTimeLimitExceeded()){
+            break;
+        }
 		if (loopID > 1)
 		{
 			// Allows at least two loops since some moves involving empty routes are not checked at the first loop
@@ -341,8 +347,12 @@ void LocalSearch::run(Individual* indiv, double penaltyCapacityLS, double penalt
 			int lastTestRINodeU = nodeU->whenLastTestedRI;
 			nodeU->whenLastTestedRI = nbMoves;
 
-			const auto& correlated = params->correlatedVertices[nodeU->cour];
-			
+//			const auto& correlated = params->correlatedVertices[nodeU->cour];
+//			auto& vIndexes = hust::myRandX->getMN(correlated.size(),15);
+//            std::sort(vIndexes.begin(),vIndexes.begin()+15);
+//            for(int vIndex=0;vIndex<15;++vIndex){
+//                int v = correlated[vIndexes[vIndex]];
+            const auto& correlated = params->correlatedVertices[nodeU->cour];
 			for (const auto& v : correlated)
 			{
 				nodeV = &clients[v];
@@ -352,6 +362,7 @@ void LocalSearch::run(Individual* indiv, double penaltyCapacityLS, double penalt
 					setLocalVariablesRouteU();
 					setLocalVariablesRouteV();
 					if (MoveSingleClient()) continue; // RELOCATE
+
 					if (MoveTwoClients()) continue; // RELOCATE
 					if (MoveTwoClientsReversed()) continue; // RELOCATE
 					if (nodeUIndex < nodeVIndex && SwapTwoSingleClients()) continue; // SWAP

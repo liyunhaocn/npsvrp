@@ -17,7 +17,7 @@ void DynamicGoal::test() {
     hust::Solver solver;
     solver.initSolution(5);
     hust::Solver best = solver;
-    solver.simulatedannealing(1,20,50.0,globalCfg->ruinC_);
+    solver.simulatedannealing(20,50.0,globalCfg->ruinC_);
 
     if(solver.RoutesCost + solver.dynamicEP.sumCost < best.RoutesCost + best.dynamicEP.sumCost){
         INFO("-solver.RoutesCost + solver.dynamicEP.sumCost:",solver.RoutesCost + solver.dynamicEP.sumCost,
@@ -58,103 +58,6 @@ DisType Goal::getMinRtCostInPool(int rn) {
 	return bestSolInPool;
 }
 
-DisType Goal::doTwoKindEAX(Solver& pa, Solver& pb, int kind) {
-
-    // 0 表示没有成功更新最优解，1表示更新了最优解 -1表示这两个解无法进行eax
-     int retState = 0;
-
-	EAX eax(pa, pb);
-	eax.generateCycles();
-
-	if (eax.abCycleSet.size() <= 1) {
-		return -1;
-	}
-	if (kind == 1 && eax.abCycleSet.size() < 4) {
-		return -1;
-	}
-
-	Solver paBest = pa;
-
-	int contiNotRepair = 1;
-
-	for (int ch = 1; ch <= globalCfg->naEaxCh && !globalInput->para.isTimeLimitExceeded(); ++ch) {
-
-		Solver pc = pa;
-		int eaxState = 0;
-		if (kind == 0) {
-			eaxState = eax.doNaEAX(pc);
-		}
-		else {
-			eaxState = eax.doPrEAX( pc);
-		}
-
-		if (eaxState == -1) {
-			//break;
-			eax.generateCycles();
-			continue;
-		}
-
-		//++genSol;
-		if (eax.repairSolNum == 0) {
-			++contiNotRepair;
-			if (contiNotRepair >= 3) {
-				eax.generateCycles();
-			}
-			continue;
-		}
-		else {
-			contiNotRepair = 1;
-		}
-
-		//++repSol;
-		auto newCus = EAX::getDiffCusofPb(pa, pc);
-
-		if (newCus.size() > 0) {
-//			pc.mRLLocalSearch(0, {});
-            pc.mRLLocalSearch(1, newCus);
-//            pc.Simulatedannealing(1,10,50,std::min<int>(globalInput->custCnt-1,15));
-//            pc.mRLLocalSearch(1, newCus);
-//			auto cus1 = EAX::getDiffCusofPb(pa, pc);
-			//if (cus1.size() == 0) {
-			//	//debug("pa is same as pa");
-			//}
-		}
-		else {
-			//debug("pa is same as pa");
-		}
-
-		if (pc.RoutesCost < paBest.RoutesCost) {
-			paBest = pc;
-			
-			bool isup = bks->updateBKSAndPrint(pc," eax ls, kind:" + std::to_string(kind));
-			if (isup) {
-				ch = 1;
-				retState = 1;
-				//INFO("bestSolFound cost:", bestSolFound.RoutesCost, ", kind, "choosecyIndex:", eax.choosecyIndex, "chooseuId:", eax.unionIndex);
-			}
-		}
-
-	}
-//    paBest.Simulatedannealing(1,100,50,std::min<int>(globalInput->custCnt-1,15));
-    if (paBest.RoutesCost < pa.RoutesCost) {
-		if (paBest.RoutesCost < pb.RoutesCost) {
-			auto diffwithPa = EAX::getDiffCusofPb(paBest, pa);
-			auto diffwithPb = EAX::getDiffCusofPb(paBest, pb);
-			if (diffwithPa.size() <= diffwithPb.size()) {
-				pa = paBest;
-			}
-			else {
-				//INFO("replace with pb,kind:", kind);
-				pb = paBest;
-			}
-		}
-		else {
-			pa = paBest;
-		}
-	}
-	return paBest.RoutesCost;
-}
-
 bool Goal::perturbOneSol(Solver& sol) {
 
 	//auto before = sol.RoutesCost;
@@ -165,14 +68,13 @@ bool Goal::perturbOneSol(Solver& sol) {
 
 		//尝试使用 100度的模拟退火进行扰动
 		//sclone.Simulatedannealing(0,100,100.0,globalCfg->ruinC_);
-		
-		if (myRand->pick(2)==0) {
-			int perkind = myRand->pick(5);
-			int clearEPkind = myRand->pick(6);
-			int ruinCusNum = std::min<int>(globalInput->custCnt/2, globalCfg->ruinC_);
-			sclone.perturbBaseRuin(perkind, clearEPkind,ruinCusNum);
-		}
-		else{
+//		if (myRand->pick(2)==0) {
+//			int perkind = myRand->pick(5);
+//			int clearEPkind = myRand->pick(6);
+//			int ruinCusNum = std::min<int>(globalInput->custCnt/2, globalCfg->ruinC_);
+//			sclone.perturbBaseRuin(perkind, clearEPkind,ruinCusNum);
+//		}
+//		else{
             int left = sclone.input.custCnt * 0.2+1;
             int right = sclone.input.custCnt * 0.3+1;
             if(left>=right){
@@ -180,7 +82,7 @@ bool Goal::perturbOneSol(Solver& sol) {
             }
 			int step = myRand->pick(left,right);
 			sclone.patternAdjustment(step);
-		}
+//		}
 		 
 		auto diff = EAX::getDiffCusofPb(sol, sclone);
 		//INFO("i:",i,"diff.size:",diff.size());
@@ -194,6 +96,7 @@ bool Goal::perturbOneSol(Solver& sol) {
 			sclone = sol;
 		}
 	}
+    INFO("isPerOnePerson:", isPerOnePerson);
 	return isPerOnePerson;
 }
 
@@ -214,7 +117,7 @@ int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 			int pbIndex = ords[(i + 1) % globalCfg->popSize];
 			Solver& pa = pool[paIndex];
 			Solver& pb = pool[pbIndex];
-
+            Solver pc = pa;
 #if CHECKING
 			
 			if (pa.verify() < 0) {
@@ -226,7 +129,8 @@ int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 			}
 #endif // CHECKING
 
-			doTwoKindEAX(pa, pb, 0);
+			EAX::doTwoKindEAX(pa, pb, pc, 0);
+            EAX::updatePaPbUsePc(pa,pb,pc);
 		}
 		
 		DisType curBest = getMinRtCostInPool(curSearchRN);
@@ -245,8 +149,11 @@ int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 			int pbIndex = ords[(i + 1) % globalCfg->popSize];
 			Solver& pa = pool[paIndex];
 			Solver& pb = pool[pbIndex];
-			doTwoKindEAX(pa, pb, 1);
-		}
+            Solver pc = pa;
+
+            EAX::doTwoKindEAX(pa, pb, pc, 1);
+            EAX::updatePaPbUsePc(pa,pb,pc);
+        }
 
 		DisType curBest = getMinRtCostInPool(curSearchRN);
 		if (curBest < bestSolInPool) {
@@ -259,9 +166,14 @@ int Goal::naMA(int rn) { // 1 代表更新了最优解 0表示没有
 		if (bks->bestSolFound.rts.cnt == pool[i].rts.cnt) {
 			auto pa = bks->bestSolFound;
 			auto pb = pool[i];
-			doTwoKindEAX(pa, pb, 0);
-			doTwoKindEAX(pa, pb, 1);
-		}
+            auto pc = pa;
+            EAX::doTwoKindEAX(pa, pb, pc, 0);
+            EAX::updatePaPbUsePc(pa,pb,pc);
+
+            pc = pa;
+            EAX::doTwoKindEAX(pa, pb, pc,1);
+            EAX::updatePaPbUsePc(pa,pb,pc);
+        }
 	}
 
 	INFO("curSearchRN:",curSearchRN,"getMinRtCostInPool():", getMinRtCostInPool(curSearchRN));
@@ -332,19 +244,21 @@ int Goal::gotoRNPop(int rn) {
 			}
 #endif // CHECKING
 
-			sol.patternAdjustment(100);
+//			sol.patternAdjustment(100);
+            perturbOneSol(sol);
 			isAdj = true;
 		}
 		else {
 			sol = ppool[downRn][pIndex];
 			isAdj = sol.adjustRN(rn);
+            perturbOneSol(sol);
 		}
 
 		if (!isAdj) {
 
 			sol = ppool[poprnLowBound][pIndex];
-			
 			isAdj = sol.adjustRN(rn);
+            perturbOneSol(sol);
 		}
 
 #if CHECKING
@@ -370,7 +284,7 @@ bool Goal::fillPopulation(int rn) {
 	auto& pool = ppool[rn];
 
 	if (pool.size() == 0 ) {
-		pool.resize(globalCfg->popSizeMax);
+		pool.resize(globalCfg->popSize);
 	}
 
 	return true;
@@ -387,10 +301,8 @@ int Goal::callSimulatedannealing() {
 	st.adjustRN(ourTarget);
 
 	st.mRLLocalSearch(0, {});
-	st.simulatedannealing(0,1000, 20.0, 1);
-	bks->updateBKSAndPrint(st, "simulatedannealing(0,1000, 20.0, 1)");
 
-	st.simulatedannealing(1, 1000, 20.0, globalCfg->ruinC_);
+	st.simulatedannealing(1000, 20.0, globalCfg->ruinC_);
 	bks->updateBKSAndPrint(st,"simulatedannealing(1, 1000, 20.0, globalCfg->ruinC_)");
 
 	//saveSlnFile();
@@ -453,28 +365,28 @@ void Goal::getTheRangeMostHope() {
     //TODO[lyh][bug]:这里要考虑是不是超过了customers cnt
 	mRLLocalSearchRange1 = std::min<int>(globalInput->custCnt-1, 40);
 
-	sol.simulatedannealing(1, 1000, 100.0, globalCfg->ruinC_);
+	sol.simulatedannealing(1000, 100.0, globalCfg->ruinC_);
 	
 	if (globalInput->custCnt < sol.rts.cnt * 25 ) {
 		//short route
 //		globalCfg->popSizeMin = 2;
 //		globalCfg->popSizeMax = 6;
-		globalCfg->popSize = globalCfg->popSizeMax;
-		globalCfg->neiSizeMax = 15;
+//		globalCfg->popSize = globalCfg->popSizeMax;
+		globalCfg->neiSizeMax = 25;
 	}
 	else {//long route
 //		globalCfg->popSizeMin = 4;
 //		globalCfg->popSizeMax = 50;
-		globalCfg->popSize = globalCfg->popSizeMax;
-		globalCfg->neiSizeMax = 20;
+//		globalCfg->popSize = globalCfg->popSizeMax;
+		globalCfg->neiSizeMax = 30;
 	}
 
-	Vec<Solver> poolt(globalCfg->popSizeMax);
+	Vec<Solver> poolt(globalCfg->popSize);
 	poolt[0] = sol;
 	updateppol(sol, 0);
     globalCfg->repairByCusCnt(globalInput->custCnt);
 
-	for (int i = 1; i < globalCfg->popSizeMax; ++i) {
+	for (int i = 1; i < globalCfg->popSize; ++i) {
 		int kind =  i % 8;
 		//int kind = (i % 4);
 		poolt[i].initSolution(kind);
@@ -485,10 +397,8 @@ void Goal::getTheRangeMostHope() {
 		poolt[i].adjustRN(adjBig);
 
 		if (i <= 4 ) {
-			//poolt[i].mRLLocalSearch(0, {});
 			globalCfg->ruinLmax = globalInput->custCnt / poolt[i].rts.cnt;
-			//globalCfg->ruinC_ = (globalCfg->ruinLmax + 1);
-			poolt[i].simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
+			poolt[i].simulatedannealing(500, 100.0, globalCfg->ruinC_);
 			updateppol(poolt[i], i);
 		}
 		bks->updateBKSAndPrint(poolt[i], " poolt[i] init");
@@ -497,15 +407,14 @@ void Goal::getTheRangeMostHope() {
 	bks->resetBksAtRn();
 	mRLLocalSearchRange1 = globalCfg->neiSizeMin;
 
-	Vec <Vec<Solver>> soles(globalCfg->popSizeMax);
+	Vec <Vec<Solver>> soles(globalCfg->popSize);
 
 	int glbound = IntInf;
 
-	for (int peopleIndex = 0; peopleIndex < globalCfg->popSizeMax; ++peopleIndex) {
+	for (int peopleIndex = 0; peopleIndex < globalCfg->popSize; ++peopleIndex) {
 		auto& sol = poolt[peopleIndex];
 		soles[peopleIndex].push_back(sol);
 
-		//sol.Simulatedannealing(0, 2, 1.0, globalCfg->ruinC_);
 		if (sol.rts.cnt < 2) {
 			sol.adjustRN(std::min<int>(5,globalInput->custCnt));
 		}
@@ -528,7 +437,7 @@ void Goal::getTheRangeMostHope() {
 	
 	poprnUpBound = 0;
 	poprnLowBound = IntInf;
-	for (int i = 0; i < globalCfg->popSizeMax; ++i) {
+	for (int i = 0; i < globalCfg->popSize; ++i) {
 		//DEBUG(i);
 		poprnUpBound = std::max<int>(poprnUpBound, soles[i].front().rts.cnt);
 		poprnLowBound = std::min<int>(poprnLowBound, soles[i].back().rts.cnt);
@@ -553,7 +462,7 @@ void Goal::getTheRangeMostHope() {
 	}
 
 	// 所有解
-	for (int popIndex = 0;popIndex< globalCfg->popSizeMax;++popIndex) {
+	for (int popIndex = 0;popIndex< globalCfg->popSize;++popIndex) {
 		auto& deorsoles = soles[popIndex];
 		for (auto& sol : deorsoles) {
 			if (sol.rts.cnt >= poprnLowBound
@@ -564,35 +473,34 @@ void Goal::getTheRangeMostHope() {
 	}
 	std::queue<int> alreadyBound;
 
-	for (int i = 0; i < globalCfg->popSizeMax; ++i) {
+	for (int i = 0; i < globalCfg->popSize; ++i) {
 		if (ppool[poprnLowBound][i].rts.cnt == poprnLowBound) {
 			alreadyBound.push(i);
 		}
 	}
 	if (bks->bestSolFound.rts.cnt == poprnLowBound) {
-		alreadyBound.push(globalCfg->popSizeMax);
+		alreadyBound.push(globalCfg->popSize);
 	}
 
 	INFO("alreadyBound.size():", alreadyBound.size());
 	lyhCheckTrue(alreadyBound.size() > 0);
 	
-	for (int i = 0; i < globalCfg->popSizeMax; ++i) {
+	for (int i = 0; i < globalCfg->popSize; ++i) {
 		auto& sol = ppool[poprnLowBound][i];
 		if (sol.rts.cnt != poprnLowBound) {
 			int index = alreadyBound.front();
 			alreadyBound.pop();
 			alreadyBound.push(i);
 			alreadyBound.push(index);
-			sol = (index == globalCfg->popSizeMax ? bks->bestSolFound : ppool[poprnLowBound][index]);
+			sol = (index == globalCfg->popSize ? bks->bestSolFound : ppool[poprnLowBound][index]);
 		}
 	}
 
-	for (int i = 0; i < globalCfg->popSizeMax && !globalInput->para.isTimeLimitExceeded(); ++i) {
+	for (int i = 0; i < globalCfg->popSize && !globalInput->para.isTimeLimitExceeded(); ++i) {
 		auto& sol = ppool[poprnLowBound][i];
 		sol.patternAdjustment(100);
 	}
 
-	globalCfg->popSize = globalCfg->popSizeMax;
 //	for (int i = poprnUpBound ; i >= poprnLowBound; --i) {
 	for (int i = poprnLowBound  ; i <= poprnUpBound; ++i) {
 		curSearchRN = gotoRNPop(i);
@@ -605,8 +513,6 @@ int Goal::TwoAlgCombine() {
 	getTheRangeMostHope();
 
 	std::queue<int> qunext;
-
-	globalCfg->popSize = globalCfg->popSizeMin;
 
 	auto fillqu = [&]() -> void {
 
@@ -640,7 +546,6 @@ int Goal::TwoAlgCombine() {
 				std::swap(pool[i], pool[rdi]);
 			}
 		}
-
 	};
 	
 	auto getNextRnSolGO = [&]() -> int {
@@ -650,9 +555,6 @@ int Goal::TwoAlgCombine() {
 		if(qunext.size() == 0) {
 
 			fillqu();
-
-			globalCfg->popSize *= 3;
-			globalCfg->popSize = std::min<int>(globalCfg->popSize, globalCfg->popSizeMax);
 
 			globalCfg->ruinC_ += 3;
 			if (globalCfg->ruinC_ > globalCfg->ruinC_Max) {
@@ -667,8 +569,7 @@ int Goal::TwoAlgCombine() {
 			//mRLLocalSearchRange1 = std::min<int>(globalCfg->neiSizeMax, mRLLocalSearchRange1);
 		}
 
-		INFO("globalCfg->popSize:", globalCfg->popSize);
-		INFO("qunext.size():", qunext.size());
+		INFO("globalCfg->popSize:", globalCfg->popSize,"qunext.size():", qunext.size());
 		auto q = qunext;
 		while (!q.empty()) {
 			INFO("q.front():", q.front());
@@ -681,8 +582,10 @@ int Goal::TwoAlgCombine() {
 		return ret;
 	};
 
-	int rnn = getNextRnSolGO();
-	curSearchRN = gotoRNPop(rnn);
+//	int rnn = getNextRnSolGO();
+//	curSearchRN = gotoRNPop(rnn);
+    int rnn = curSearchRN = poprnLowBound;
+    curSearchRN = gotoRNPop(rnn);
 
 	DisType bksLastLoop = bks->bestSolFound.RoutesCost;
 	int contiNotDown = 1;
@@ -713,7 +616,7 @@ int Goal::TwoAlgCombine() {
 #endif // CHECKING
 
 		int& neiSize = globalCfg->mRLLocalSearchRange[1];
-
+        (void)neiSize;
 		INFO("curSearchRN:", curSearchRN,
 			"popSize:",globalCfg->popSize,
 			"globalCfg->ruinC_:", globalCfg->ruinC_,
@@ -733,22 +636,15 @@ int Goal::TwoAlgCombine() {
 			int index = arr[i];
 			Solver& sol = pool[index];
 			Solver clone = sol;
-			//clone.Simulatedannealing(0, 50, 30.0, globalCfg->ruinC_);
-			//bks->updateBKSAndPrint(clone, " pool sol simulate 0");
-			//updateppol(sol, index);
-			//clone = sol;
-			clone.simulatedannealing(1, 100, 50.0, globalCfg->ruinC_);
+			clone.simulatedannealing(100, 50.0, globalCfg->ruinC_);
 			bks->updateBKSAndPrint(clone, " pool sol simulate 1");
 			updateppol(sol, i);
 		}
 
 		Solver& sol = bks->bestSolFound;
 		Solver clone = sol;
-		//clone.Simulatedannealing(0, 100, 50.0, globalCfg->ruinC_);
-		//bks->updateBKSAndPrint(clone, " bks ruin simulate 0");
-		//updateppol(sol, 0);
-		//clone = sol;
-		clone.simulatedannealing(1, 500, 100.0, globalCfg->ruinC_);
+
+		clone.simulatedannealing(500, 100.0, globalCfg->ruinC_);
 		bks->updateBKSAndPrint(clone, " bks ruin simulate 1");
 		updateppol(sol, 0);
 		
@@ -782,7 +678,6 @@ int Goal::TwoAlgCombine() {
 
 void Goal::test() {
 
-    globalCfg->popSize = globalCfg->popSizeMax;
     auto& popSize =  globalCfg->popSize;
     population.resize(popSize);
     for (int i = 0; i < popSize; ++i) {
@@ -816,7 +711,9 @@ void Goal::test() {
             }else{
                 pa.adjustRN(pb.rts.cnt);
             }
-            doTwoKindEAX(pa, pb, 0);
+            auto pc = pa;
+            EAX::doTwoKindEAX(pa, pb,pc, 0);
+            EAX::updatePaPbUsePc(pa,pb,pc);
         }
         DisType curBest = getMinRtCostInPopulation();
         if (curBest < bestSolInPool ) {
@@ -838,7 +735,9 @@ void Goal::test() {
             }else{
                 pa.adjustRN(pb.rts.cnt);
             }
-            doTwoKindEAX(pa, pb, 1);
+            auto pc = pa;
+            EAX::doTwoKindEAX(pa, pb, pc,1);
+            EAX::updatePaPbUsePc(pa,pb,pc);
         }
         DisType curBest = getMinRtCostInPopulation();
         if (curBest < bestSolInPool) {

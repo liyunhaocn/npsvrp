@@ -68,70 +68,30 @@ bool Input::initInput() {
 
 	addSTclose = util::Array2D<int> (custCnt + 1, custCnt,0);
 
-	auto canlinkDir = [&](int v, int w) ->bool {
+//	auto canlinkDir = [&](int v, int w) ->bool {
+//
+//		DisType av = getDisof2(0, v);
+//		DisType aw = av + datas[v].serviceDuration + getDisof2(v, w);
+//		DisType ptw = std::max<DisType>(0, aw - datas[w].latestArrival);
+//		DisType an = aw + datas[w].serviceDuration + getDisof2(w, 0);
+//		ptw += std::max<DisType>(0, an - datas[0].latestArrival);
+//		return ptw == 0;
+//	};
 
-		DisType av = getDisof2(0, v);
-		DisType aw = av + datas[v].serviceDuration + getDisof2(v, w);
-		DisType ptw = std::max<DisType>(0, aw - datas[w].latestArrival);
-		DisType an = aw + datas[w].serviceDuration + getDisof2(w, 0);
-		ptw += std::max<DisType>(0, an - datas[0].latestArrival);
-		return ptw == 0;
-	};
-
-	auto canLinkNode = [&](int v, int w) ->bool {
-
-		if (!canlinkDir(v, w) && !canlinkDir(w, v)) {
-			return false;
-		}
-		return true;
-	};
+//	auto canLinkNode = [&](int v, int w) ->bool {
+//
+//		if (!canlinkDir(v, w) && !canlinkDir(w, v)) {
+//			return false;
+//		}
+//		return true;
+//	};
 
 	for (int v = 0; v <= custCnt; ++v) {
-
-		int idx = 0;
-		for (int w = 0; w <= custCnt; ++w) {
-			if (w != v) {
-				addSTclose[v][idx] = w;
-				++idx;
-			}
-		}
-
-		auto cmp = [&](const int a, const int b) {
-
-
-			//TODO[-1] 这里的比较方式进行了修改
-//            return getDisof2(v, a) < getDisof2(v, b);
-			//return disOf[v][a] + datas[a].serviceDuration <
-			//	disOf[v][b] + datas[b].serviceDuration;
-
-			//if (para.timeCost.get(v,a) == para.timeCost.get(v, b)) {
-			//	return datas[a].latestArrival < datas[b].latestArrival;
-			//}
-			//else {
-			//	return para.timeCost.get(v, a) < para.timeCost.get(v, b);
-			//}
-			//return true;
-
-			//int aLinkv = canLinkNode(a, v);
-			//int bLinkv = canLinkNode(b, v);
-			//if ((aLinkv && bLinkv) || (!aLinkv && !bLinkv)) {
-			//	return disOf[v][a] + datas[a].serviceDuration <
-			//		disOf[v][b] + datas[b].serviceDuration;
-			//}
-			//else {
-			//	return aLinkv ? true : false;
-			//}
-
-			int aLinkv = canLinkNode(a, v);
-			int bLinkv = canLinkNode(b, v);
-			if ((aLinkv && bLinkv) || (!aLinkv && !bLinkv)) {
-				return getDisof2(v, a) < getDisof2(v, b);
-			}
-			else {
-				return aLinkv ? true : false;
-			}
-		};
-		std::sort(addSTclose[v], addSTclose[v] + addSTclose.size2(), cmp);
+        int idx = 0;
+        for (auto it:para.orderProximities[v]) {
+            addSTclose[v][idx] = it.second;
+            ++idx;
+        }
 	}
 
 	addSTJIsxthcloseOf = util::Array2D<int>(custCnt + 1, custCnt + 1, -1);

@@ -41,6 +41,12 @@ public:
 	// Running the genetic algorithm until maxIterNonProd consecutive iterations without improvement or a time limit (in seconds) is reached
 	void run(int maxIterNonProd, int timeLimit);
 
+	void runMA();
+
+    void runRuin();
+
+	void runMAOfPopulation(std::vector<Individual*> pool);
+
 	// Constructor
 	Genetic(Params* params, Split* split, Population* population, LocalSearch* localSearch,hust::Solver* smartSolver);
 
@@ -51,7 +57,7 @@ public:
 // TODO[lyh]:
 public:
 	// The number of new potential offspring created from one individual
-	static const int numberOfCandidateOffsprings = 6;
+	static const int numberOfCandidateOffsprings = 8;
 
 	Params* params;				// Problem parameters
 	Split* split;				// Split algorithm
@@ -60,7 +66,7 @@ public:
 	hust::Solver* smartSolver;
 
 	// Pointers for offspring to edit new offspring in place:
-	// 0 and 1 are reserved for SREX, 2 and 3 are reserved for OX 4 5 EAX
+	// 0 and 1 are reserved for SREX, 2 and 3 are reserved for OX 4 5 OXStar 6 7 EAX
 	std::array<Individual*, numberOfCandidateOffsprings> candidateOffsprings;
 
 	// Function to do two OX Crossovers for a pair of individuals (the two parents) and return the best individual based on penalizedCost
@@ -79,7 +85,7 @@ public:
 	void insertUnplannedTasks(Individual* offspring, std::unordered_set<int> unplanned);
 
 	// Function to do one OX and one SREX Crossover for a pair of individuals (the two parents), and get the best result based on penalizedCost
-	Individual* bestOfSREXAndOXCrossovers(std::pair<const Individual*, const Individual*> parents);
+	Individual* bestOfSREXAndOXCrossovers(std::pair<const Individual*, const Individual*> parents,int level);
 };
 
 #endif
