@@ -16,6 +16,7 @@
 #include "../hgs/LocalSearch.h"
 //#include "Utility.h"
 
+
 //#define HUST_LYH_NPSRUN 0
 #define CHECKING 0
 
@@ -296,15 +297,15 @@ public:
 
     // there is no need to free the pointer. the format of the format string is
     // the same as std::strftime() in http://en.cppreference.com/w/cpp/chrono/c/strftime.
-    static const char* getLocalTime(const char* format = "%Y-%m-%d(%a)%H:%M:%S") {
-        static constexpr int DateBufSize = 64;
-        static char buf[DateBufSize];
-        time_t t = time(NULL);
-        tm* date = localtime(&t);
-        strftime(buf, DateBufSize, format, date);
-        return buf;
-    }
-    static const char* getTightLocalTime() { return getLocalTime("%Y%m%d%H%M%S"); }
+    //static const char* getLocalTime(const char* format = "%Y-%m-%d(%a)%H:%M:%S") {
+    //    static constexpr int DateBufSize = 64;
+    //    static char buf[DateBufSize];
+    //    time_t t = time(NULL);
+    //    tm* date = localtime(&t);
+    //    strftime(buf, DateBufSize, format, date);
+    //    return buf;
+    //}
+    //static const char* getTightLocalTime() { return getLocalTime("%Y%m%d%H%M%S"); }
 
     bool isTimeOut() const {
         return (Clock::now() > endTime);

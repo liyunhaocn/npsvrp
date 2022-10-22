@@ -115,6 +115,8 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		{
 			// This will automatically adjust after some iterations
 			params->config.minimumPopulationSize += params->config.growPopulationSize;
+			params->config.minimumPopulationSize = std::min<int>(40, params->config.minimumPopulationSize);
+
 		}
 	}
 }

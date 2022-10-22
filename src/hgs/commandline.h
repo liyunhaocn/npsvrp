@@ -87,6 +87,8 @@ public:
 					config.timeLimit = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-call")
 					config.call = std::string(argv[i + 1]);
+				else if (std::string(argv[i]) == "-configKind")
+					config.configKind = std::string(argv[i + 1]);
 				else if (std::string(argv[i]) == "-useWallClockTime")
 					config.useWallClockTime = atoi(argv[i + 1]) != 0;
 				else if (std::string(argv[i]) == "-it")

@@ -356,13 +356,13 @@ void Population::managePenalties()
 	}
 	else if (fractionFeasibleLoad < params->config.targetFeasible - 0.05 && params->penaltyCapacity < 100000.)
 	{
-//		params->penaltyCapacity = std::min(params->penaltyCapacity * 1.2, 100000.);
-		params->penaltyCapacity = std::min(params->penaltyCapacity * 2, 100000.);
+		params->penaltyCapacity = std::min(params->penaltyCapacity * 1.2, 100000.);
+		//params->penaltyCapacity = std::min(params->penaltyCapacity * 2, 100000.);
 	}
 	else if (fractionFeasibleLoad > params->config.targetFeasible + 0.05 && params->penaltyCapacity > 0.1)
 	{
-//		params->penaltyCapacity = std::max(params->penaltyCapacity * 0.85, 0.1);
-		params->penaltyCapacity = std::max(params->penaltyCapacity * 0.5, 0.1);
+		params->penaltyCapacity = std::max(params->penaltyCapacity * 0.85, 0.1);
+		//params->penaltyCapacity = std::max(params->penaltyCapacity * 0.5, 0.1);
 	}
 
 	// Setting some bounds [0.1,100000] to the penalty values for safety
@@ -373,13 +373,13 @@ void Population::managePenalties()
 	}
 	else if (fractionFeasibleTimeWarp < params->config.targetFeasible - 0.05 && params->penaltyTimeWarp < 100000.)
 	{
-//		params->penaltyTimeWarp = std::min(params->penaltyTimeWarp * 1.2, 100000.);
-		params->penaltyTimeWarp = std::min(params->penaltyTimeWarp * 2, 100000.);
+		params->penaltyTimeWarp = std::min(params->penaltyTimeWarp * 1.2, 100000.);
+		//params->penaltyTimeWarp = std::min(params->penaltyTimeWarp * 2, 100000.);
 	}
 	else if (fractionFeasibleTimeWarp > params->config.targetFeasible + 0.05 && params->penaltyTimeWarp > 0.1)
 	{
-//		params->penaltyTimeWarp = std::max(params->penaltyTimeWarp * 0.85, 0.1);
-		params->penaltyTimeWarp = std::max(params->penaltyTimeWarp * 0.5, 0.1);
+		params->penaltyTimeWarp = std::max(params->penaltyTimeWarp * 0.85, 0.1);
+		//params->penaltyTimeWarp = std::max(params->penaltyTimeWarp * 0.5, 0.1);
 	}
 
 	// Update the evaluations

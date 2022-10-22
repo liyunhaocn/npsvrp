@@ -60,6 +60,20 @@ class CommandLine;
 class Params
 {
 public:
+
+	const static int configOfBigPopulation = 0;
+	const static int configOfInitSmallTolerate = 1;
+	const static int configOfLittleRandom = 2;
+	const static int configOfSmartInit = 3;
+	const static int configOfSmallNBGranular = 4;
+	const static int configOfBigNBGranular = 5;
+	const static int configOfSmallNBIter = 6;
+	const static int configOfBigNBIter = 7;
+	const static int configOfSmallTargetFeasible = 8;
+	const static int configOfBigTargetFeasible = 9;
+	const static int configOfGrowNbGranularSize = 10;
+	const static int configOfGrowPopulationSize = 11;
+
 	// Stores all the parameters values (given by using the command line)
 	struct Config
 	{
@@ -68,26 +82,26 @@ public:
 		bool useWallClockTime = false;  // If True, measure wall clock time rather than CPU time
 		std::string pathBKS = "";		// Path to Best Known Solution
         std::string call = "";
-
+		std::string configKind = "";
 		// Parameters for the Construction Heuristics
 		double fractionGeneratedNearest = 0.20;				// Proportion of individuals constructed by nearest-first
 		double fractionGeneratedSmart = 0.20;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedFurthest = 00.20;			// Proportion of individuals constructed by furthest-first
+		double fractionGeneratedFurthest = 0.20;			// Proportion of individuals constructed by furthest-first
 		double fractionGeneratedSweep = 0.20;				// Proportion of individuals constructed by sweep
-		double fractionGeneratedRandomly = 0.10;			// Proportion of individuals constructed randomly
+		double fractionGeneratedRandomly = 0.20;			// Proportion of individuals constructed randomly
 		int minSweepFillPercentage = 80; //60				// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
 															// The maximum vehicle usage is 40% (100/250 routes, see SINTEF BKS),
 															// so take 60% to have some margin (otherwise all remaining orders will be in last route)
-		int maxToleratedCapacityViolation = 5;	//50		// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
-		int maxToleratedTimeWarp = 10;//100					// No real feeling yet for what value makes sense.
-		double initialTimeWarpPenalty = 10.0;	//1.0			// This was the default until now, but with this value feasible individuals often
+		int maxToleratedCapacityViolation = 50;	//50		// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
+		int maxToleratedTimeWarp = 100;//100					// No real feeling yet for what value makes sense.
+		double initialTimeWarpPenalty = 1.0;	//1.0			// This was the default until now, but with this value feasible individuals often
 															// become infeasible during the local search in doLocalSearchAndAddIndividual.
 															// With initialTimeWarpPenalty = 10, this does not happen.
 		double penaltyBooster = 2.;							// Set to value > 0, so penalty will get multiplied by this value (instead of default 1.2) if num feasible == 0
 
 		// Parameters of the Genetic Algorithm
 		int minimumPopulationSize = 25;	//25						// Minimum population size
-		int generationSize = 25;	//40						// Number of solutions created before reaching the maximum population size (i.e., generation size)
+		int generationSize = 40;	//40						// Number of solutions created before reaching the maximum population size (i.e., generation size)
 		int nbElite = 4;										// Number of elite individuals (reduced in HGS-2020)
 		int nbClose = 5;										// Number of closest solutions/individuals considered when calculating diversity contribution
 		double targetFeasible = 0.2; //0.2							// Reference proportion for the number of feasible individuals, used for the adaptation of the penalty parameters
@@ -105,7 +119,7 @@ public:
 		int nbVeh = INT_MAX;								// Number of vehicles
 		int logPoolInterval = 0;							// The verbose level of the algorithm log
 		bool isDimacsRun = false;							// If DIMACS run, print incumbent and avoid other output
-		bool useDynamicParameters = true;	//false				// To use dynamic parameters based on instance attributes
+		bool useDynamicParameters = false;	//false				// To use dynamic parameters based on instance attributes
 		std::string pathSolution;							// Solution path
 		// TODO[lyh][nbGranular]
         int nbGranular = 40;	//40						// Granular search parameter, limits the number of moves in the RI local search
@@ -153,6 +167,7 @@ public:
 	int minCircleSectorSize;											// Minimum circle sector size to enforce (for nonempty routes) (0 - 65536)
 	int nbMustDispatch;													// must dispatch µÄÊýÁ¿
 	std::vector<int> P;													// customters weight
+	double ratio = 9999999.0;
 	// Initialization from a given data set
 	Params(const CommandLine&);
 

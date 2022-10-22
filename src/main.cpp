@@ -1,5 +1,6 @@
 #include <time.h>
 #include <iostream>
+#include <unordered_map>
 
 #include "hgs/Genetic.h"
 #include "hgs/commandline.h"
@@ -281,10 +282,85 @@ void setParams(Params& params){
 
 }
 
+static Params::Config getConfig(int index) {
+
+    std::vector<Params::Config> configs(12);
+
+    configs[Params::configOfBigPopulation].minimumPopulationSize = 50;
+
+    configs[Params::configOfInitSmallTolerate].maxToleratedCapacityViolation = 20;
+    configs[Params::configOfInitSmallTolerate].maxToleratedTimeWarp = 20;
+
+    configs[Params::configOfLittleRandom].fractionGeneratedNearest = 0.2;
+    configs[Params::configOfLittleRandom].fractionGeneratedSmart = 0.2;
+    configs[Params::configOfLittleRandom].fractionGeneratedFurthest = 0.2;
+    configs[Params::configOfLittleRandom].fractionGeneratedSweep = 0.2;
+    configs[Params::configOfLittleRandom].fractionGeneratedRandomly = 0.2;
+
+    configs[Params::configOfSmartInit].fractionGeneratedNearest = 0.0;
+    configs[Params::configOfSmartInit].fractionGeneratedSmart = 1.0;
+    configs[Params::configOfSmartInit].fractionGeneratedFurthest = 0.0;
+    configs[Params::configOfSmartInit].fractionGeneratedSweep = 0.0;
+    configs[Params::configOfSmartInit].fractionGeneratedRandomly = 0.0;
+
+    configs[Params::configOfSmallNBGranular].nbGranular = 20;
+
+    configs[Params::configOfBigNBGranular].nbGranular = 40;
+
+    configs[Params::configOfSmallNBIter].nbIter = 5000;
+
+    configs[Params::configOfBigNBIter].nbIter = 20000;
+
+    configs[Params::configOfSmallTargetFeasible].targetFeasible = 0.2;
+
+    configs[Params::configOfBigTargetFeasible].targetFeasible = 0.5;
+
+    configs[Params::configOfGrowNbGranularSize].nbGranular = 5;
+    configs[Params::configOfGrowNbGranularSize].growNbGranularSize = 5;
+    configs[Params::configOfGrowNbGranularSize].growNbGranularAfterNonImprovementIterations = 500;
+
+    configs[Params::configOfGrowPopulationSize].minimumPopulationSize = 10;
+    configs[Params::configOfGrowPopulationSize].growPopulationSize = 5;
+    configs[Params::configOfGrowPopulationSize].growPopulationAfterNonImprovementIterations = 500;
+    
+    return configs[index];
+}
+
+int getConfigIndex(std::string key) {
+
+    std::unordered_map<std::string, int> mp = {
+        {"configOfBigPopulation",0},
+        {"configOfInitSmallTolerate", 1},
+        {"configOfLittleRandom", 2},
+        {"configOfSmartInit", 3},
+        {"configOfSmallNBGranular", 4},
+        {"configOfBigNBGranular", 5},
+        {"configOfSmallNBIter", 6},
+        {"configOfBigNBIter", 7},
+        {"configOfSmallTargetFeasible", 8},
+        {"configOfBigTargetFeasible", 9},
+        {"configOfGrowNbGranularSize",10},
+        {"configOfGrowPopulationSize", 11}
+    };
+    if (mp.count(key) > 0) {
+        return mp[key];
+    }
+    return -1;
+
+}
+
 void hgsAndSmart(CommandLine& commandline) {
 
+    
     Params params(commandline);
-
+    int index = getConfigIndex(commandline.config.configKind);
+    if (index >= 0) {
+        params.config = getConfig(index);
+        if (index == Params::configOfSmallNBGranular) {
+            params.SetCorrelatedVertices();
+        }
+    }
+    
 //	if (params.nbMustDispatch == 0) {
 //		printf("Cost 0\n");
 //		fflush(stdout);
@@ -292,7 +368,6 @@ void hgsAndSmart(CommandLine& commandline) {
 //	}
 
     if(params.nbClients==1) {
-
         printf("Route #1: 1\n");
         printf("Cost %d\n", params.timeCost.get(0,1) + params.timeCost.get(0,1));
         fflush(stdout);
@@ -311,7 +386,7 @@ void hgsAndSmart(CommandLine& commandline) {
     hust::globalInput->initInput();
     hust::Goal goal;
 
-//    setParams(params);
+    //setParams(params);
 
     INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
     Split split(&params);
