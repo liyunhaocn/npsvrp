@@ -85,23 +85,8 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		/* FOR TESTS INVOLVING SUCCESSIVE RUNS UNTIL A TIME LIMIT: WE RESET THE ALGORITHM/POPULATION EACH TIME maxIterNonProd IS ATTAINED*/
 		if (timeLimit != INT_MAX && nbIterNonProd == maxIterNonProd && params->config.doRepeatUntilTimeLimit)
 		{
-            // TODO[lyh][Genetic]:²»ÖØÆô
-            if(params->config.isBreakNotReStart ==1 ){
-                break;
-            }
-            INFO("ReStart");
-//            for(auto& indiv:population->feasibleSubpopulation){
-//                smartSolver->loadIndividual(indiv);
-//                smartSolver->perturbBaseRuin(params->nbClients/2);
-//                smartSolver->exportIndividual(indiv);
-//            }
-//            for(auto& indiv:population->infeasibleSubpopulation){
-//                smartSolver->loadIndividual(indiv);
-//                smartSolver->perturbBaseRuin(params->nbClients/2);
-//                smartSolver->exportIndividual(indiv);
-//            }
-//            population->bestSolutionRestart = Individual();
 
+            INFO("ReStart");
 			population->restart();
 			nbIterNonProd = 1;
 		}
@@ -333,8 +318,6 @@ void Genetic::runRuin(){
         if (sStar.RoutesCost < pBest.RoutesCost) {
             pBest = sStar;
             iter=0;
-//            sStar.exportIndividual(candidateOffsprings[7]);
-//            population->addIndividual(candidateOffsprings[7], false);
         }
     }
 

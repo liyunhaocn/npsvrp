@@ -93,7 +93,7 @@ void Population::generatePopulation()
 //        smartSolver->initSolution(3);
         smartSolver->initSolution(i%9);
 //        smartSolver->initSolution(i%6);
-//        smartSolver->minimizeRN(2);
+        smartSolver->minimizeRN(2);
         smartSolver->exportIndividual(&indiv);
         split->generalSplit(&indiv,params->nbVehicles);
         doLocalSearchAndAddIndividual(&indiv);

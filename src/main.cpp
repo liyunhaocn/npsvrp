@@ -287,8 +287,7 @@ void hgsAndSmart(CommandLine& commandline) {
 //        goal.TwoAlgCombine();
 //        hust::bks->bestSolFound.printDimacs();
         hust::globalCfg->isHgsRuinWhenGetBKS = 0;
-        params.config.isBreakNotReStart = 0;
-        params.config.nbIter = 5000;
+        //params.config.nbIter = 5000;
         params.config.intensificationProbabilityLS = 25;
 
     }else if(  params.nbClients <= 500){
@@ -312,17 +311,7 @@ void hgsAndSmart(CommandLine& commandline) {
 
     if(params.nbClients<=300){
 
-        while (!params.isTimeLimitExceeded()) {
-            solver.run(params.config.nbIter, params.config.timeLimit);
-            if(params.isTimeLimitExceeded()){
-                break;
-            }
-//            solver.runMA();
-//            population.restart();
-//            if(params.isTimeLimitExceeded()){
-//                break;
-//            }
-        }
+        solver.run(params.config.nbIter, params.config.timeLimit);
         population.getBestFound()->printCVRPLibFormat();
 
     }else if(  params.nbClients <= 500){
@@ -333,7 +322,6 @@ void hgsAndSmart(CommandLine& commandline) {
         population.getBestFound()->printCVRPLibFormat();
     }
     hust::deallocGlobalMem();
-
 }
 
 int main(int argc, char* argv[])

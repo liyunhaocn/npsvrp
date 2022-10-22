@@ -25,29 +25,11 @@
   <component name="ChangeListManager">
     <list default="true" id="d9b2c9a6-e704-430b-80d8-de1b3518a670" name="Changes" comment="update no mean">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/LocalSearch.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/LocalSearch.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/LocalSearch.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/LocalSearch.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Population.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Population.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/EAX.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/EAX.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/EAX.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Flag.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Flag.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Flag.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Flag.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Goal.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Problem.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Problem.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Solver.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Utility.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Utility.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +123,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="D:/npsvrp/all_cmds.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/all_cmds.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
