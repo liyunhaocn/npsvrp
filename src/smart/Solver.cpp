@@ -1066,11 +1066,11 @@ bool Solver::initMaxRoute() {
 bool Solver::initSolution(int kind) {//5ÖÖ
 
     rts.reSet();
-	if (kind <= 7) {
-        initSortOrder(kind);
-	}
-	else if(kind <= 8){
+    if(kind == 0){
         initBySecOrder();
+    }
+	else if (kind <= 8) {
+        initSortOrder(kind);
 	}
 	else if (kind == 9) {
 		initMaxRoute();

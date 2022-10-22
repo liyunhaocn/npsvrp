@@ -253,6 +253,34 @@ void smartOnly(CommandLine& commandline){
     hust::deallocGlobalMem();
 }
 
+void setParams(Params& params){
+
+//    params.config.fractionGeneratedNearest = 0.20;
+//    params.config. fractionGeneratedSmart = 0.20;
+//    params.config. fractionGeneratedFurthest = 00.20;
+//    params.config. fractionGeneratedSweep = 0.20;
+//    params.config. fractionGeneratedRandomly = 0.10;
+
+    if(params.nbClients <= 300){
+//        goal.TwoAlgCombine();
+//        hust::bks->bestSolFound.printDimacs();
+        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
+        //params.config.nbIter = 5000;
+        params.config.minimumPopulationSize = 40;
+//        params.config.intensificationProbabilityLS = 25;
+
+    }else if(  params.nbClients <= 500){
+        //params.nbClients(300,500]
+//        params.config.intensificationProbabilityLS = 100;
+        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
+    }else{
+        //params.nbClients > 500
+//        params.config.intensificationProbabilityLS = 50;
+        params.config.useDynamicParameters = true;
+    }
+
+}
+
 void hgsAndSmart(CommandLine& commandline) {
 
     Params params(commandline);
@@ -283,22 +311,7 @@ void hgsAndSmart(CommandLine& commandline) {
     hust::globalInput->initInput();
     hust::Goal goal;
 
-    if(params.nbClients <= 300){
-//        goal.TwoAlgCombine();
-//        hust::bks->bestSolFound.printDimacs();
-        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
-        //params.config.nbIter = 5000;
-        params.config.intensificationProbabilityLS = 25;
-
-    }else if(  params.nbClients <= 500){
-        //params.nbClients(300,500]
-        params.config.intensificationProbabilityLS = 100;
-        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
-    }else{
-        //params.nbClients > 500
-        params.config.intensificationProbabilityLS = 50;
-        params.config.useDynamicParameters = true;
-    }
+//    setParams(params);
 
     INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
     Split split(&params);
@@ -309,18 +322,19 @@ void hgsAndSmart(CommandLine& commandline) {
     Population population(&params, &split, &localSearch,&smartSolver);
     Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
 
-    if(params.nbClients<=300){
+//    if(params.nbClients<=300){
+//        solver.run(params.config.nbIter, params.config.timeLimit);
+//        population.getBestFound()->printCVRPLibFormat();
+//    }else if(  params.nbClients <= 500){
+//        solver.run(params.config.nbIter, params.config.timeLimit);
+//        population.getBestFound()->printCVRPLibFormat();
+//    }else{
+//        solver.run(params.config.nbIter, params.config.timeLimit);
+//        population.getBestFound()->printCVRPLibFormat();
+//    }
 
-        solver.run(params.config.nbIter, params.config.timeLimit);
-        population.getBestFound()->printCVRPLibFormat();
-
-    }else if(  params.nbClients <= 500){
-        solver.run(params.config.nbIter, params.config.timeLimit);
-        population.getBestFound()->printCVRPLibFormat();
-    }else{
-        solver.run(params.config.nbIter, params.config.timeLimit);
-        population.getBestFound()->printCVRPLibFormat();
-    }
+    solver.run(params.config.nbIter, params.config.timeLimit);
+    population.getBestFound()->printCVRPLibFormat();
     hust::deallocGlobalMem();
 }
 

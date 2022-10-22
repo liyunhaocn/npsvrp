@@ -737,8 +737,7 @@ Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, cons
 
     if(level==1){
         offsprings[2] = crossoverOXStar(parents);
-        offsprings[3] = hust::EAX::doEaxWithoutRepair(parents, candidateOffsprings[6]);
-
+//        offsprings[3] = hust::EAX::doEaxWithoutRepair(parents, candidateOffsprings[6]);
 //        smartSolver->loadIndividual(parents.first);
 //        smartSolver->perturbBaseRuin(hust::globalCfg->ruinC_*2);
 //        smartSolver->exportIndividual(candidateOffsprings[7]);
