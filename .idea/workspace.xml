@@ -241,12 +241,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.con" />
-      <item itemvalue="Python.solver" />
       <item itemvalue="Python.all_cmds" />
       <item itemvalue="Python.analysis" />
+      <item itemvalue="Python.con" />
       <item itemvalue="Python.draw" />
       <item itemvalue="Python.jobsch" />
+      <item itemvalue="Python.solver" />
     </list>
     <recent_temporary>
       <list>
