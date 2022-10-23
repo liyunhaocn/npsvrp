@@ -1,4 +1,6 @@
 import csv
+import os
+
 import numpy as np
 import collections
 import all_cmds
@@ -63,7 +65,11 @@ def get_customers_num_from_instance_name(instance_name):
 
 if __name__ == "__main__":
 
-    sort_csv(r"results/[10_22][static][greedy][t1].csv")
+    for root, dirs, files in os.walk(r"results/"):
+        print(files)
+        for file in files:
+            print(r"results/" + file)
+            sort_csv(r"results/" + file)
     exit(0)
 
     sort_csv(r"results/[10_20][dynamic][greedy][oxStar].csv")

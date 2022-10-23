@@ -55,13 +55,14 @@ def get_all_static_nps_cmds():
     #     print(cmd)
     return cmds
 
-def get_all_static_my_cmds(tag="notag"):
+def get_all_static_my_cmds(run_tag="notag",solver_configKind = ""):
 
     all_paths = get_all_instances_paths()
     cmds = []
     for instance_path in all_paths:
         cmds.append(f"python solver.py --instance {instance_path} "
-                    + f"--static --epoch_tlim {get_tlim_of_static(instance_path)} --run_tag {tag} --verbose")
+                    + f"--static --epoch_tlim {get_tlim_of_static(instance_path)} "
+                    + f"--run_tag {run_tag} --solver_configKind {solver_configKind} --verbose")
         # cmds.append(f"./dev/SmartRouter {instance_path} -isNpsRun 0 -t {get_tlim_of_static(instance_path)} "
         #             + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
     return cmds

@@ -15,6 +15,8 @@ def run(arr, run=True):
 
     for cmd in arr:
         print(cmd)
+    print(len(jobs))
+
     if run == False:
         return 0
 
@@ -57,10 +59,29 @@ if __name__ == "__main__":
 
     # jobs = all_cmds.get_all_static_my_cmds("testruin")
     # jobs = all_cmds.get_all_dynamic_my_cmds("testruin")
-    jobs = all_cmds.get_all_static_my_cmds("t1")
+
+    kind_arr = [
+        "configOfBigPopulation",
+        "configOfInitSmallTolerate",
+        "configOfLittleRandom",
+        "configOfSmartInit",
+        "configOfSmallNBGranular",
+        "configOfBigNBGranular",
+        "configOfSmallNBIter",
+        "configOfBigNBIter",
+        "configOfSmallTargetFeasible",
+        "configOfBigTargetFeasible",
+        "configOfGrowNbGranularSize",
+        "configOfGrowPopulationSize",
+    ]
+
+    jobs = []
+    for kind_name in kind_arr:
+        jobs += all_cmds.get_all_static_my_cmds(run_tag=kind_name, solver_configKind=kind_name)
            # + all_cmds.get_all_dynamic_my_cmds("hybrid")
     # for job in jobs:
     #     print(job)
-    run(jobs, True)
     print(len(jobs))
+    run(jobs, True)
+
 

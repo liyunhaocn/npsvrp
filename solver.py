@@ -149,7 +149,7 @@ def get_initial_weight(instance, seed=1):
                 assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
                 yield weight
 
-def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None, weight_arg=[]):
+def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None, weight_arg=[], configKind = ""):
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
 
@@ -167,6 +167,7 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None,
 
     # cmd += ["-call", "smartOnly"]
     cmd += ["-call", "hgsAndSmart"]
+    cmd += ["-configKind", configKind]
     cmd_str = " ".join(cmd)
     log_info(f"cmd_str:{cmd_str}")
 
@@ -293,7 +294,9 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
             solutions = list(solve_static_vrptw(instance=epoch_instance_dispatch,
                                                 time_limit=epoch_tlim-time_get_weight,
                                                 seed=args.solver_seed,
-                                                weight_arg=request_weight))
+                                                weight_arg=request_weight,
+                                                configKind=args.solver_configKind
+                                                ))
             assert len(solutions) > 0, f"No solution found during epoch {observation['current_epoch']}"
             epoch_solution, cost = solutions[-1]
 
@@ -372,6 +375,7 @@ if __name__ == "__main__":
     # parser.add_argument("--model_path", type=str, default=None, help="Provide the path of the machine learning model to be used as strategy (Path must not contain `model.pth`)")
     parser.add_argument("--verbose", action='store_true', help="Show verbose output")
     parser.add_argument("--run_tag", default="", help="Show verbose output")
+    parser.add_argument("--solver_configKind", default="", help="Show verbose output")
     args = parser.parse_args()
 
     try:
@@ -424,7 +428,7 @@ if __name__ == "__main__":
             customers_num = result_dic["instance"].split("-")[5].replace("n", "")
             result_dic["customers_num"] = customers_num
 
-            save_results_csv(f"./results/[{ymd}][{run_type}][{strategy}][{run_tag}].csv", result_dic)
+            save_results_csv(f"./results/[{ymd}][{run_type}][{run_tag}].csv", result_dic)
             log_info(tools.json_dumps_np(env.final_solutions))
     finally:
         pass

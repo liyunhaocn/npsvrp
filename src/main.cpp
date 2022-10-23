@@ -282,9 +282,9 @@ void setParams(Params& params){
 
 }
 
-static Params::Config getConfig(int index) {
+static Params::Config getConfig(Params::Config& defaultCfg,int index) {
 
-    std::vector<Params::Config> configs(12);
+    std::vector<Params::Config> configs(12,defaultCfg);
 
     configs[Params::configOfBigPopulation].minimumPopulationSize = 50;
 
@@ -351,11 +351,12 @@ int getConfigIndex(std::string key) {
 
 void hgsAndSmart(CommandLine& commandline) {
 
-    
     Params params(commandline);
     int index = getConfigIndex(commandline.config.configKind);
+
+    INFO("commandline.config.configKind:",commandline.config.configKind);
     if (index >= 0) {
-        params.config = getConfig(index);
+        params.config = getConfig(params.config,index);
         if (index == Params::configOfSmallNBGranular) {
             params.SetCorrelatedVertices();
         }
@@ -408,6 +409,7 @@ void hgsAndSmart(CommandLine& commandline) {
 //        population.getBestFound()->printCVRPLibFormat();
 //    }
 
+    INFO("params.config.timeLimit:",params.config.timeLimit);
     solver.run(params.config.nbIter, params.config.timeLimit);
     population.getBestFound()->printCVRPLibFormat();
     hust::deallocGlobalMem();
@@ -434,11 +436,11 @@ int main(int argc, char* argv[])
 //	}
 //	catch (const std::string& e)
 //	{
-//		std::cout << "EXCEPTION | " << e << std::endl;
+//		std::cerr << "EXCEPTION | " << e << std::endl;
 //	}
 //	catch (const std::exception& e)
 //	{
-//		std::cout << "EXCEPTION | " << e.what() << std::endl;
+//		std::cerr << "EXCEPTION | " << e.what() << std::endl;
 //	}
 	return 0;
 }

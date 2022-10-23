@@ -33,9 +33,9 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
                          params->penaltyCapacity,
                          params->penaltyTimeWarp);
 
-        if( hust::globalCfg->isHgsRuinWhenGetBKS==1){
-            smartSolver->runSimulatedannealing(offspring);
-        }
+//        if( hust::globalCfg->isHgsRuinWhenGetBKS==1){
+//            smartSolver->runSimulatedannealing(offspring);
+//        }
 //        if( hust::globalCfg->isHgsRuinWhenGetBKS==1 &&
 //            offspring->isFeasible && offspring->myCostSol.penalizedCost
 //           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
@@ -738,7 +738,7 @@ Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, cons
     offsprings[1] = crossoverOX(parents);
 
     if(level==1){
-        offsprings[2] = crossoverOXStar(parents);
+//        offsprings[2] = crossoverOXStar(parents);
 //        offsprings[3] = hust::EAX::doEaxWithoutRepair(parents, candidateOffsprings[6]);
 //        smartSolver->loadIndividual(parents.first);
 //        smartSolver->perturbBaseRuin(hust::globalCfg->ruinC_*2);

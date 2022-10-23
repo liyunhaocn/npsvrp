@@ -84,12 +84,12 @@ public:
         std::string call = "";
 		std::string configKind = "";
 		// Parameters for the Construction Heuristics
-		double fractionGeneratedNearest = 0.20;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedSmart = 0.20;				// Proportion of individuals constructed by nearest-first
-		double fractionGeneratedFurthest = 0.20;			// Proportion of individuals constructed by furthest-first
-		double fractionGeneratedSweep = 0.20;				// Proportion of individuals constructed by sweep
-		double fractionGeneratedRandomly = 0.20;			// Proportion of individuals constructed randomly
-		int minSweepFillPercentage = 80; //60				// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
+		double fractionGeneratedNearest = 0.05;	//0.05			// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedSmart = 0.00; //0.0				// Proportion of individuals constructed by nearest-first
+		double fractionGeneratedFurthest = 0.05; // 0.05			// Proportion of individuals constructed by furthest-first
+		double fractionGeneratedSweep = 0.05; //0.05				// Proportion of individuals constructed by sweep
+		double fractionGeneratedRandomly = 0.85;			// Proportion of individuals constructed randomly
+		int minSweepFillPercentage = 60; //60				// Fill rate in BKS is always more than 40%, so I don't think less than this would make sense.
 															// The maximum vehicle usage is 40% (100/250 routes, see SINTEF BKS),
 															// so take 60% to have some margin (otherwise all remaining orders will be in last route)
 		int maxToleratedCapacityViolation = 50;	//50		// In the instance I checked vehicle capacity was 1000, so max 5% could make sense.
