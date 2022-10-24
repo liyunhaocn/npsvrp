@@ -356,12 +356,13 @@ void hgsAndSmart(CommandLine& commandline) {
 
     INFO("commandline.config.configKind:",commandline.config.configKind);
     if (index >= 0) {
-        params.config = getConfig(params.config,index);
+//        params.config = getConfig(params.config,index);
+        params.config = getConfig(params.config,Params::configOfSmallNBIter);
         if (index == Params::configOfSmallNBGranular) {
             params.SetCorrelatedVertices();
         }
     }
-    
+
 //	if (params.nbMustDispatch == 0) {
 //		printf("Cost 0\n");
 //		fflush(stdout);

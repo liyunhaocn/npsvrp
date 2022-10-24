@@ -23,16 +23,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="update no mean">
+    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="differentconfig">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_cmds.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Population.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Population.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Utility.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Utility.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +86,7 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.analysis">
+  <component name="RunManager" selected="Python.jobsch">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -250,8 +243,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.analysis" />
         <item itemvalue="Python.jobsch" />
+        <item itemvalue="Python.analysis" />
         <item itemvalue="Python.draw" />
         <item itemvalue="Python.all_cmds" />
       </list>
@@ -334,7 +327,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666431562953</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="differentconfig">
+      <created>1666518337633</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1666518337634</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -391,7 +391,8 @@
     <MESSAGE value="10.18 hgsinit 随机生成占10%，换了随机种子引擎" />
     <MESSAGE value="update no mean" />
     <MESSAGE value="init" />
-    <option name="LAST_COMMIT_MESSAGE" value="init" />
+    <MESSAGE value="differentconfig" />
+    <option name="LAST_COMMIT_MESSAGE" value="differentconfig" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

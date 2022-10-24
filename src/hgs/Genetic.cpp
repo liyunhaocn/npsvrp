@@ -87,7 +87,13 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		{
 
             INFO("ReStart");
-			population->restart();
+            params->config.fractionGeneratedNearest = 0.00;	//0.05
+            params->config.fractionGeneratedSmart = 0.00; //0.0
+            params->config.fractionGeneratedFurthest = 0.00; // 0.05
+            params->config.fractionGeneratedSweep = 0.00; //0.05
+            params->config.fractionGeneratedRandomly = 1.00;
+
+            population->restart();
 			nbIterNonProd = 1;
 		}
 
