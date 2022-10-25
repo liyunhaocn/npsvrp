@@ -80,11 +80,11 @@ if __name__ == "__main__":
     ]
 
     fractions_all_random = [
-        "-fractionGeneratedNearest", "0.05",
+        "-fractionGeneratedNearest", "0.00",
         "-fractionGeneratedSmart", "0.0",
-        "-fractionGeneratedFurthest", "0.05",
-        "-fractionGeneratedSweep", "0.05",
-        "-fractionGeneratedRandomly", "0.85",
+        "-fractionGeneratedFurthest", "0.00",
+        "-fractionGeneratedSweep", "0.00",
+        "-fractionGeneratedRandomly", "1.00",
     ]
 
     grow_population_argv = [
@@ -114,11 +114,11 @@ if __name__ == "__main__":
         #
         # "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(["-nbIter", "5000"]),
         # "--run_tag nb5000InitAllRandom --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random),
-
-        "--run_tag nb5000InitAllRandomEaxOSStar --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random + use_eax_ox_star),
-        "--run_tag nb5000InitAllRandomMaRuinBeforeRestart --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random + ma_ruin_before_restart),
-        "--run_tag nb5000InitAllRandomEAXOXStarMaRuinBeforeRestart --config_str " + "+" + "+".join(["-nbIter", "5000"]+fractions_all_random + use_eax_ox_star+ma_ruin_before_restart),
-
+        #
+        # "--run_tag nb5000InitAllRandomEaxOSStar --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random + use_eax_ox_star),
+        # "--run_tag nb5000InitAllRandomMaRuinBeforeRestart --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random + ma_ruin_before_restart),
+        # "--run_tag nb5000InitAllRandomEAXOXStarMaRuinBeforeRestart --config_str " + "+" + "+".join(["-nbIter", "5000"]+fractions_all_random + use_eax_ox_star+ma_ruin_before_restart),
+        #
         # "--run_tag nb2000InitDefault --config_str " + "+" + "+".join(["-nbIter", "2000"]),
         # "--run_tag nb2000InitAllRandom --config_str " + "+" + "+".join(["-nbIter", "2000"] + fractions_all_random),
         #
@@ -129,13 +129,13 @@ if __name__ == "__main__":
         # "--run_tag bigTargetFeasible --config_str " + "+" + "+".join(["-targetFeasible", "0.5"]),
         # "--run_tag growNbGranular --config_str " + "+" + "+".join(grow_nb_granular_argv),
         # "--run_tag growPopulation --config_str " + "+" + "+".join(grow_population_argv),
-        # "--run_tag HGSDefault --config_str + ",
+        "--run_tag HGSDefault --config_str + ",
     ]
 
     jobs = []
     for config_temp in config_string_arr:
-        # print(f"config_temp:{config_temp}")
-        # jobs += all_cmds.get_all_static_my_cmds(opt_str=config_temp)
+        print(f"config_temp:{config_temp}")
+
         # jobs += [all_cmds.get_all_static_my_cmds(opt_str=config_temp)[0]]
         jobs += all_cmds.get_all_static_my_cmds(opt_str=config_temp)
 

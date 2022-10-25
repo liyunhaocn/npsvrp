@@ -262,23 +262,26 @@ void setParams(Params& params){
 //    params.config. fractionGeneratedSweep = 0.20;
 //    params.config. fractionGeneratedRandomly = 0.10;
 
-    if(params.nbClients <= 300){
-//        goal.TwoAlgCombine();
-//        hust::bks->bestSolFound.printDimacs();
-        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
-        //params.config.nbIter = 5000;
-        params.config.minimumPopulationSize = 40;
-//        params.config.intensificationProbabilityLS = 25;
-
-    }else if(  params.nbClients <= 500){
-        //params.nbClients(300,500]
-//        params.config.intensificationProbabilityLS = 100;
-        hust::globalCfg->isHgsRuinWhenGetBKS = 0;
-    }else{
-        //params.nbClients > 500
-//        params.config.intensificationProbabilityLS = 50;
-        params.config.useDynamicParameters = true;
+    if(params.nbClients <= 240){
+        params.config.nbIter = 2000;
+        params.config.fractionGeneratedNearest = 0.10;	//0.05
+        params.config.fractionGeneratedSmart = 0.00; //0.0
+        params.config.fractionGeneratedFurthest = 0.10; // 0.05
+        params.config.fractionGeneratedSweep = 0.10; //0.05
+        params.config.fractionGeneratedRandomly = 0.70;
     }
+
+    if(params.nbClients >= 450){
+        params.config.nbIter = 10000;
+        params.config.fractionGeneratedNearest = 0.05;	//0.05
+        params.config.fractionGeneratedSmart = 0.00; //0.0
+        params.config.fractionGeneratedFurthest = 0.050; // 0.05
+        params.config.fractionGeneratedSweep = 0.05; //0.05
+        params.config.fractionGeneratedRandomly = 0.85;
+    }
+//    else{
+//        params.config.useDynamicParameters = true;
+//    }
 
 }
 
@@ -359,7 +362,7 @@ void hgsAndSmart(CommandLine& commandline) {
     hust::globalInput->initInput();
     hust::Goal goal;
 
-    //setParams(params);
+    setParams(params);
 
     INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
     Split split(&params);
@@ -369,17 +372,6 @@ void hgsAndSmart(CommandLine& commandline) {
 
     Population population(&params, &split, &localSearch,&smartSolver);
     Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
-
-//    if(params.nbClients<=300){
-//        solver.run(params.config.nbIter, params.config.timeLimit);
-//        population.getBestFound()->printCVRPLibFormat();
-//    }else if(  params.nbClients <= 500){
-//        solver.run(params.config.nbIter, params.config.timeLimit);
-//        population.getBestFound()->printCVRPLibFormat();
-//    }else{
-//        solver.run(params.config.nbIter, params.config.timeLimit);
-//        population.getBestFound()->printCVRPLibFormat();
-//    }
 
     INFO("params.config.timeLimit:",params.config.timeLimit);
     solver.run(params.config.nbIter, params.config.timeLimit);
