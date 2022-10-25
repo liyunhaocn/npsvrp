@@ -61,18 +61,18 @@ class Params
 {
 public:
 
-	const static int configOfBigPopulation = 0;
-	const static int configOfInitSmallTolerate = 1;
-	const static int configOfLittleRandom = 2;
-	const static int configOfSmartInit = 3;
-	const static int configOfSmallNBGranular = 4;
-	const static int configOfBigNBGranular = 5;
-	const static int configOfSmallNBIter = 6;
-	const static int configOfBigNBIter = 7;
-	const static int configOfSmallTargetFeasible = 8;
-	const static int configOfBigTargetFeasible = 9;
-	const static int configOfGrowNbGranularSize = 10;
-	const static int configOfGrowPopulationSize = 11;
+    struct ConfigType{
+        static const int initSmallTolerate = 0;
+        static const int smallNBGranular = 1;
+        static const int smallNBIter = 2;
+        static const int bigNBIter = 3;
+        static const int smallTargetFeasible = 4;
+        static const int bigTargetFeasible = 5;
+        static const int growNbGranularSize = 6;
+        static const int growPopulationSize = 7;
+        static const int nbConfigType = 8;
+    };
+
 
 	// Stores all the parameters values (given by using the command line)
 	struct Config
@@ -82,7 +82,6 @@ public:
 		bool useWallClockTime = false;  // If True, measure wall clock time rather than CPU time
 		std::string pathBKS = "";		// Path to Best Known Solution
         std::string call = "";
-		std::string configKind = "";
 		// Parameters for the Construction Heuristics
 		double fractionGeneratedNearest = 0.05;	//0.05			// Proportion of individuals constructed by nearest-first
 		double fractionGeneratedSmart = 0.00; //0.0				// Proportion of individuals constructed by nearest-first
@@ -132,6 +131,8 @@ public:
 		std::string pathInstance;							// Instance path
 		bool useSymmetricCorrelatedVertices = false;		// When correlation matrix is symmetric
 		bool doRepeatUntilTimeLimit = true;					// When to repeat the algorithm when max nr of iter is reached, but time limit is not
+        int useEaxAndOXStar = 0;
+        int maRuinBeforeRestart = 0;
     };
 
 	Config config;						// Stores all the parameter values
@@ -167,7 +168,6 @@ public:
 	int minCircleSectorSize;											// Minimum circle sector size to enforce (for nonempty routes) (0 - 65536)
 	int nbMustDispatch;													// must dispatch µÄÊýÁ¿
 	std::vector<int> P;													// customters weight
-	double ratio = 9999999.0;
 	// Initialization from a given data set
 	Params(const CommandLine&);
 

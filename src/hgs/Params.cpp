@@ -526,7 +526,6 @@ Params::Params(const CommandLine& cl)
 			}
 		}
 	}
-	
 
 	// Compute order proximities once
 	orderProximities = std::vector<std::vector<std::pair<double, int>>>(nbClients + 1);
@@ -587,35 +586,33 @@ Params::Params(const CommandLine& cl)
 	proximityWeightWaitTime = 0.2;
 	proximityWeightTimeWarp = 1;
 
-	double min_x = 1e30;
-	double min_y = 1e30;
-	double max_x = -1e30;
-	double max_y = -1e30;
-
-	for (int i = 0; i <= nbClients; ++i) {
-		min_x = std::min<double>(min_x, cli[i].coordX);
-		min_y = std::min<double>(min_y, cli[i].coordY);
-		max_x = std::max<double>(max_x, cli[i].coordX);
-		max_y = std::max<double>(max_y, cli[i].coordY);
-	}
-	double	delta_x = (max_x - min_x);
-	double delta_y = (max_y - min_y);
-	double ratio1 = std::max<double>(delta_x, delta_y) / std::min<double>(delta_x, delta_y);
-	double min_x1 = 1e30;
-	double min_y1 = 1e30;
-	double max_x1 = -1e30;
-	double max_y1 = -1e30;
-
-	for (int i = 0; i <= nbClients; ++i) {
-		min_x1 = std::min<double>(cli[i].coordY -cli[i].coordX, min_x1);
-		max_x1 = std::max<double>(cli[i].coordY - cli[i].coordX, max_x1);
-		min_y1 = std::min<double>(cli[i].coordY + cli[i].coordX, min_y1);
-		max_y1 = std::max<double>(cli[i].coordY + cli[i].coordX, max_y1);
-	}
-	double delta_x1 = (max_x1 - min_x1);
-	double delta_y1 = (max_y1 - min_y1);
-	double ratio2 = std::max<double>(delta_x1, delta_y1) / std::min<double>(delta_x1, delta_y1);
-	this->ratio =std::max<double>(ratio1, ratio2);
+//	double min_x = 1e30;
+//	double min_y = 1e30;
+//	double max_x = -1e30;
+//	double max_y = -1e30;
+//	for (int i = 0; i <= nbClients; ++i) {
+//		min_x = std::min<double>(min_x, cli[i].coordX);
+//		min_y = std::min<double>(min_y, cli[i].coordY);
+//		max_x = std::max<double>(max_x, cli[i].coordX);
+//		max_y = std::max<double>(max_y, cli[i].coordY);
+//	}
+//	double	delta_x = (max_x - min_x);
+//	double delta_y = (max_y - min_y);
+//	double ratio1 = std::max<double>(delta_x, delta_y) / std::min<double>(delta_x, delta_y);
+//	double min_x1 = 1e30;
+//	double min_y1 = 1e30;
+//	double max_x1 = -1e30;
+//	double max_y1 = -1e30;
+//	for (int i = 0; i <= nbClients; ++i) {
+//		min_x1 = std::min<double>(cli[i].coordY -cli[i].coordX, min_x1);
+//		max_x1 = std::max<double>(cli[i].coordY - cli[i].coordX, max_x1);
+//		min_y1 = std::min<double>(cli[i].coordY + cli[i].coordX, min_y1);
+//		max_y1 = std::max<double>(cli[i].coordY + cli[i].coordX, max_y1);
+//	}
+//	double delta_x1 = (max_x1 - min_x1);
+//	double delta_y1 = (max_y1 - min_y1);
+//	double ratio2 = std::max<double>(delta_x1, delta_y1) / std::min<double>(delta_x1, delta_y1);
+//	this->ratio =std::max<double>(ratio1, ratio2);
 
 }
 

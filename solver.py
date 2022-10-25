@@ -149,7 +149,13 @@ def get_initial_weight(instance, seed=1):
                 assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
                 yield weight
 
-def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None, weight_arg=[], configKind = ""):
+def solve_static_vrptw(instance,
+                       time_limit=3600,
+                       seed=1,
+                       initial_solution=None,
+                       weight_arg=[],
+                       config_str="",
+                       arg_call="hgsAndSmart"):
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
 
@@ -165,16 +171,15 @@ def solve_static_vrptw(instance, time_limit=3600, seed=1, initial_solution=None,
 
     cmd = get_cpp_base_cmd() + ["-t", str(max(time_limit - 2, 1)), '-seed', str(seed)]
 
-    # cmd += ["-call", "smartOnly"]
-    cmd += ["-call", "hgsAndSmart"]
-    cmd += ["-configKind", configKind]
+    cmd += ["-call", arg_call]
+    cmd += [x for x in config_str.split("+") if len(x) > 0]
     cmd_str = " ".join(cmd)
     log_info(f"cmd_str:{cmd_str}")
 
-    if initial_solution is None:
-        initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
-    if initial_solution is not None:
-        cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
+    # if initial_solution is None:
+    #     initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
+    # if initial_solution is not None:
+    #     cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
 
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, text=True) as p:
         write_vrplib_stdin(p.stdin, instance, is_vrptw=True, weight_arg=weight_arg)
@@ -295,7 +300,8 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
                                                 time_limit=epoch_tlim-time_get_weight,
                                                 seed=args.solver_seed,
                                                 weight_arg=request_weight,
-                                                configKind=args.solver_configKind
+                                                config_str=args.config_str,
+                                                arg_call="hgsAndSmart"
                                                 ))
             assert len(solutions) > 0, f"No solution found during epoch {observation['current_epoch']}"
             epoch_solution, cost = solutions[-1]
@@ -374,10 +380,10 @@ if __name__ == "__main__":
     # parser.add_argument("--tmp_dir", type=str, default=None, help="Provide a specific directory to use as tmp directory (useful for debugging)")
     # parser.add_argument("--model_path", type=str, default=None, help="Provide the path of the machine learning model to be used as strategy (Path must not contain `model.pth`)")
     parser.add_argument("--verbose", action='store_true', help="Show verbose output")
-    parser.add_argument("--run_tag", default="", help="Show verbose output")
-    parser.add_argument("--solver_configKind", default="", help="Show verbose output")
+    parser.add_argument("--config_str", default="+", help="config_str is needed")
+    parser.add_argument("--run_tag", default="notag", help="Show verbose output")
     args = parser.parse_args()
-
+    # print(f"args.config_str:{args.config_str}")
     try:
 
         h = time.strftime("%H", time.localtime())

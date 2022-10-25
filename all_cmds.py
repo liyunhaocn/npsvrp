@@ -1,4 +1,3 @@
-
 # n  is taken from the filename,
 # which excludes (排除) the depot.
 # Further, the ranges are [1,299], [300, 499], [500, 900].
@@ -8,6 +7,7 @@ import os
 import glob
 
 static_cmds = []
+
 
 def get_tlim_of_static(path_path):
     # return 5
@@ -27,25 +27,27 @@ def get_tlim_of_static(path_path):
     # 1807 /1981
     return int(time_min * 60 * 1807 / 1981)
 
+
 def get_tlim_of_dynamic():
     # return 5
     return int(60 * 1807 / 1981)
 
-def get_all_instances_paths():
 
-    path = r"./instances/" #文件夹目录
+def get_all_instances_paths():
+    path = r"./instances/"  # 文件夹目录
     ret = []
     for file_path in glob.glob(path + r"*.txt"):
         file_path = file_path.replace("\\", "/")
         ret.append(file_path)
     return ret
 
+
 def get_all_instances_names():
     all_paths = get_all_instances_paths()
     return [x.replace("./instances/", "") for x in all_paths]
 
-def get_all_static_nps_cmds():
 
+def get_all_static_nps_cmds():
     all_paths = get_all_instances_paths()
     cmds = []
     for instance_path in all_paths:
@@ -55,20 +57,19 @@ def get_all_static_nps_cmds():
     #     print(cmd)
     return cmds
 
-def get_all_static_my_cmds(run_tag="notag",solver_configKind = ""):
 
+def get_all_static_my_cmds(opt_str="#"):
     all_paths = get_all_instances_paths()
     cmds = []
     for instance_path in all_paths:
         cmds.append(f"python solver.py --instance {instance_path} "
+                    + opt_str + " "
                     + f"--static --epoch_tlim {get_tlim_of_static(instance_path)} "
-                    + f"--run_tag {run_tag} --solver_configKind {solver_configKind} --verbose")
-        # cmds.append(f"./dev/SmartRouter {instance_path} -isNpsRun 0 -t {get_tlim_of_static(instance_path)} "
-        #             + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
+                    + "--verbose")
     return cmds
 
-def get_all_dynamic_my_cmds(tag="notag"):
 
+def get_all_dynamic_my_cmds(tag="notag"):
     all_paths = get_all_instances_paths()
     cmds = []
     for instance_path in all_paths:
@@ -78,7 +79,6 @@ def get_all_dynamic_my_cmds(tag="notag"):
         #             + f"-seed 1 -veh -1 -useWallClockTime 1  -isNpsRun 0")
     return cmds
 
+
 if __name__ == "__main__":
     pass
-
-

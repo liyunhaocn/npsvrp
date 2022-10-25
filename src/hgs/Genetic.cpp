@@ -87,12 +87,18 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		{
 
             INFO("ReStart");
-            params->config.fractionGeneratedNearest = 0.00;	//0.05
-            params->config.fractionGeneratedSmart = 0.00; //0.0
-            params->config.fractionGeneratedFurthest = 0.00; // 0.05
-            params->config.fractionGeneratedSweep = 0.00; //0.05
-            params->config.fractionGeneratedRandomly = 1.00;
-
+//            params->config.fractionGeneratedNearest = 0.00;	//0.05
+//            params->config.fractionGeneratedSmart = 0.00; //0.0
+//            params->config.fractionGeneratedFurthest = 0.00; // 0.05
+//            params->config.fractionGeneratedSweep = 0.00; //0.05
+//            params->config.fractionGeneratedRandomly = 1.00;
+            if(params->config.maRuinBeforeRestart==1) {
+                runMA();
+                runRuin();
+            }
+            if(params->isTimeLimitExceeded()){
+                break;
+            }
             population->restart();
 			nbIterNonProd = 1;
 		}
@@ -283,11 +289,11 @@ void Genetic::runRuin(){
 
     int iter = 1;
     int iterMax = 1000;
-    double temperature = 100.0;
+    double temperature = 20.0;
     double j0 = temperature;
-//	double jf = 1;
-//	double c = pow(jf / j0, 1 / double(iterMax));
-    double c = 0.999;
+	double jf = 1;
+	double c = pow(jf / j0, 1 / double(iterMax));
+//    double c = 0.999;
     temperature = j0;
 
     if( smartSolver->dynamicEP.size() == params->nbClients){
@@ -330,9 +336,7 @@ void Genetic::runRuin(){
     }
 
     pBest.exportIndividual(candidateOffsprings[7]);
-    if( candidateOffsprings[7]->myCostSol.penalizedCost < best->myCostSol.penalizedCost - MY_EPSILON ) {
-        population->addIndividual(candidateOffsprings[7], false);
-    }
+    population->updateBestSolutionOverall(candidateOffsprings[7]);
 }
 
 Individual* Genetic::crossoverOX(std::pair<const Individual*, const Individual*> parents)
@@ -743,9 +747,9 @@ Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, cons
     offsprings[0] = crossoverSREX(parents);
     offsprings[1] = crossoverOX(parents);
 
-    if(level==1){
-//        offsprings[2] = crossoverOXStar(parents);
-//        offsprings[3] = hust::EAX::doEaxWithoutRepair(parents, candidateOffsprings[6]);
+    if(level==1 && params->config.useEaxAndOXStar==1){
+        offsprings[2] = crossoverOXStar(parents);
+        offsprings[3] = hust::EAX::doEaxWithoutRepair(parents, candidateOffsprings[6]);
 //        smartSolver->loadIndividual(parents.first);
 //        smartSolver->perturbBaseRuin(hust::globalCfg->ruinC_*2);
 //        smartSolver->exportIndividual(candidateOffsprings[7]);

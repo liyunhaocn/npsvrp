@@ -87,13 +87,11 @@ public:
 					config.timeLimit = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-call")
 					config.call = std::string(argv[i + 1]);
-				else if (std::string(argv[i]) == "-configKind")
-					config.configKind = std::string(argv[i + 1]);
 				else if (std::string(argv[i]) == "-useWallClockTime")
 					config.useWallClockTime = atoi(argv[i + 1]) != 0;
-				else if (std::string(argv[i]) == "-it")
+				else if (std::string(argv[i]) == "-nbIter")
 					config.nbIter = atoi(argv[i + 1]);
-				else if (std::string(argv[i]) == "-bks")
+				else if (std::string(argv[i]) == "-pathBKS")
 					config.pathBKS = std::string(argv[i + 1]);
 				else if (std::string(argv[i]) == "-seed")
 					config.seed = atoi(argv[i + 1]);
@@ -109,6 +107,8 @@ public:
 					config.nbGranular = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-initialSolution")
 					config.initialSolution = std::string(argv[i + 1]);
+				else if (std::string(argv[i]) == "-fractionGeneratedSmart")
+					config.fractionGeneratedSmart = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-fractionGeneratedNearest")
 					config.fractionGeneratedNearest = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-fractionGeneratedFurthest")
@@ -167,6 +167,10 @@ public:
 					config.circleSectorOverlapToleranceDegrees = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-minCircleSectorSizeDegrees")
 					config.minCircleSectorSizeDegrees = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-useEaxAndOXStar")
+					config.useEaxAndOXStar = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-maRuinBeforeRestart")
+					config.maRuinBeforeRestart = atoi(argv[i + 1]);
 				else
 				{
 					// Output error message and help menu to the command line
@@ -197,7 +201,7 @@ public:
 		std::cout << "Call with: ./genvrp instancePath [-pathSolution pathSolution] [-it nbIter] [-t myCPUtime] [-bks bksPath] [-seed mySeed] [-veh nbVehicles]    " << std::endl;
 		std::cout << "                                         [-logpool interval]                                                            " << std::endl;
 		std::cout << std::endl;
-		std::cout << "[-it <int>] sets a maximum number of iterations without improvement. Defaults to 20,000                                 " << std::endl;
+		std::cout << "[-nbIter <int>] sets a maximum number of iterations without improvement. Defaults to 20,000                                 " << std::endl;
 		std::cout << "[-t <int>] sets a time limit in seconds. Defaults to infinity                                                           " << std::endl;
 		std::cout << "[-bks <string>] sets an optional path to a Best Known Solution. This file will be overwritten in case of improvement    " << std::endl;
 		std::cout << "[-seed <int>] sets a fixed seed. Defaults to 0                                                                          " << std::endl;
