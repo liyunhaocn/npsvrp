@@ -152,15 +152,7 @@ Params::Params(const CommandLine& cl)
 				}
 				else if (content == "VEHICLES" || content == "SALESMAN")
 				{
-                    // Set vehicle count from instance only if not specified on CLI.
-                    inputFile >> content2;
-                    if(nbVehicles == INT_MAX) {
-                        inputFile >> nbVehicles;
-                    } else {
-                        // Discard vehicle count
-                        int _;
-                        inputFile >> _;
-                    }
+					inputFile >> content2 >> nbVehicles;
 				}
 				else if (content == "DISTANCE")
 				{

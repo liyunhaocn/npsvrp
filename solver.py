@@ -1,21 +1,31 @@
-# Solver for Dynamic VRPTW, baseline strategy is to use the static solver HGS-VRPTW repeatedly
-import argparse
+
 import csv
+import functools
 import math
+import time
+import argparse
 import subprocess
 import sys
 import os
-import time
+import uuid
 import platform
 import numpy as np
+import copy
+import matplotlib.pyplot as plt
 
 import tools
 from environment import VRPEnvironment, ControllerEnvironment
-from strategies import STRATEGIES
+from baselines.strategies import STRATEGIES
+from delta import Mydelta
+from or_tools import or_main
+import area_tool
 
-global_log_info = False
-global_save_current_instance = False
+from environment_virtual import VRPEnvironmentVirtual
+
+global_log_info = True
+global_save_current_instance = True
 global_log_error = True
+
 
 def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True, weight_arg=[]):
     # LKH/VRP does not take floats (HGS seems to do)
@@ -149,7 +159,10 @@ def get_initial_weight(instance, seed=1):
                 assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
                 yield weight
 
-def solve_static_vrptw(instance,
+#doDynamicWithEjection
+# solve_static_vrptw_lyh(instance,weight_arg,arg_call="doDynamicWithEjection")
+
+def solve_static_vrptw_lyh(instance,
                        time_limit=3600,
                        seed=1,
                        initial_solution=None,
@@ -209,35 +222,8 @@ def solve_static_vrptw(instance,
         assert len(routes) == 0, "HGS has terminated with imcomplete solution (is the line with Cost missing?)"
 
 
-def run_oracle(args, env):
-    # Oracle strategy which looks ahead, this is NOT a feasible strategy but gives a 'bound' on the performance
-    # Bound written with quotes because the solution is not optimal so a better solution may exist
-    # This oracle can also be used as supervision for training a model to select which requests to dispatch
 
-    # First get hindsight problem (each request will have a release time)
-    # As a start solution for the oracle solver, we use the greedy solution
-    # This may help the oracle solver to find a good solution more quickly
-    log_info("Running greedy baseline to get start solution and hindsight problem for oracle solver...")
-    run_baseline(args, env, strategy='greedy')
-    # Get greedy solution as simple list of routes
-    greedy_solution = [route for epoch, routes in env.final_solutions.items() for route in routes]
-    hindsight_problem = env.get_hindsight_problem()
-
-    # Compute oracle solution (separate time limit since epoch_tlim is used for greedy initial solution)
-    log_info(f"Start computing oracle solution with {len(hindsight_problem['coords'])} requests...")
-    oracle_solution = \
-    min(solve_static_vrptw(hindsight_problem, time_limit=args.oracle_tlim, initial_solution=greedy_solution),
-        key=lambda x: x[1])[0]
-    oracle_cost = tools.validate_static_solution(hindsight_problem, oracle_solution)
-    log_info(f"Found oracle solution with cost {oracle_cost}")
-
-    # Run oracle solution through environment (note: will reset environment again with same seed)
-    total_reward = run_baseline(args, env, oracle_solution=oracle_solution)
-    assert -total_reward == oracle_cost, "Oracle solution does not match cost according to environment"
-    return total_reward
-
-
-def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
+def run_baseline_lyh(args, env, oracle_solution=None, strategy=None, seed=None):
     strategy = strategy or args.strategy
     strategy = STRATEGIES[strategy] if isinstance(strategy, str) else strategy
     seed = seed or args.solver_seed
@@ -296,7 +282,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None, seed=None):
             else:
                 request_weight = []
 
-            solutions = list(solve_static_vrptw(instance=epoch_instance_dispatch,
+            solutions = list(solve_static_vrptw_lyh(instance=epoch_instance_dispatch,
                                                 time_limit=epoch_tlim-time_get_weight,
                                                 seed=args.solver_seed,
                                                 weight_arg=request_weight,
@@ -377,15 +363,703 @@ if __name__ == "__main__":
                         help="Add this flag to solve the static variant of the problem (by default dynamic)")
     parser.add_argument("--epoch_tlim", type=int, default=120, help="Time limit per epoch")
     parser.add_argument("--oracle_tlim", type=int, default=120, help="Time limit for oracle")
-    # parser.add_argument("--tmp_dir", type=str, default=None, help="Provide a specific directory to use as tmp directory (useful for debugging)")
-    # parser.add_argument("--model_path", type=str, default=None, help="Provide the path of the machine learning model to be used as strategy (Path must not contain `model.pth`)")
-    parser.add_argument("--verbose", action='store_true', help="Show verbose output")
-    parser.add_argument("--config_str", default="+", help="config_str is needed")
-    parser.add_argument("--run_tag", default="notag", help="Show verbose output")
-    args = parser.parse_args()
-    # print(f"args.config_str:{args.config_str}")
-    try:
 
+
+
+
+
+
+# ==================================
+
+def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDynamicParameters=0, initial_solution=None):
+    # Prevent passing empty instances to the static solver, e.g. when
+    # strategy decides to not dispatch any requests for the current epoch
+    if instance['coords'].shape[0] <= 1:
+        yield [], 0
+        return
+
+    if instance['coords'].shape[0] <= 2:
+        solution = [[1]]
+        cost = tools.validate_static_solution(instance, solution)
+        yield solution, cost
+        return
+
+    os.makedirs(tmp_dir, exist_ok=True)
+    instance_filename = os.path.join(tmp_dir, "problem.vrptw")
+    tools.write_vrplib(instance_filename, instance, is_vrptw=True)
+
+    executable = os.path.join('baselines', 'hgs_vrptw', 'genvrp')
+    # On windows, we may have genvrp.exe
+    if platform.system() == 'Windows' and os.path.isfile(executable + '.exe'):
+        executable = executable + '.exe'
+    assert os.path.isfile(executable), f"HGS executable {executable} does not exist!"
+    # Call HGS solver with unlimited number of vehicles allowed and parse outputs
+    # Subtract two seconds from the time limit to account for writing of the instance and delay in enforcing the time limit by HGS
+    hgs_cmd = [
+        executable, instance_filename, str(max(time_limit - 2, 1)),
+        '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1'
+        # ,'-useDynamicParameters', str(useDynamicParameters),
+        # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(5000),
+        # '-minimumPopulationSize','100'
+    ]
+    if useDynamicParameters == 1:
+        hgs_cmd = [
+            executable, instance_filename, str(max(time_limit - 2, 1)),
+            '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1'
+            , '-useDynamicParameters', str(useDynamicParameters),
+            # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(20),
+            # '-doRepeatUntilTimeLimit', '0',
+            # '-it', '5000',  # 20000
+            '-minimumPopulationSize', '10'
+        ]
+    if initial_solution is not None:
+        hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
+    with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, text=True) as p:
+        routes = []
+        for line in p.stdout:
+            line = line.strip()
+            # Parse only lines which contain a route
+            if line.startswith('Route'):
+                label, route = line.split(": ")
+                route_nr = int(label.split("#")[-1])
+                assert route_nr == len(routes) + 1, "Route number should be strictly increasing"
+                routes.append([int(node) for node in route.split(" ")])
+            elif line.startswith('Cost'):
+                # End of solution
+                solution = routes
+                cost = int(line.split(" ")[-1].strip())
+                check_cost = tools.validate_static_solution(instance, solution)
+                assert cost == check_cost, "Cost of HGS VRPTW solution could not be validated"
+                yield solution, cost
+                # Start next solution
+                routes = []
+            elif "EXCEPTION" in line:
+                raise Exception("HGS failed with exception: " + line)
+        assert len(routes) == 0, "HGS has terminated with imcomplete solution (is the line with Cost missing?)"
+
+
+def cul_early_time(route, instance):
+    early_lieve = instance['time_windows'][route[-1], 1]
+    early_tw = early_lieve
+    dur_time = 0
+    last_node = route[-1]
+    for i in range(len(route) - 2, -1, -1):
+        # dur_time = instance['service_times'][last_node]+instance['duration_matrix'][route[i], last_node]
+        dur_time = instance['service_times'][last_node] + instance['duration_matrix'][last_node, route[i]]
+        early_lieve = early_lieve - dur_time
+        early_tw = instance['time_windows'][route[i], 1]
+        early_lieve = min(early_lieve, early_tw)
+        last_node = route[i]
+
+    #  subtact time of first node
+    # dur_time = instance['service_times'][last_node] + instance['duration_matrix'][0, last_node]
+    dur_time = instance['service_times'][last_node] + instance['duration_matrix'][last_node, 0]
+    early_lieve = early_lieve - dur_time
+    return early_lieve
+
+
+def run_oracle(args, env):
+    # Oracle strategy which looks ahead, this is NOT a feasible strategy but gives a 'bound' on the performance
+    # Bound written with quotes because the solution is not optimal so a better solution may exist
+    # This oracle can also be used as supervision for training a model to select which requests to dispatch
+
+    # First get hindsight problem (each request will have a release time)
+    # As a start solution for the oracle solver, we use the greedy solution
+    # This may help the oracle solver to find a good solution more quickly
+    log_info("Running greedy baseline to get start solution and hindsight problem for oracle solver...")
+    run_baseline(args, env, strategy='greedy')
+    # Get greedy solution as simple list of routes
+    greedy_solution = [route for epoch, routes in env.final_solutions.items() for route in routes]
+    hindsight_problem = env.get_hindsight_problem()
+
+    # Compute oracle solution (separate time limit since epoch_tlim is used for greedy initial solution)
+    log_info(f"Start computing oracle solution with {len(hindsight_problem['coords'])} requests...")
+    oracle_solution = min(solve_static_vrptw(hindsight_problem, time_limit=args.oracle_tlim, tmp_dir=args.tmp_dir,
+                                             initial_solution=greedy_solution), key=lambda x: x[1])[0]
+    oracle_cost = tools.validate_static_solution(hindsight_problem, oracle_solution)
+    log_info(f"Found oracle solution with cost {oracle_cost}")
+
+    # Run oracle solution through environment (note: will reset environment again with same seed)
+    total_reward = run_baseline(args, env, oracle_solution=oracle_solution)
+    assert -total_reward == oracle_cost, "Oracle solution does not match cost according to environment"
+    return total_reward
+
+
+def plt_test(observation, coords, epoch_instance, ndelta, save=1):
+    fig_name = 'FIG'
+    plt.figure(fig_name)
+    all_x = [i[0] for i in coords]
+    all_y = [i[1] for i in coords]
+    plt.scatter(all_x, all_y, alpha=0.2, s=2, c='grey')
+    new_intance = copy.copy(epoch_instance)
+    new_intance['penalty'] = []
+    gap = 800
+    for i in range(len(epoch_instance['coords'])):
+        if epoch_instance['must_dispatch'][i]:
+            new_intance['penalty'].append(5000)
+            continue
+        i_delta = ndelta.cul_delta(epoch_instance['customer_idx'][i])
+        new_intance['penalty'].append(i_delta)
+    x = epoch_instance['coords'][:, 0]
+    y = epoch_instance['coords'][:, 1]
+    plt.scatter(x, y, alpha=1, s=10, c=new_intance['penalty'], cmap='Blues_r')
+    plt.colorbar()
+    filename = './plt/epoch_' + str(observation['current_epoch']) + '.png'
+    # plt.show()
+    if save:
+        if not os.path.exists('plt'):
+            os.mkdir('plt')
+        plt.savefig(filename, bbox_inches='tight', dpi=300)
+    plt.clf()
+    #
+
+
+def plt_vrp(observation, coords_solution, coords, save=0, args=None):
+    fig_name = 'FIG'
+    plt.figure(fig_name)
+    # x_lists = [i[0] for i in coords_solution]
+    # y_lists = [i[1] for i in coords_solution]
+    # plt.plot(x_lists, y_lists)
+    co_lists = []
+    w_time_windows = (observation['epoch_instance']['time_windows'][:, 1] - observation['epoch_instance'][
+                                                                                'duration_matrix'][0, :]) / 3600
+    w_x = observation['epoch_instance']['coords'][:, 0]
+    w_y = observation['epoch_instance']['coords'][:, 1]
+    w_z = list(range(len(w_y)))
+    all_x = [i[0] for i in coords]
+    all_y = [i[1] for i in coords]
+    plt.scatter(all_x, all_y, alpha=0.2, s=2, c='grey')
+    # plt depot
+    depot_x = observation['epoch_instance']['coords'][0, 0]
+    depot_y = observation['epoch_instance']['coords'][0, 1]
+    plt.scatter(depot_x, depot_y, alpha=1, s=15, c='red')
+    plt.scatter(w_x[1:], w_y[1:], alpha=1, s=10, c=w_time_windows[1:], cmap='Blues_r')
+    plt.colorbar()
+    tw_small_x = [w_x[i] for i in range(len(w_time_windows)) if w_time_windows[i] < 1]
+    tw_small_y = [w_y[i] for i in range(len(w_time_windows)) if w_time_windows[i] < 1]
+    plt.scatter(tw_small_x, tw_small_y, alpha=1, s=15, c='red', marker='*')
+    for route in coords_solution:
+        # co_lists = observation['epoch_instance']['coords'][route]
+        # x_lists = [i[0] for i in co_lists]
+        # y_lists = [i[1] for i in co_lists]
+        x_lists = [i[0] for i in route]
+        y_lists = [i[1] for i in route]
+        plt.scatter(x_lists[0], y_lists[0], alpha=1, s=5)
+        plt.plot(x_lists, y_lists, linestyle='-', alpha=0.5)
+
+    filename = './plt/epoch_' + str(observation['current_epoch']) + '.png'
+    if save:
+        if not os.path.exists('plt'):
+            os.mkdir('plt')
+        ints_name = args.instance.split('/')[1].split('.')[0]
+        # ints_name = os.path.basename(args.instance)
+        ints_name = 'plt/'+ints_name
+        if not os.path.exists(ints_name):
+            os.mkdir(ints_name)
+        # os.makedirs(ints_name, exist_ok=True)
+        filename = './' + ints_name + '/epoch_' + str(observation['current_epoch']) + '.png'
+        plt.savefig(filename, bbox_inches='tight', dpi=300)
+    plt.clf()
+    # plt.show()
+
+
+# return [[w1,w2,...],[...],[...]] like solution
+def cul_weight_sol(sol, instance, args, max_epoch=5):
+    x1 = args.sol_x1
+    x2 = args.sol_x2
+    x3 = args.sol_x3
+    max_epoch0 = max_epoch
+    max_epoch1 = max_epoch + 5
+    avg_dur = args.avg
+    tw_open = [instance['time_windows'][route, 0].tolist() for route in sol]
+    tw_close = [instance['time_windows'][route, 1].tolist() for route in sol]
+    tw_serv = [instance['service_times'][route].tolist() for route in sol]
+    tw_dur = [instance['time_windows'][route, 1].tolist() for route in sol]
+    tw_all = [instance['time_windows'][route, 1].tolist() for route in sol]
+    for i in range(len(tw_open)):
+        for j in range(len(tw_open[i])):
+            tw_dur[i][j] = (tw_close[i][j] - tw_open[i][j] - tw_serv[i][j]) / 10000
+            tw_open[i][j] = (tw_open[i][j] - instance['duration_matrix'][sol[i][j], 0]) / 3600
+            tw_close[i][j] = (tw_close[i][j] - instance['duration_matrix'][sol[i][j], 0]) / 3600
+            # tw_open[i][j] = max((1 - max(min(tw_open[i][j], max_epoch0), 0) / max_epoch0),0) * x1
+            # tw_close[i][j] = max((1 - max(min(tw_close[i][j], max_epoch1), 0) / max_epoch1),0) * x2
+
+            # tw_close[i][j] = max((tw_open[i][j]+tw_close[i][j])/2+1, 1.0)
+            # test tmp
+
+            # tw_all[i][j] = (x1 / max(tw_close[i][j] / 3, 0.3) + x2 * tw_dur[i][j]) / 2 + instance['duration_matrix'][sol[i][j], 0] / avg_dur * x3
+            tw_all[i][j] = x1 / (tw_dur[i][j] + 0.01) + x2 / max(tw_close[i][j], 0.9) + avg_dur / (
+                        instance['duration_matrix'][sol[i][j], 0] + 0.01) * x3
+            # tw_all[i][j] = x1/max(tw_open[i][j],0.9) + x2/max(tw_close[i][j],0.9) + instance['duration_matrix'][sol[i][j], 0] / avg_dur * x3
+            tw_all[i][j] = 1 / max(tw_close[i][j] / 3, 0.3)
+    return tw_all
+
+
+# return weight of i (not requIndx)
+def cul_weight_i(n, instance, args, max_epoch=5):
+    x1 = args.x1
+    x2 = args.x2
+    x3 = args.x3
+    max_epoch0 = max_epoch
+    max_epoch1 = max_epoch + 5
+    tw_open = instance['time_windows'][n, 0]
+    tw_close = instance['time_windows'][n, 1]
+    tw_serv = instance['service_times'][n]
+    tw_dur = 0
+    tw_all = 0
+
+    tw_dur = (tw_close - tw_open - tw_serv) / 3600
+    tw_open = (tw_open - instance['duration_matrix'][n, 0]) / 3600
+    tw_close = (tw_close - instance['duration_matrix'][n, 0]) / 3600
+    # tw_all = 1 / max(tw_close / 3, 0.3)
+    avg_dur = args.avg
+    # tw_all = x1 / max(tw_open,0.9) + x2 / max(tw_close,0.9) + instance['duration_matrix'][n, 0]/avg_dur * x3
+    # tw_all = x1 / max(tw_open, 0.9) + x2 / max(tw_close, 0.9) + tw_dur * x3
+    tw_all = max(x1 / tw_dur + x2 * 3 / max(tw_close, 0.3) + instance['duration_matrix'][n, 0] / avg_dur * x3, 0.1) / 3
+
+    # tw_all = 1 / max(tw_close / 3, 0.3)
+
+    return tw_all
+
+
+def choose_nodes_new_iter(ndelta, sol, instance, args, max_epoch=5, gap=600):
+    sol_copy = [route for route in sol]
+    cust_sol = [instance['customer_idx'][route].tolist() for route in sol]
+    must_sol = [instance['must_dispatch'][route].tolist() for route in sol]
+    w_sol = cul_weight_sol(sol, instance, args, max_epoch)
+    new_sol = []
+    # gap = 600
+    area_gap = args.rand_num
+    repeat_time = 0
+    del_count = 0
+    for re in range(repeat_time):
+        index = 0
+        for route in cust_sol:
+            if len(route) <= 1:
+                index += 1
+                continue
+            max_delta = -10e9
+            max_index = -1
+            new_route = []
+            # For first node
+            delta_sol_i = ndelta.cul_delta_three_nodes(route[0], 0, route[1])
+            delta_rand_i = ndelta.cul_delta(route[0])
+            w_i = w_sol[index][0]
+            dis_i = instance['duration_matrix'][sol[index][0], 0]
+            if delta_sol_i - w_i * delta_rand_i >= gap * 0 + area_gap and delta_sol_i - delta_rand_i >= max_delta and not \
+                    must_sol[index][0]:
+                max_delta = delta_sol_i - delta_rand_i
+                max_index = 0
+
+            # For 1:n-1
+            for i in range(1, len(route) - 1):
+                delta_sol_i = ndelta.cul_delta_three_nodes(route[i], route[i - 1], route[i + 1])
+                delta_rand_i = ndelta.cul_delta(route[i])
+                w_i = w_sol[index][i]
+                dis_i = instance['duration_matrix'][sol[index][i], 0]
+                if delta_sol_i - w_i * delta_rand_i >= gap * 0 + area_gap and delta_sol_i - delta_rand_i >= max_delta and not \
+                        must_sol[index][i]:
+                    max_delta = delta_sol_i - delta_rand_i
+                    max_index = i
+            # For last node
+            delta_sol_i = ndelta.cul_delta_three_nodes(route[len(route) - 1], route[len(route) - 2], 0)
+            delta_rand_i = ndelta.cul_delta(route[len(route) - 1])
+            w_i = w_sol[index][len(route) - 1]
+            dis_i = instance['duration_matrix'][sol[index][len(route) - 1], 0]
+            if delta_sol_i - w_i * delta_rand_i >= gap * 0 + area_gap and delta_sol_i - delta_rand_i >= max_delta and not \
+                    must_sol[index][len(route) - 1]:
+                max_delta = delta_sol_i - delta_rand_i
+                max_index = len(route) - 1
+
+            # Delete node with max_delta
+            if max_index != -1:
+                del_count += 1
+                sol_copy[index].pop(max_index)
+                cust_sol[index].pop(max_index)
+                must_sol[index].pop(max_index)
+                w_sol[index].pop(max_index)
+
+            new_sol.append(new_route)
+            index += 1
+    # sol = [instance['request_idx'][route] for route in new_sol]
+    if global_log_info is True:
+        log_info(f' deleted {del_count} ', newline=False)
+    return sol_copy
+
+
+def delta_weight_instance(epoch_instance, ndelta, args, gap=500):
+    new_intance = copy.copy(epoch_instance)
+    new_intance['penalty'] = []
+    # gap = 500
+    gap_w = args.gap
+    for i in range(len(epoch_instance['coords'])):
+        if epoch_instance['must_dispatch'][i]:
+            new_intance['penalty'].append(1000000)
+            continue
+        # i_delta = ndelta.cul_delta(epoch_instance['customer_idx'][i]) + gap
+        # i_delta = cul_weight_i(i, epoch_instance, args) * ndelta.cul_delta(epoch_instance['customer_idx'][i]) + gap * epoch_instance['duration_matrix'][i, 0] + 0
+        i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        # i_delta = cul_weight_i(i, epoch_instance, args) * ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 300
+        new_intance['penalty'].append(i_delta)
+    return new_intance
+
+
+def run_baseline(args, env, oracle_solution=None, strategy=None):
+    strategy = strategy or args.strategy
+
+    rng = np.random.default_rng(args.solver_seed)
+
+    total_reward = 0
+    done = False
+
+    # Note: info contains additional info that can be used by your solver
+    observation, static_info = env.reset()
+    epoch_tlim = static_info['epoch_tlim']
+
+    num_requests_postponed = 0
+    if static_info['num_epochs'] > 1:
+
+        if args.strategy == 'smart':
+            env_virtual = VRPEnvironmentVirtual(seed=args.instance_seed, instance=static_info['dynamic_context'],
+                                                epoch_tlim=args.epoch_tlim, is_static=args.static)
+            strategy = functools.partial(STRATEGIES['smart'], env_virtual=env_virtual)
+
+        ndelta = Mydelta(static_info['dynamic_context'], args.solver_seed, args.rand_num)
+        bin_data_0 = static_info['dynamic_context']['coords'][:, 0]
+        bin_data_1 = static_info['dynamic_context']['coords'][:, 1]
+        area_xy, ratioxy, dis_ratio = area_tool.get_classes(static_info['dynamic_context'])
+        if ratioxy<2 and dis_ratio<2:
+            # PRAMS = '150	101    -4.68	9.64	-0.6	-26000	-26000	550	0	3	0.15'  # for 0_0_0 and its remain_ins :prams3
+            args.or_gap = 109
+            args.x1 = -4.68
+            args.x2 = 9.64
+            args.x3 = -0.6
+            args.early_time1 = 1200
+            args.early_time2 = -2000
+            args.gap = 550
+            args.sol_x1 = 0
+            args.sol_x2 = 3
+            args.sol_x3 = 0.15
+
+    while not done:
+        if static_info['num_epochs'] > 1:
+            max_epoches = static_info['end_epoch'] - static_info['start_epoch'] + 1
+            # tmp_k = max(115 - (observation['current_epoch'] - static_info['start_epoch'] - 1) * 20, 50)
+            tmp_k = max(150 - (observation['current_epoch'] - static_info['start_epoch']) * int(100/max_epoches), 30)
+            # log_info(f" k = {tmp_k} ")
+            ndelta.reset_rand_num(tmp_k)
+        best_sol = list()
+        best_coords_solution = list()
+        epoch_instance = observation['epoch_instance']
+        min_each_dis = 10e8
+
+        args.avg = np.mean(epoch_instance['duration_matrix'][:, 0])
+        # args.avg = np.mean(np.square(static_info['dynamic_context']['duration_matrix'][:, 0]))
+        # maxc = np.max(static_info['dynamic_context']['duration_matrix'][:, 0])
+        # numc = len(static_info['dynamic_context']['duration_matrix'][:, 0])
+        # log_info(f'===== num= {numc} ============avg==== {maxc} ====== area= {area_bin} ======')
+        # log_info(f"mean = {args.avg}")
+
+        if global_log_info is True:
+            log_info(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
+                newline=False)
+            num_requests_open = len(epoch_instance['request_idx']) - 1
+            num_new_requests = num_requests_open - num_requests_postponed
+            log_info(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
+                newline=False, flush=True)
+
+        if oracle_solution is not None:
+            request_idx = set(epoch_instance['request_idx'])
+            epoch_solution = [route for route in oracle_solution if len(request_idx.intersection(route)) == len(route)]
+            cost = tools.validate_dynamic_epoch_solution(epoch_instance, epoch_solution)
+        else:
+            # Select the requests to dispatch using the strategy
+            # TODO improved better strategy (machine learning model?) to decide which non-must requests to dispatch
+            # strategy = "weight"
+            strategy = "greedy"  # if use "greedy", the """epoch_instance_dispatch['must_dispatch']""" can not be used.
+            use_dyn = 1
+            if static_info['end_epoch'] < 2:
+                use_dyn = 0
+            repeat_time = 1
+            # # print("Time ", i)
+            epoch_instance = observation['epoch_instance']
+            max_epoch = static_info['end_epoch']
+            if strategy == "weight":
+                epoch_instance_dispatch = STRATEGIES[strategy](epoch_instance, rng, max_epoch)
+            if strategy == "greedy":
+                epoch_instance_dispatch = STRATEGIES[strategy](epoch_instance, rng)
+
+            if use_dyn == 0:
+                solutions = list(
+                    solve_static_vrptw_lyh(epoch_instance, time_limit=int(epoch_tlim),
+                                            seed=args.solver_seed))
+                epoch_solution, cost = solutions[-1]
+            else:
+                use_ortools = 1
+                if use_ortools:
+                    #  test OR_tools
+                    or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
+                    sol = or_main(or_epoch_instance, epoch_tlim / 2, global_log_info)
+                    sol_id = [epoch_instance['request_idx'][route] for route in sol]
+                    num_requests_dispatched = sum([len(route) for route in sol_id])
+                    if num_requests_dispatched == 0:
+                        reward = 0
+                    else:
+                        try:
+                            reward = tools.validate_dynamic_epoch_solution(epoch_instance, sol_id)
+                        except Exception as e:
+                            reward = -1
+
+                    if global_log_info is True:
+                        log_info(f' OR-Tools reward: {reward} ', newline=False)
+                    epoch_solution = sol
+
+                    coords_solution = [epoch_instance['coords'][route] for route in epoch_solution]
+                    # plt_vrp(observation, coords_solution, static_info['dynamic_context']['coords'],1, args)
+                else:
+                    # wyx
+                    if args.strategy == 'smart':
+                        epoch_instance_dispatch = strategy(
+                            {**epoch_instance, 'observation': observation, 'static_info': static_info}, rng)
+
+                    # OLD VERSION
+                    solutions = list(
+                        solve_static_vrptw(epoch_instance_dispatch, time_limit=int(epoch_tlim / 2),
+                                           tmp_dir=args.tmp_dir,
+                                           seed=args.solver_seed, useDynamicParameters=use_dyn))
+                    assert len(
+                        solutions) > 0, f"No solution found during epoch {observation['current_epoch']} and time_lim={epoch_tlim}"
+                    epoch_solution, cost = solutions[-1]
+
+                new_epoch_solution = []
+                if strategy == "greedy":
+                    for route in epoch_solution:
+                        if epoch_instance['must_dispatch'][route].any():
+                            new_epoch_solution.append(route)
+                            continue
+                        # early_time = epoch_instance['time_windows'][route[0], 0]/2+epoch_instance['time_windows'][route[0], 1]/2-epoch_instance['duration_matrix'][0, route[0]]
+                        new_earlyest_time = cul_early_time(route, epoch_instance)
+                        # print(f"early_time = {early_time}, new_earlyest_time = {new_earlyest_time} ")
+                        if new_earlyest_time < args.early_time1:
+                            new_epoch_solution.append(route)
+                            if global_log_info is True:
+                                log_info(f"ROUTE NOTICE--{new_earlyest_time} ", newline=False)
+                epoch_solution = new_epoch_solution
+            # assert len(solutions) > 0, f"No solution found during epoch {observation['current_epoch']} and time_lim={epoch_tlim}"
+
+            # Delete route without must-go
+            del_must = 1
+            # new_epoch_solution = []
+            # if strategy == "weight":
+            #     for route in epoch_solution:
+            #         if epoch_instance_dispatch['must_dispatch'][route].any():
+            #             new_epoch_solution.append(route)
+            # if strategy == "greedy":
+            #     for route in epoch_solution:
+            #         if epoch_instance['must_dispatch'][route].any():
+            #             new_epoch_solution.append(route)
+            # epoch_solution = new_epoch_solution
+            # record coords of solution
+            coords_solution = [epoch_instance_dispatch['coords'][route] for route in epoch_solution]
+            # record must-go of solution
+            must_solution = [epoch_instance_dispatch['must_dispatch'][route] for route in epoch_solution]
+
+            # Map HGS solution to indices of corresponding requests
+            # epoch_solution = [epoch_instance_dispatch['request_idx'][route] for route in epoch_solution]
+
+            # Distance of Each node
+            num_requests_dispatched = sum([len(route) for route in epoch_solution])
+
+            # Choose nodes with delta
+            epoch_solution_cust = [epoch_instance_dispatch['customer_idx'][route] for route in epoch_solution]
+            # choose_nodes(ndelta, epoch_solution_cust, must_solution)
+
+            use_new_strategy = 1
+
+            for count in range(repeat_time):
+                if use_new_strategy and use_dyn == 1:
+                    epoch_solution_id = choose_nodes_new_iter(ndelta, epoch_solution, epoch_instance, args, max_epoch,
+                                                              args.gap)
+                    epoch_solution = [epoch_instance_dispatch['request_idx'][route] for route in epoch_solution_id]
+                    strategy = 'new'
+                    epoch_instance_dispatch_2 = STRATEGIES[strategy](epoch_instance, rng, epoch_solution_id)
+
+                    # solutions = list(
+                    #     solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(epoch_tlim)/2,
+                    #                            seed=args.solver_seed),arg_call = "hgsAndSmart")
+
+                    solutions = list(
+                        solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(epoch_tlim / 2),
+                                           tmp_dir=args.tmp_dir, seed=args.solver_seed, useDynamicParameters=use_dyn))
+                    assert len(
+                        solutions) > 0, f"No solution found during epoch {observation['current_epoch']} and time_lim={epoch_tlim}"
+                    epoch_solution, cost = solutions[-1]
+                    # Delete route without must-go
+                    if del_must:
+                        new_epoch_solution = []
+                        if strategy == "new":
+                            for route in epoch_solution:
+                                # if epoch_instance_dispatch_2['must_dispatch'][route].any():
+                                #     new_epoch_solution.append(route)
+                                if epoch_instance_dispatch_2['must_dispatch'][route].any():
+                                    new_epoch_solution.append(route)
+                                    continue
+                                # early_time = epoch_instance_dispatch_2['time_windows'][route[0], 0] / 2 + \
+                                #              epoch_instance_dispatch_2['time_windows'][route[0], 1] / 2 - \
+                                #              epoch_instance_dispatch_2['duration_matrix'][0, route[0]]
+                                new_earlyest_time = cul_early_time(route, epoch_instance_dispatch_2)
+                                # print(early_time)
+                                if new_earlyest_time < args.early_time2:
+                                    new_epoch_solution.append(route)
+                                    if global_log_info is True:
+                                        log_info(f"ROUTE NOTICE--{new_earlyest_time} ", newline=False)
+
+                        epoch_solution_id = new_epoch_solution
+                    else:
+                        epoch_solution_id = epoch_solution
+                    # record coords of solution
+                    coords_solution = [epoch_instance_dispatch_2['coords'][route] for route in epoch_solution_id]
+                    # record must-go of solution
+                    must_solution = [epoch_instance_dispatch_2['must_dispatch'][route] for route in epoch_solution_id]
+                    epoch_solution = epoch_solution_id
+
+                    # # next iter
+                    # epoch_solution_id = choose_nodes_new_iter(ndelta, epoch_solution, epoch_instance_dispatch_2,
+                    #                                           max_epoch, 500 + count * 200)
+                    # strategy = 'new'
+                    # epoch_instance_dispatch_2 = STRATEGIES[strategy](epoch_instance_dispatch_2, rng, epoch_solution_id)
+                    # solutions = list(
+                    #     solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(epoch_tlim / (repeat_time + 2)),
+                    #                        tmp_dir=args.tmp_dir, seed=args.solver_seed, useDynamicParameters=use_dyn))
+                    # assert len(
+                    #     solutions) > 0, f"No solution found during epoch {observation['current_epoch']} and time_lim={epoch_tlim}"
+                    # epoch_solution, cost = solutions[-1]
+                    # # Delete route without must-go
+                    # if del_must:
+                    #     new_epoch_solution = []
+                    #     if strategy == "new":
+                    #         for route in epoch_solution:
+                    #             if epoch_instance_dispatch_2['must_dispatch'][route].any():
+                    #                 new_epoch_solution.append(route)
+                    #     epoch_solution_id = new_epoch_solution
+                    # else:
+                    #     epoch_solution_id = epoch_solution
+                    # # record coords of solution
+                    # coords_solution = [epoch_instance_dispatch_2['coords'][route] for route in epoch_solution_id]
+                    # # record must-go of solution
+                    # must_solution = [epoch_instance_dispatch_2['must_dispatch'][route] for route in epoch_solution_id]
+                    # epoch_solution = epoch_solution_id
+
+                    # if num_requests_dispatched == 0:
+                    #     reward = 0
+                    # else:
+                    #     reward = tools.validate_dynamic_epoch_solution(epoch_instance, epoch_solution)
+                    # # Distance of Each node
+                    # num_requests_dispatched = sum([len(route) for route in epoch_solution])
+                    # each_node_dis = reward / num_requests_dispatched if num_requests_dispatched != 0 else 0
+                    # if each_node_dis < min_each_dis:
+                    #     # log_info(' |update route| ')
+                    #     best_sol = copy.copy(epoch_solution)
+                    #     best_coords_solution = coords_solution
+                    #     # for li in range(len(epoch_solution)):
+                    #     #     best_sol.append(epoch_solution[li].copy())
+                    #     min_each_dis = each_node_dis
+
+
+                else:
+                    epoch_solution = [epoch_instance_dispatch['request_idx'][route] for route in epoch_solution]
+
+            if use_new_strategy and use_dyn == 1:
+                # Map HGS solution to indices of corresponding requests
+                epoch_solution = [epoch_instance_dispatch_2['request_idx'][route] for route in epoch_solution_id]
+                # Distance of Each node
+                num_requests_dispatched = sum([len(route) for route in epoch_solution])
+
+            if num_requests_dispatched == 0:
+                reward = 0
+            else:
+                reward = tools.validate_dynamic_epoch_solution(epoch_instance, epoch_solution)
+            each_node_dis = reward / num_requests_dispatched if num_requests_dispatched != 0 else 0
+            # min_each_dis = min(each_node_dis, min_each_dis)
+
+            # Delete route without must-go
+            # new_epoch_solution = []
+            # for route in epoch_solution:
+            #     if epoch_instance['must_dispatch'][route].any():
+            #         new_epoch_solution.append(route)
+            # epoch_solution = new_epoch_solution
+            # epoch_solution =best_sol
+        # plt
+        # plt_vrp(observation, coords_solution, static_info['dynamic_context']['coords'],1, args)
+        # Submit solution to environment
+        observation, reward, done, info = env.step(epoch_solution)
+
+        if global_log_info is True:
+            num_requests_dispatched = sum([len(route) for route in epoch_solution])
+            num_requests_open = len(epoch_instance['request_idx']) - 1
+            num_requests_postponed = num_requests_open - num_requests_dispatched
+            each_node_dis = -reward / num_requests_dispatched if num_requests_dispatched != 0 else 0
+            log_info(f" {num_requests_dispatched:3d}/{num_requests_open:3d} dispatched and {num_requests_postponed:3d}/{num_requests_open:3d} postponed | Routes: {len(epoch_solution):2d} with cost {-reward:6d} "
+                f"| Each node: {int(each_node_dis):4d}")
+
+        # assert cost is None or reward == -cost, "Reward should be negative cost of solution"
+        assert not info['error'], f"Environment error: {info['error']}"
+
+        total_reward += reward
+
+    if global_log_info is True:
+        log_info(f"Cost of solution: {-total_reward}")
+        # log_info(f"Cost of solution: {sum(env.final_costs.values())}")
+
+    return total_reward
+
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--strategy", type=str, default='lazy',
+                        help="Baseline strategy used to decide whether to dispatch routes")
+    # Note: these arguments are only for convenience during development, during testing you should use controller.py
+    parser.add_argument("--instance", help="Instance to solve")
+    parser.add_argument("--instance_seed", type=int, default=1, help="Seed to use for the dynamic instance")
+    parser.add_argument("--solver_seed", type=int, default=1, help="Seed to use for the solver")
+    parser.add_argument("--static", action='store_true',
+                        help="Add this flag to solve the static variant of the problem (by default dynamic)")
+    parser.add_argument("--epoch_tlim", type=int, default=20, help="Time limit per epoch")
+    parser.add_argument("--oracle_tlim", type=int, default=120, help="Time limit for oracle")
+    parser.add_argument("--tmp_dir", type=str, default=None,
+                        help="Provide a specific directory to use as tmp directory (useful for debugging)")
+    parser.add_argument("--verbose", action='store_true', help="Show verbose output")
+    parser.add_argument("--rand_num", type=int, default=150, help="rand_num")
+    parser.add_argument("--or_gap", type=float, default=94, help="or_gap")
+    parser.add_argument("--x1", type=float, default=-7.018, help="x1")
+    parser.add_argument("--x2", type=float, default=14.887, help="x2")
+    parser.add_argument("--x3", type=float, default=-2.537, help="x3")
+    parser.add_argument("--early_time1", type=int, default=2600, help="early_time1")
+    parser.add_argument("--early_time2", type=int, default=2600, help="early_time2")
+    parser.add_argument("--gap", type=float, default=214, help="gap")
+    parser.add_argument("--sol_x1", type=float, default=0, help="sol_x1")
+    parser.add_argument("--sol_x2", type=float, default=3, help="sol_x2")
+    parser.add_argument("--sol_x3", type=float, default=-0.15, help="sol_x3")
+    parser.add_argument("--avg", type=int, default=2000, help="sol_x3")
+
+    # liyunhao argv
+    parser.add_argument("--config_str", default="+", help="config_str is needed")
+    parser.add_argument("--run_tag", default="notag", help="run_tag")
+
+    args = parser.parse_args()
+
+    if args.tmp_dir is None:
+        # Generate random tmp directory
+        args.tmp_dir = os.path.join("tmp", str(uuid.uuid4()))
+        cleanup_tmp_dir = True
+    else:
+        # If tmp dir is manually provided, don't clean it up (for debugging)
+        cleanup_tmp_dir = False
+
+
+    try:
         h = time.strftime("%H", time.localtime())
         m = time.strftime("%M", time.localtime())
         s = time.strftime("%S", time.localtime())
@@ -410,16 +1084,17 @@ if __name__ == "__main__":
         if args.strategy == 'oracle':
             run_oracle(args, env)
         else:
-            strategy = STRATEGIES[args.strategy]
-            # now.strftime("%Y-%m-%d, ")
-            reward = run_baseline(args, env, strategy=strategy)
+            re_all = run_baseline(args, env)
+            #print(re_all)
+        if args.instance is not None:
+            log_info(tools.json_dumps_np(env.final_solutions))
 
         if "instance" in args_dic:
 
             result_dic = args_dic
             ymd = time.strftime("%m_%d", time.localtime())
             # print(f"ymd:{ymd}")
-            result_dic["cost"] = -reward
+            result_dic["cost"] = -re_all
             result_dic["route_mum"] = 0
             for key, value in env.final_solutions.items():
                 result_dic["route_mum"] += len(value)
@@ -437,4 +1112,6 @@ if __name__ == "__main__":
             save_results_csv(f"./results/[{ymd}][{run_type}][{run_tag}].csv", result_dic)
             log_info(tools.json_dumps_np(env.final_solutions))
     finally:
-        pass
+        if cleanup_tmp_dir:
+            tools.cleanup_tmp_dir(args.tmp_dir)
+

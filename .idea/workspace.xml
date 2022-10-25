@@ -23,17 +23,18 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="differentconfig">
+    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="[codelab] 1025">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/all_cmds.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/area_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/area_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baselines/hgs_vrptw/Individual.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/hgs_vrptw/Individual.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baselines/hgs_vrptw/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/hgs_vrptw/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baselines/hgs_vrptw/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/hgs_vrptw/Params.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/baselines/strategies/_strategies.py" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/strategies/_strategies.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/create_submission.sh" beforeDir="false" afterPath="$PROJECT_DIR$/create_submission.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/commandline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/commandline.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/strategies.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +95,7 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.analysis">
+  <component name="RunManager" selected="Python.solver">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -233,7 +234,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-6f389522-d1-n253-k23.txt --run_tag nb5000InitAllRandom --config_str $-nbIter$5000$-fractionGeneratedNearest$0.05$-fractionGeneratedSmart$0.0$-fractionGeneratedFurthest$0.05$-fractionGeneratedSweep$0.05$-fractionGeneratedRandomly$0.85 --static --epoch_tlim 164" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-19eafe1e-d1-n458-k35.txt --epoch_tlim 20" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -342,7 +343,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666518337634</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="[codelab] 1025">
+      <created>1666681765693</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1666681765693</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -400,7 +408,8 @@
     <MESSAGE value="update no mean" />
     <MESSAGE value="init" />
     <MESSAGE value="differentconfig" />
-    <option name="LAST_COMMIT_MESSAGE" value="differentconfig" />
+    <MESSAGE value="[codelab] 1025" />
+    <option name="LAST_COMMIT_MESSAGE" value="[codelab] 1025" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -417,7 +426,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>162</line>
+          <line>175</line>
           <option name="timeStamp" value="54" />
         </line-breakpoint>
       </breakpoints>

@@ -2,7 +2,8 @@ all : genvrp
 
 CCC = g++
 # CCC = clang++-10
-CCFLAGS = -O3 -Wall -std=c++2a
+CCFLAGS = -O3 -Wall -std=c++14
+#CCFLAGS = -O3 -Wall -std=c++2a
 # CCFLAGS = -Wall -std=c++2a -g
 TARGETDIR=.
 
@@ -51,3 +52,4 @@ clean:
     $(TARGETDIR)/Params.o \
     $(TARGETDIR)/Population.o \
     $(TARGETDIR)/Split.o
+     
