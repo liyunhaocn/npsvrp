@@ -3,9 +3,6 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="CMakePresetLoader">{
-  &quot;useNewFormat&quot;: true
-}</component>
   <component name="CMakeReloadState">
     <option name="reloaded" value="true" />
   </component>
@@ -25,16 +22,7 @@
   <component name="ChangeListManager">
     <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="[codelab] 1025">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/area_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/area_tool.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baselines/hgs_vrptw/Individual.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/hgs_vrptw/Individual.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baselines/hgs_vrptw/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/hgs_vrptw/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baselines/hgs_vrptw/Params.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/hgs_vrptw/Params.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/baselines/strategies/_strategies.py" beforeDir="false" afterPath="$PROJECT_DIR$/baselines/strategies/_strategies.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/create_submission.sh" beforeDir="false" afterPath="$PROJECT_DIR$/create_submission.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/strategies.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +32,6 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -77,19 +64,11 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/yunhao/pytest&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;debugger.dataViews.python.type.renderers&quot;
-  }
-}</component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/dev" />
@@ -393,6 +372,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="[tag][10_4]运行版本 dynamic+static" />

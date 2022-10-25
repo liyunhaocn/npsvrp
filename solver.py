@@ -740,6 +740,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
             args.sol_x1 = 0
             args.sol_x2 = 3
             args.sol_x3 = 0.15
+        # add find_class
 
     while not done:
         if static_info['num_epochs'] > 1:
