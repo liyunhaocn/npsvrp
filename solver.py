@@ -704,6 +704,41 @@ def delta_weight_instance(epoch_instance, ndelta, args, gap=500):
     return new_intance
 
 
+def find_class(area_xy, ratioxy, dis_ratio,args):
+    mean_area = 16243198.3
+    mean_rarioxy = 2.710696626
+    mean_dis_ratio = 2.242701354
+    class_1 = area_xy<10e8 and ratioxy<mean_rarioxy and mean_dis_ratio>mean_dis_ratio
+    class_2 = area_xy > mean_area and ratioxy > mean_rarioxy
+    class_3 = area_xy > mean_area and ratioxy < mean_rarioxy and mean_dis_ratio > mean_dis_ratio
+    if class_1 or class_2 or class_3:
+        args.or_gap = 109
+        args.x1 = -4.68
+        args.x2 = 9.64
+        args.x3 = -0.6
+        args.early_time1 = 2600
+        args.early_time2 = 2600
+        args.gap = 550
+        args.sol_x1 = 0
+        args.sol_x2 = 3
+        args.sol_x3 = 0.15
+        return
+    class_4 = ratioxy < 2 and dis_ratio < 2
+    if class_4:
+        args.or_gap = 109
+        args.x1 = -4.68
+        args.x2 = 9.64
+        args.x3 = -0.6
+        args.early_time1 = 1200
+        args.early_time2 = -2000
+        args.gap = 550
+        args.sol_x1 = 0
+        args.sol_x2 = 3
+        args.sol_x3 = 0.15
+
+
+
+
 def run_baseline(args, env, oracle_solution=None, strategy=None):
     strategy = strategy or args.strategy
 
@@ -728,19 +763,20 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
         bin_data_0 = static_info['dynamic_context']['coords'][:, 0]
         bin_data_1 = static_info['dynamic_context']['coords'][:, 1]
         area_xy, ratioxy, dis_ratio = area_tool.get_classes(static_info['dynamic_context'])
-        if ratioxy<2 and dis_ratio<2:
-            # PRAMS = '150	101    -4.68	9.64	-0.6	-26000	-26000	550	0	3	0.15'  # for 0_0_0 and its remain_ins :prams3
-            args.or_gap = 109
-            args.x1 = -4.68
-            args.x2 = 9.64
-            args.x3 = -0.6
-            args.early_time1 = 1200
-            args.early_time2 = -2000
-            args.gap = 550
-            args.sol_x1 = 0
-            args.sol_x2 = 3
-            args.sol_x3 = 0.15
+        # if ratioxy<2 and dis_ratio<2:
+        #     # PRAMS = '150	101    -4.68	9.64	-0.6	-26000	-26000	550	0	3	0.15'  # for 0_0_0 and its remain_ins :prams3
+        #     args.or_gap = 109
+        #     args.x1 = -4.68
+        #     args.x2 = 9.64
+        #     args.x3 = -0.6
+        #     args.early_time1 = 1200
+        #     args.early_time2 = -2000
+        #     args.gap = 550
+        #     args.sol_x1 = 0
+        #     args.sol_x2 = 3
+        #     args.sol_x3 = 0.15
         # add find_class
+        find_class(area_xy, ratioxy, dis_ratio,args)
 
     while not done:
         if static_info['num_epochs'] > 1:
