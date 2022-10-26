@@ -77,7 +77,7 @@ struct Configuration {
 
 	int ruinLmax = 20;
 	//(ruinLmax+1)/2
-	int ruinC_ = 15;
+	int ruinC_ = 20;
 	int ruinC_Min = 5;
 	int ruinC_Max = 25;
 

@@ -809,24 +809,24 @@ Solver::Position Solver::findBestPosForRuin(int w) {
 
 	// 惩罚最大的排在最前面
 	auto updatePool = [&](Position& pos) {
-        if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
-            if(pos.pen < ret.pen){
-                pos = ret;
-            }
-            else if (pos.pen == ret.pen) {
-                if (pos.cost < ret.cost) {
-                    // TODO[8]:眨眼率可以调 5%合适？
-                    ret = pos;
-                }
-            }
-        }
-
-//        if (pos.pen == 0) {
-//            if (pos.cost < ret.cost && myRand->pick(100) < globalCfg->ruinWinkacRate) {
-//                // TODO[8]:眨眼率可以调 5%合适？
-//                ret = pos;
+//        if (myRand->pick(100) < globalCfg->ruinWinkacRate) {
+//            if(pos.pen < ret.pen){
+//                pos = ret;
+//            }
+//            else if (pos.pen == ret.pen) {
+//                if (pos.cost < ret.cost) {
+//                    // TODO[8]:眨眼率可以调 5%合适？
+//                    ret = pos;
+//                }
 //            }
 //        }
+
+        if (pos.pen == 0) {
+            if (pos.cost < ret.cost && myRand->pick(100) < globalCfg->ruinWinkacRate) {
+                // TODO[8]:眨眼率可以调 5%合适？
+                ret = pos;
+            }
+        }
 
 	};
 

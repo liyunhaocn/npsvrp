@@ -159,8 +159,11 @@ def get_initial_weight(instance, seed=1):
                 assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
                 yield weight
 
-#doDynamicWithEjection
-# solve_static_vrptw_lyh(instance,weight_arg,arg_call="doDynamicWithEjection")
+# doDynamicWithEjection¶ªµã£¬must_dispatch number ÅÐ¶Ï
+# solve_static_vrptw_lyh(instance,weight_arg,arg_call="hgsAndSmart")
+
+# Ð¡ËãÀý
+# solve_static_vrptw_lyh(instance,weight_arg,arg_call="smallInstance")
 
 def solve_static_vrptw_lyh(instance,
                        time_limit=3600,

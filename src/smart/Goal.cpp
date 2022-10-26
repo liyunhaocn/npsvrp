@@ -592,7 +592,7 @@ int Goal::TwoAlgCombine() {
 
 #if CHECKING
 	for (int rn = poprnLowBound; rn <= poprnUpBound; ++rn) {
-		for (int i = 0; i < globalCfg->popSizeMax; ++i) {
+		for (int i = 0; i < globalCfg->popSize; ++i) {
 			if (ppool[rn][i].rts.cnt != rn) {
 				ERROR("rn:", rn);
 				ERROR("i:", i);
@@ -606,7 +606,7 @@ int Goal::TwoAlgCombine() {
 		
 #if CHECKING
 		for (int rn = poprnLowBound; rn <= poprnUpBound; ++rn) {
-			for (int i = 0; i < globalCfg->popSizeMax; ++i) {
+			for (int i = 0; i < globalCfg->popSize; ++i) {
 				if (ppool[rn][i].rts.cnt != rn) {
 					ERROR("rn:", rn);
 					ERROR("i:", i);

@@ -214,12 +214,28 @@ void doDynamicWithEjection(Params& params){
 //    for(int i = 1;i <= params.nbClients;++i){
 //        params.P[i] = weightNew[i] - params.P[i];
 //    }
-
 //    auto& P = params.P;
     dynamicGoal.test();
 
     //saveSolutiontoCsvFile(hust::bks->bestSolFound);
     hust::deallocGlobalMem();
+}
+
+void smallInstance(CommandLine& commandline) {
+
+    Params params(commandline);
+
+    hust::globalInput = new hust::Input(params);
+    hust::allocGlobalMem(params.config.seed);
+    hust::globalInput->initInput();
+    hust::Goal goal;
+
+    hust::Solver smartSolver;
+    smartSolver.initSolution(1);
+    smartSolver.simulatedannealing(hust::IntInf,10.0,hust::globalCfg->ruinC_);
+
+    hust::bks->bestSolFound.printDimacs();
+
 }
 
 void smartOnly(CommandLine& commandline){
@@ -263,16 +279,16 @@ void setParams(Params& params){
 //    params.config. fractionGeneratedRandomly = 0.10;
 
     if(params.nbClients <= 240){
-        params.config.nbIter = 2000;
-        params.config.fractionGeneratedNearest = 0.10;	//0.05
+        params.config.nbIter = 4000;
+        params.config.fractionGeneratedNearest = 0.05;	//0.05
         params.config.fractionGeneratedSmart = 0.00; //0.0
-        params.config.fractionGeneratedFurthest = 0.10; // 0.05
-        params.config.fractionGeneratedSweep = 0.10; //0.05
-        params.config.fractionGeneratedRandomly = 0.70;
+        params.config.fractionGeneratedFurthest = 0.05; // 0.05
+        params.config.fractionGeneratedSweep = 0.05; //0.05
+        params.config.fractionGeneratedRandomly = 0.85;
     }
 
     if(params.nbClients >= 450){
-        params.config.nbIter = 10000;
+        params.config.nbIter = 6000;
         params.config.fractionGeneratedNearest = 0.05;	//0.05
         params.config.fractionGeneratedSmart = 0.00; //0.0
         params.config.fractionGeneratedFurthest = 0.050; // 0.05
@@ -392,9 +408,13 @@ int main(int argc, char* argv[])
         }else if(commandline.config.call == "hgsAndSmart"){
             INFO("commandline.config.call == hgsAndSmart");
             hgsAndSmart(commandline);
-        }else if(commandline.config.call == "smartOnly"){
-            INFO("commandline.config.call == smartOnly");
-            smartOnly(commandline);
+        }
+        else if(commandline.config.call == "smallInstance"){
+            INFO("commandline.config.call == smallInstance");
+            smallInstance(commandline);
+        }
+        else{
+            ERROR("No this function call:",commandline.config.call);
         }
 
 //	}

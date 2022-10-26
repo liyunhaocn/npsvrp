@@ -21,9 +21,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="[codelab] 1026 new paramters zjj">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/npsvrp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/npsvrp.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Goal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Goal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/smart/Utility.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Utility.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,6 +36,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Release" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -223,12 +227,12 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.con" />
-      <item itemvalue="Python.solver" />
       <item itemvalue="Python.all_cmds" />
       <item itemvalue="Python.analysis" />
+      <item itemvalue="Python.con" />
       <item itemvalue="Python.draw" />
       <item itemvalue="Python.jobsch" />
+      <item itemvalue="Python.solver" />
     </list>
     <recent_temporary>
       <list>
@@ -394,7 +398,6 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="[tag][10_4]运行版本 dynamic+static" />
