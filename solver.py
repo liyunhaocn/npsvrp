@@ -159,10 +159,10 @@ def get_initial_weight(instance, seed=1):
                 assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
                 yield weight
 
-# doDynamicWithEjection¶ªµã£¬must_dispatch number ÅÐ¶Ï
+# doDynamicWithEjection drop nodes, must_dispatch number
 # solve_static_vrptw_lyh(instance,weight_arg,arg_call="hgsAndSmart")
 
-# Ð¡ËãÀý
+# smallInstance
 # solve_static_vrptw_lyh(instance,weight_arg,arg_call="smallInstance")
 
 def solve_static_vrptw_lyh(instance,
@@ -710,25 +710,24 @@ def delta_weight_instance(epoch_instance, ndelta, args, gap=500):
 
 
 def find_class(area_xy, ratioxy, dis_ratio,args):
+    # tmp params
+
     mean_area = 16243198.3
     mean_rarioxy = 2.710696626
     mean_dis_ratio = 2.242701354
     class_1 = area_xy<10e8 and ratioxy<mean_rarioxy and mean_dis_ratio>mean_dis_ratio
     class_2 = area_xy > mean_area and ratioxy > mean_rarioxy
     class_3 = area_xy > mean_area and ratioxy < mean_rarioxy and mean_dis_ratio > mean_dis_ratio
-    if class_1 or class_2 or class_3:
-        args.or_gap = 109
-        args.x1 = -4.68
-        args.x2 = 9.64
-        args.x3 = -0.6
-        args.early_time1 = 2600
-        args.early_time2 = 2600
-        args.gap = 550
-        args.sol_x1 = 0
-        args.sol_x2 = 3
-        args.sol_x3 = 0.15
-        return
-    class_4 = ratioxy < 2 and dis_ratio < 2
+    # if class_1 or class_2 or class_3:
+    #     args.or_gap = 109
+    #     args.x1 = -4.68
+    #     args.x2 = 9.64
+    #     args.x3 = -0.6
+    #     args.early_time1 = 2600
+    #     args.early_time2 = 2600
+    #     args.gap = 550
+    #     return
+    class_4 = area_xy<4e6 and ratioxy < 2 and dis_ratio < 2
     if class_4:
         args.or_gap = 109
         args.x1 = -4.68
@@ -737,9 +736,6 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
         args.early_time1 = 1200
         args.early_time2 = -2000
         args.gap = 550
-        args.sol_x1 = 0
-        args.sol_x2 = 3
-        args.sol_x3 = 0.15
 
 
 
@@ -843,7 +839,13 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     #  test OR_tools
                     or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
                     running_time = int(epoch_tlim/2 - (time.time()-start_time))-1
-                    sol = or_main(or_epoch_instance, running_time, global_log_info)
+                    # use lyh_solver
+                    weight_arg = [i for i in or_epoch_instance['penalty']]
+                    or_epoch_instance.pop('penalty')
+                    solutions = list(solve_static_vrptw_lyh(or_epoch_instance, weight_arg=weight_arg, time_limit=int(running_time),seed=args.solver_seed,arg_call = "hgsAndSmart"))
+                    sol, reward = solutions[-1]
+
+                    # sol = or_main(or_epoch_instance, running_time, global_log_info)
                     sol_id = [epoch_instance['request_idx'][route] for route in sol]
                     num_requests_dispatched = sum([len(route) for route in sol_id])
                     if num_requests_dispatched == 0:
@@ -920,9 +922,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     epoch_instance_dispatch_2 = STRATEGIES[strategy](epoch_instance, rng, epoch_solution_id)
                     running_time = int(epoch_tlim - (time.time() - start_time)) - 1
 
-                    # solutions = list(
-                    #     solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(epoch_tlim)/2,
-                    #                            seed=args.solver_seed),arg_call = "smallInstance")
+                    # solutions = list(solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(running_time),seed=args.solver_seed,arg_call = "smallInstance"))
 
                     solutions = list(
                         solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(running_time),
@@ -1027,8 +1027,8 @@ if __name__ == "__main__":
     parser.add_argument("--x1", type=float, default=-7.018, help="x1")
     parser.add_argument("--x2", type=float, default=14.887, help="x2")
     parser.add_argument("--x3", type=float, default=-2.537, help="x3")
-    parser.add_argument("--early_time1", type=int, default=2600, help="early_time1")
-    parser.add_argument("--early_time2", type=int, default=2600, help="early_time2")
+    parser.add_argument("--early_time1", type=int, default=1200, help="early_time1")
+    parser.add_argument("--early_time2", type=int, default=-2000, help="early_time2")
     parser.add_argument("--gap", type=float, default=214, help="gap")
     parser.add_argument("--sol_x1", type=float, default=0, help="sol_x1")
     parser.add_argument("--sol_x2", type=float, default=3, help="sol_x2")
