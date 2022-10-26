@@ -22,7 +22,7 @@ import area_tool
 
 from environment_virtual import VRPEnvironmentVirtual
 
-global_log_info = False
+global_log_info = True
 global_save_current_instance = False
 global_log_error = True
 
@@ -398,7 +398,7 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDyna
     # Call HGS solver with unlimited number of vehicles allowed and parse outputs
     # Subtract two seconds from the time limit to account for writing of the instance and delay in enforcing the time limit by HGS
     hgs_cmd = [
-        executable, instance_filename, str(max(time_limit - 2, 1)),
+        executable, instance_filename, str(max(time_limit, 1)),
         '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1'
         # ,'-useDynamicParameters', str(useDynamicParameters),
         # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(5000),
@@ -406,7 +406,7 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDyna
     ]
     if useDynamicParameters == 1:
         hgs_cmd = [
-            executable, instance_filename, str(max(time_limit - 2, 1)),
+            executable, instance_filename, str(max(time_limit, 1)),
             '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1'
             , '-useDynamicParameters', str(useDynamicParameters),
             # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(20),
@@ -781,6 +781,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
         find_class(area_xy, ratioxy, dis_ratio,args)
 
     while not done:
+        start_time = time.time()
         if static_info['num_epochs'] > 1:
             max_epoches = static_info['end_epoch'] - static_info['start_epoch'] + 1
             # tmp_k = max(115 - (observation['current_epoch'] - static_info['start_epoch'] - 1) * 20, 50)
@@ -838,7 +839,8 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                 if use_ortools:
                     #  test OR_tools
                     or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
-                    sol = or_main(or_epoch_instance, epoch_tlim / 2, global_log_info)
+                    running_time = int(epoch_tlim/2 - (time.time()-start_time))-1
+                    sol = or_main(or_epoch_instance, running_time, global_log_info)
                     sol_id = [epoch_instance['request_idx'][route] for route in sol]
                     num_requests_dispatched = sum([len(route) for route in sol_id])
                     if num_requests_dispatched == 0:
@@ -888,16 +890,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
 
             # Delete route without must-go
             del_must = 1
-            # new_epoch_solution = []
-            # if strategy == "weight":
-            #     for route in epoch_solution:
-            #         if epoch_instance_dispatch['must_dispatch'][route].any():
-            #             new_epoch_solution.append(route)
-            # if strategy == "greedy":
-            #     for route in epoch_solution:
-            #         if epoch_instance['must_dispatch'][route].any():
-            #             new_epoch_solution.append(route)
-            # epoch_solution = new_epoch_solution
+
             # record coords of solution
             coords_solution = [epoch_instance_dispatch['coords'][route] for route in epoch_solution]
             # record must-go of solution
@@ -922,13 +915,14 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     epoch_solution = [epoch_instance_dispatch['request_idx'][route] for route in epoch_solution_id]
                     strategy = 'new'
                     epoch_instance_dispatch_2 = STRATEGIES[strategy](epoch_instance, rng, epoch_solution_id)
+                    running_time = int(epoch_tlim - (time.time() - start_time)) - 1
 
                     # solutions = list(
                     #     solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(epoch_tlim)/2,
                     #                            seed=args.solver_seed),arg_call = "smallInstance")
 
                     solutions = list(
-                        solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(epoch_tlim / 2),
+                        solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(running_time),
                                            tmp_dir=args.tmp_dir, seed=args.solver_seed, useDynamicParameters=use_dyn))
                     assert len(
                         solutions) > 0, f"No solution found during epoch {observation['current_epoch']} and time_lim={epoch_tlim}"
