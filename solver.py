@@ -727,7 +727,7 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
     #     args.early_time2 = 2600
     #     args.gap = 550
     #     return
-    class_4 = area_xy<4e6 and ratioxy < 2 and dis_ratio < 2
+    class_4 = area_xy<4e6 and ratioxy < 2
     if class_4:
         args.or_gap = 109
         args.x1 = -4.68
@@ -736,6 +736,17 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
         args.early_time1 = 1200
         args.early_time2 = -2000
         args.gap = 550
+        return
+    class_5 = area_xy < 7e6 and ratioxy > 2
+    # '901	94    -7.018	14.887	-2.537	2600	2600	214	0	3	0.15'
+    if class_5:
+        args.or_gap = 94
+        args.x1 = -7.018
+        args.x2 = 14.887
+        args.x3 = -2.537
+        args.early_time1 = 2600
+        args.early_time2 = 2600
+        args.gap = 214
 
 
 
