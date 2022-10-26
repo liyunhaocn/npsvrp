@@ -8311,10 +8311,10 @@ bool Solver::runLoaclSearch(Individual* indiv) {
 
 bool Solver::runSimulatedannealing(Individual* indiv) {
     loadIndividual(indiv);
-	int c_ = myRand->pick(globalCfg->ruinC_Min,
-		globalCfg->ruinC_Max + 1);
-	c_ = std::min(c_, input.custCnt - 1);
-
+//	int c_ = myRand->pick(globalCfg->ruinC_Min,
+//		globalCfg->ruinC_Max + 1);
+//	c_ = std::min(c_, input.custCnt - 1);
+    int c_ = globalCfg->ruinC_;
 //    INFO("run simulatedannealing indiv->myCostSol.penalizedCost:",indiv->myCostSol.penalizedCost);
 	if (penalty > 0) {
 		if (repair()) {

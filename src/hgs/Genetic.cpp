@@ -36,11 +36,11 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 //        if( hust::globalCfg->isHgsRuinWhenGetBKS==1){
 //            smartSolver->runSimulatedannealing(offspring);
 //        }
-//        if( hust::globalCfg->isHgsRuinWhenGetBKS==1 &&
-//            offspring->isFeasible && offspring->myCostSol.penalizedCost
-//           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
-//            smartSolver->runSimulatedannealing(offspring);
-//        }
+        if( params->config.ruinWhenGetBKS ==1 &&
+            offspring->isFeasible && offspring->myCostSol.penalizedCost
+           < population->getBestFound()->myCostSol.penalizedCost - MY_EPSILON){
+            smartSolver->runSimulatedannealing(offspring);
+        }
 		// Check if the new individual is the best feasible individual of the population, based on penalizedCost
 		bool isNewBest = population->addIndividual(offspring, true);
 

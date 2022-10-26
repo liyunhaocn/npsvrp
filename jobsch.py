@@ -109,12 +109,17 @@ if __name__ == "__main__":
     nagatama_before_restart = ["-nagataMaBeforeRestart", "1"]
     ruin_before_restart = ["-ruinBeforeRestart", "1"]
     reset_with_random = ["-resetPopulationWithAllRandom", "1"]
+    ruin_when_get_bks = ["-ruinWhenGetBKS", "1"]
 
     config_string_arr = [
         # "--run_tag HGSDefault --config_str + ",
 
-        "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart),
+        # done
+        # "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
+        #     ["-nbIter", "5000"] + reset_with_random + ruin_before_restart),
+
+        "--run_tag nb5000InitDefaultResetRandomRuinGetBKS --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"] + reset_with_random + ruin_when_get_bks),
 
         "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeReset --config_str " + "+" + "+".join(
             ["-nbIter", "5000"] + reset_with_random + ruin_before_restart + nagatama_before_restart),

@@ -135,6 +135,8 @@ public:
         int nagataMaBeforeRestart = 0;
         int ruinBeforeRestart = 0;
         int resetPopulationWithAllRandom = 0;
+        int ruinWhenGetBKS = 0;
+
     };
 
 	Config config;						// Stores all the parameter values

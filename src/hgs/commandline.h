@@ -175,6 +175,8 @@ public:
 					config.ruinBeforeRestart = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-resetPopulationWithAllRandom")
 					config.resetPopulationWithAllRandom = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-ruinWhenGetBKS")
+					config.ruinWhenGetBKS = atoi(argv[i + 1]);
 				else
 				{
 					// Output error message and help menu to the command line

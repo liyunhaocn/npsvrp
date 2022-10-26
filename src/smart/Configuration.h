@@ -74,8 +74,6 @@ struct Configuration {
 
 	int ruinSplitRate = 0; // %100 means ruinSplitRate%
 
-    int isHgsRuinWhenGetBKS = 0;
-
 	int ruinLmax = 20;
 	//(ruinLmax+1)/2
 	int ruinC_ = 20;

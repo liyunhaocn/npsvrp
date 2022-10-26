@@ -22,7 +22,7 @@ import area_tool
 
 from environment_virtual import VRPEnvironmentVirtual
 
-global_log_info = True
+global_log_info = False
 global_save_current_instance = False
 global_log_error = True
 
@@ -354,27 +354,6 @@ def save_results_csv(csv_path, data_dic):
         # print(f"data_replace_order:{data_replace_order}")
         writer.writerow(data_replace_order)
 
-# --instance ./instances/ORTEC-VRPTW-ASYM-2e2ef021-d1-n210-k17.txt --static --epoch_tlim 164 --run_tag notag --verbose
-if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--strategy", type=str, default='greedy',
-                        help="Baseline strategy used to decide whether to dispatch routes")
-    # Note: these arguments are only for convenience during development, during testing you should use controller.py
-    parser.add_argument("--instance", help="Instance to solve")
-    parser.add_argument("--instance_seed", type=int, default=1, help="Seed to use for the dynamic instance")
-    parser.add_argument("--solver_seed", type=int, default=1, help="Seed to use for the solver")
-    parser.add_argument("--static", action='store_true',
-                        help="Add this flag to solve the static variant of the problem (by default dynamic)")
-    parser.add_argument("--epoch_tlim", type=int, default=120, help="Time limit per epoch")
-    parser.add_argument("--oracle_tlim", type=int, default=120, help="Time limit for oracle")
-
-
-
-
-
-
-# ==================================
 
 def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDynamicParameters=0, initial_solution=None):
     # Prevent passing empty instances to the static solver, e.g. when
