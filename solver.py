@@ -706,7 +706,7 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
     #     args.early_time2 = 2600
     #     args.gap = 550
     #     return
-    class_4 = area_xy<4e6 and ratioxy < 2 and dis_ratio < 2
+    class_4 = area_xy<4e6 and ratioxy < 2
     if class_4:
         args.or_gap = 109
         args.x1 = -4.68
@@ -715,6 +715,17 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
         args.early_time1 = 1200
         args.early_time2 = -2000
         args.gap = 550
+        return
+    class_5 = area_xy < 7e6 and ratioxy > 2
+    # '901	94    -7.018	14.887	-2.537	2600	2600	214	0	3	0.15'
+    if class_5:
+        args.or_gap = 94
+        args.x1 = -7.018
+        args.x2 = 14.887
+        args.x3 = -2.537
+        args.early_time1 = 2600
+        args.early_time2 = 2600
+        args.gap = 214
 
 
 
@@ -817,15 +828,15 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                 if use_ortools:
                     #  test OR_tools
                     or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
-                    running_time = int(epoch_tlim/2 - (time.time()-start_time))-1
+                    running_time = min(int(epoch_tlim/2 - (time.time()-start_time))-1, 8)
                     # use lyh_solver
-                    weight_arg = [int(i) for i in or_epoch_instance['penalty']]
-                    weight_arg[0] = 0
-                    or_epoch_instance.pop('penalty')
-                    solutions = list(solve_static_vrptw_lyh(or_epoch_instance, weight_arg=weight_arg, time_limit=int(running_time),seed=args.solver_seed,arg_call = "hgsAndSmart"))
-                    sol, reward = solutions[-1]
+                    # weight_arg = [int(i) for i in or_epoch_instance['penalty']]
+                    # weight_arg[0] = 0
+                    # or_epoch_instance.pop('penalty')
+                    # solutions = list(solve_static_vrptw_lyh(or_epoch_instance, weight_arg=weight_arg, time_limit=int(running_time),seed=args.solver_seed,arg_call = "hgsAndSmart"))
+                    # sol, reward = solutions[-1]
 
-                    # sol = or_main(or_epoch_instance, running_time, global_log_info)
+                    sol = or_main(or_epoch_instance, running_time, global_log_info)
                     sol_id = [epoch_instance['request_idx'][route] for route in sol]
                     num_requests_dispatched = sum([len(route) for route in sol_id])
                     if num_requests_dispatched == 0:
@@ -902,7 +913,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     epoch_instance_dispatch_2 = STRATEGIES[strategy](epoch_instance, rng, epoch_solution_id)
                     running_time = int(epoch_tlim - (time.time() - start_time)) - 1
 
-                    # solutions = list(solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(running_time),seed=args.solver_seed,arg_call = "smallInstance"))
+                    # solutions = list(solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(running_time),seed=args.solver_seed,arg_call = "hgsAndSmart"))
 
                     solutions = list(
                         solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(running_time),
