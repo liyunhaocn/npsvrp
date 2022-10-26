@@ -20,9 +20,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="[codelab] 1025">
+    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="[codelab] 1026 new paramters zjj">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/npsvrp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/npsvrp.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,7 +214,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-19eafe1e-d1-n458-k35.txt --epoch_tlim 20" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-6656ccd2-d1-n310-k20.txt --epoch_tlim 20" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -329,7 +330,28 @@
       <option name="project" value="LOCAL" />
       <updated>1666681765693</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="[codelab] 1025 zjj">
+      <created>1666703010605</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1666703010605</updated>
+    </task>
+    <task id="LOCAL-00013" summary="[codelab] 1025 zjj">
+      <created>1666704893415</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1666704893415</updated>
+    </task>
+    <task id="LOCAL-00014" summary="[codelab] 1026 new paramters zjj">
+      <created>1666756740977</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1666756740977</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -389,7 +411,9 @@
     <MESSAGE value="init" />
     <MESSAGE value="differentconfig" />
     <MESSAGE value="[codelab] 1025" />
-    <option name="LAST_COMMIT_MESSAGE" value="[codelab] 1025" />
+    <MESSAGE value="[codelab] 1025 zjj" />
+    <MESSAGE value="[codelab] 1026 new paramters zjj" />
+    <option name="LAST_COMMIT_MESSAGE" value="[codelab] 1026 new paramters zjj" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
