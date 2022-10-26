@@ -22,7 +22,7 @@ import area_tool
 
 from environment_virtual import VRPEnvironmentVirtual
 
-global_log_info = False
+global_log_info = True
 global_save_current_instance = False
 global_log_error = True
 
@@ -685,6 +685,23 @@ def delta_weight_instance(epoch_instance, ndelta, args, gap=500):
     return new_intance
 
 
+def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, gap=500):
+    new_intance = copy.copy(epoch_instance)
+    new_intance['penalty'] = []
+    # gap = 500
+    gap_w = args.gap
+    for i in range(len(epoch_instance['coords'])):
+        if epoch_instance['must_dispatch'][i]:
+            new_intance['penalty'].append(1000000)
+            continue
+        # use delta of wxy
+        new_intance['penalty'].append(delta_wyx[i])
+        # # old version
+        # i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        # new_intance['penalty'].append(i_delta)
+    return new_intance
+
+
 def find_class(area_xy, ratioxy, dis_ratio,args):
     # tmp params
 
@@ -748,7 +765,7 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
         env_virtual.import_info(epoch_instance = epoch_instance, virtual_epoch = current_epoch, seed = seed)
         ins = env_virtual.step_num(epoch_num)
 
-        solutions = list(solve_static_vrptw(ins, time_limit = 15, seed = seed))
+        solutions = list(solve_static_vrptw(ins, time_limit = 15, seed = seed, useDynamicParameters=1))
         epoch_solution, cost = solutions[-1]
         route_dispatch_epoch_max = [max(ins['release_epochs'][route]) for route in epoch_solution]
 
@@ -913,8 +930,13 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                 use_ortools = 1
                 if use_ortools:
                     #  test OR_tools
-                    or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
-                    running_time = int(epoch_tlim/2 - (time.time()-start_time))
+                    # use delta of wxy
+                    mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
+                    or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args, distance_delta_ave, gap=args.or_gap)
+                    running_time = 10
+
+                    # or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
+                    # running_time = int(epoch_tlim/2 - (time.time()-start_time))
                     # use lyh_solver
                     # weight_arg = [int(i) for i in or_epoch_instance['penalty']]
                     # weight_arg[0] = 0
