@@ -20,18 +20,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="[codelab] 1026 new paramters zjj">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/npsvrp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/npsvrp.iml" afterDir="false" />
+    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="experiment 1026">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/Params.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Params.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hgs/commandline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/commandline.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Configuration.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/smart/Solver.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/smart/Solver.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +78,7 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.jobsch">
+  <component name="RunManager" selected="Python.solver">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -241,8 +235,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.jobsch" />
         <item itemvalue="Python.analysis" />
+        <item itemvalue="Python.jobsch" />
         <item itemvalue="Python.draw" />
         <item itemvalue="Python.all_cmds" />
       </list>
@@ -360,7 +354,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666756740977</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="experiment 1026">
+      <created>1666790657320</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1666790657320</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -421,7 +422,8 @@
     <MESSAGE value="[codelab] 1025" />
     <MESSAGE value="[codelab] 1025 zjj" />
     <MESSAGE value="[codelab] 1026 new paramters zjj" />
-    <option name="LAST_COMMIT_MESSAGE" value="[codelab] 1026 new paramters zjj" />
+    <MESSAGE value="experiment 1026" />
+    <option name="LAST_COMMIT_MESSAGE" value="experiment 1026" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

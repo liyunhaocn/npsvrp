@@ -115,8 +115,8 @@ if __name__ == "__main__":
         # "--run_tag HGSDefault --config_str + ",
 
         # done
-        # "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
-        #     ["-nbIter", "5000"] + reset_with_random + ruin_before_restart),
+        "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart),
 
         "--run_tag nb5000InitDefaultResetRandomRuinGetBKS --config_str " + "+" + "+".join(
             ["-nbIter", "5000"] + reset_with_random + ruin_when_get_bks),

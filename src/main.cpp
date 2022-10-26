@@ -400,7 +400,10 @@ void hgsAndSmart(CommandLine& commandline) {
 
 void setCommandLine(CommandLine& commandLine){
     commandLine.config.nbIter = 5000;
-
+    commandLine.config.resetPopulationWithAllRandom = 1;
+    commandLine.config.ruinBeforeRestart = 1;
+    commandLine.config.ruinWhenGetBKS = 1;
+    commandLine.config.nagataMaBeforeRestart = 1;
 }
 
 int main(int argc, char* argv[])
@@ -411,7 +414,7 @@ int main(int argc, char* argv[])
 		CommandLine commandline(argc, argv);
         INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
 
-        //setCommandLine(commandline);
+        setCommandLine(commandline);
 
         if( commandline.config.call == "getWeight"){
             getWeight(commandline);

@@ -189,7 +189,6 @@ def solve_static_vrptw_lyh(instance,
 
     cmd += ["-call", arg_call]
 
-    config_str = "+-nbIter+5000"
     cmd += [x for x in config_str.split("+") if len(x) > 0]
     cmd_str = " ".join(cmd)
     log_info(f"cmd_str:{cmd_str}")
@@ -1114,7 +1113,7 @@ if __name__ == "__main__":
     parser.add_argument("--avg", type=int, default=2000, help="sol_x3")
 
     # liyunhao argv
-    parser.add_argument("--config_str", default="+-nbIter+5000", help="config_str is needed")
+    parser.add_argument("--config_str", default="", help="config_str is needed")
     parser.add_argument("--run_tag", default="notag", help="run_tag")
 
     args = parser.parse_args()
