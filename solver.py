@@ -840,7 +840,8 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
                     running_time = int(epoch_tlim/2 - (time.time()-start_time))-1
                     # use lyh_solver
-                    weight_arg = [i for i in or_epoch_instance['penalty']]
+                    weight_arg = [int(i) for i in or_epoch_instance['penalty']]
+                    weight_arg[0] = 0
                     or_epoch_instance.pop('penalty')
                     solutions = list(solve_static_vrptw_lyh(or_epoch_instance, weight_arg=weight_arg, time_limit=int(running_time),seed=args.solver_seed,arg_call = "hgsAndSmart"))
                     sol, reward = solutions[-1]
