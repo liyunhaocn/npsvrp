@@ -505,8 +505,7 @@ def plt_vrp(observation, coords_solution, coords, save=0, args=None):
     # y_lists = [i[1] for i in coords_solution]
     # plt.plot(x_lists, y_lists)
     co_lists = []
-    w_time_windows = (observation['epoch_instance']['time_windows'][:, 1] - observation['epoch_instance'][
-                                                                                'duration_matrix'][0, :]) / 3600
+    w_time_windows = (observation['epoch_instance']['time_windows'][:, 1] - observation['epoch_instance']['duration_matrix'][0, :]) / 3600
     w_x = observation['epoch_instance']['coords'][:, 0]
     w_y = observation['epoch_instance']['coords'][:, 1]
     w_z = list(range(len(w_y)))
@@ -572,8 +571,7 @@ def cul_weight_sol(sol, instance, args, max_epoch=5):
             # test tmp
 
             # tw_all[i][j] = (x1 / max(tw_close[i][j] / 3, 0.3) + x2 * tw_dur[i][j]) / 2 + instance['duration_matrix'][sol[i][j], 0] / avg_dur * x3
-            tw_all[i][j] = x1 / (tw_dur[i][j] + 0.01) + x2 / max(tw_close[i][j], 0.9) + avg_dur / (
-                        instance['duration_matrix'][sol[i][j], 0] + 0.01) * x3
+            tw_all[i][j] = x1 / (tw_dur[i][j] + 0.01) + x2 / max(tw_close[i][j], 0.9) + avg_dur / (instance['duration_matrix'][sol[i][j], 0] + 0.01) * x3
             # tw_all[i][j] = x1/max(tw_open[i][j],0.9) + x2/max(tw_close[i][j],0.9) + instance['duration_matrix'][sol[i][j], 0] / avg_dur * x3
             tw_all[i][j] = 1 / max(tw_close[i][j] / 3, 0.3)
     return tw_all
@@ -727,7 +725,93 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
         args.early_time2 = 2600
         args.gap = 214
 
+# add by YxuanwKeith
+def predict_info(epoch_instance, current_epoch, rng, env_virtual):
+    mask = np.copy(epoch_instance['must_dispatch'])
+    mask[0] = True
 
+    epoch_num = 2
+    test_num = 5
+    per_5_cut = np.array([0, 0, 0, 1, 1, 1])
+    origin_num = len(epoch_instance['request_idx'])
+    current_num = np.zeros(origin_num, dtype=int)
+
+    distance_delta_all = None
+    distance_delta_ave = np.zeros(origin_num)
+    mask_num = np.zeros(origin_num)
+    route_pass = []
+
+    cnt = 0
+    while cnt < test_num:
+        seed = rng.integers(100000)
+        # seed = 1
+
+        env_virtual.import_info(epoch_instance = epoch_instance, virtual_epoch = current_epoch, seed = seed)
+        ins = env_virtual.step_num(epoch_num)
+
+        solutions = list(solve_static_vrptw(ins, time_limit = 15, seed = seed))
+        epoch_solution, cost = solutions[-1]
+        route_dispatch_epoch_max = [max(ins['release_epochs'][route]) for route in epoch_solution]
+
+        # delay judge
+        for route, route_epoch in zip(epoch_solution, route_dispatch_epoch_max):
+            if (route_epoch > current_epoch):
+                continue
+            route_pass.append(route)
+            current_num[route] += 1
+
+        # distance_delta info
+        import math
+        def get_distance(a, b):
+            return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
+        distance_delta = np.zeros(origin_num)
+        for route in epoch_solution:
+            route.insert(0, 0)
+            for i in range(1, len(route)):
+                idx = route[i]
+                if idx >= origin_num or idx == 0: 
+                    continue
+                idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
+                distance_delta[idx] = get_distance(ins['coords'][idx], ins['coords'][idx_lst]) + get_distance(ins['coords'][idx], ins['coords'][idx_nxt]) - get_distance(ins['coords'][idx_lst], ins['coords'][idx_nxt])
+
+        distance_delta_ave += distance_delta
+        distance_delta_all = np.array([distance_delta]) if distance_delta_all is None else np.vstack((distance_delta_all, distance_delta))
+
+        cnt += 1
+    
+    distance_delta_ave /= test_num
+    
+    prob = per_5_cut[current_num]
+    mask = (mask | rng.binomial(1, p=prob, size=len(mask)).astype(np.bool8))
+    for idx in range(len(mask)):
+        mask_num[idx] = 2 if mask[idx] == True else 0
+
+    if len(route_pass) > 0:
+        route_value = [current_num[route].sum() / len(route) for route in route_pass]
+        value_order = np.array(route_value).argsort()[::-1]
+        flag = np.zeros(origin_num)
+
+        for order_idx in value_order:
+            value, route = route_value[order_idx], route_pass[order_idx]
+            if value < 3.5:
+                break
+            if flag[route].any():
+                continue
+            route.insert(0, 0)
+            for i in range(1, len(route)):
+                idx = route[i]
+                # flag[idx] = True
+                if mask_num[idx] > 0:
+                    continue
+                idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
+                delta = get_distance(ins['coords'][idx], ins['coords'][idx_lst]) + get_distance(ins['coords'][idx], ins['coords'][idx_nxt]) - get_distance(ins['coords'][idx_lst], ins['coords'][idx_nxt])
+                if (delta > distance_delta_ave[idx]):
+                    continue
+                mask_num[idx] = 1
+                mask[idx] = True
+    
+    return mask, mask_num, distance_delta_ave, distance_delta_all
 
 
 def run_baseline(args, env, oracle_solution=None, strategy=None):
@@ -745,10 +829,8 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
     num_requests_postponed = 0
     if static_info['num_epochs'] > 1:
 
-        if args.strategy == 'smart':
-            env_virtual = VRPEnvironmentVirtual(seed=args.instance_seed, instance=static_info['dynamic_context'],
-                                                epoch_tlim=args.epoch_tlim, is_static=args.static)
-            strategy = functools.partial(STRATEGIES['smart'], env_virtual=env_virtual)
+        # add by YxuanwKeith
+        env_virtual = VRPEnvironmentVirtual(seed=args.instance_seed, instance=static_info['dynamic_context'], epoch_tlim=args.epoch_tlim, is_static=args.static)
 
         ndelta = Mydelta(static_info['dynamic_context'], args.solver_seed, args.rand_num)
         bin_data_0 = static_info['dynamic_context']['coords'][:, 0]
@@ -813,6 +895,11 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
             # # print("Time ", i)
             epoch_instance = observation['epoch_instance']
             max_epoch = static_info['end_epoch']
+
+            # add by YxuanwKeith
+            # a, b, c, d = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
+            # print(a, '\n\n', b, '\n\n', c, '\n\n', d)
+
             if strategy == "weight":
                 epoch_instance_dispatch = STRATEGIES[strategy](epoch_instance, rng, max_epoch)
             if strategy == "greedy":
