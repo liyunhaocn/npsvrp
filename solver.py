@@ -925,7 +925,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
 
                     # solutions = list(
                     #     solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(epoch_tlim)/2,
-                    #                            seed=args.solver_seed),arg_call = "hgsAndSmart")
+                    #                            seed=args.solver_seed),arg_call = "smallInstance")
 
                     solutions = list(
                         solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(epoch_tlim / 2),
@@ -943,9 +943,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                                 if epoch_instance_dispatch_2['must_dispatch'][route].any():
                                     new_epoch_solution.append(route)
                                     continue
-                                # early_time = epoch_instance_dispatch_2['time_windows'][route[0], 0] / 2 + \
-                                #              epoch_instance_dispatch_2['time_windows'][route[0], 1] / 2 - \
-                                #              epoch_instance_dispatch_2['duration_matrix'][0, route[0]]
+
                                 new_earlyest_time = cul_early_time(route, epoch_instance_dispatch_2)
                                 # print(early_time)
                                 if new_earlyest_time < args.early_time2:
@@ -961,49 +959,6 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     # record must-go of solution
                     must_solution = [epoch_instance_dispatch_2['must_dispatch'][route] for route in epoch_solution_id]
                     epoch_solution = epoch_solution_id
-
-                    # # next iter
-                    # epoch_solution_id = choose_nodes_new_iter(ndelta, epoch_solution, epoch_instance_dispatch_2,
-                    #                                           max_epoch, 500 + count * 200)
-                    # strategy = 'new'
-                    # epoch_instance_dispatch_2 = STRATEGIES[strategy](epoch_instance_dispatch_2, rng, epoch_solution_id)
-                    # solutions = list(
-                    #     solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(epoch_tlim / (repeat_time + 2)),
-                    #                        tmp_dir=args.tmp_dir, seed=args.solver_seed, useDynamicParameters=use_dyn))
-                    # assert len(
-                    #     solutions) > 0, f"No solution found during epoch {observation['current_epoch']} and time_lim={epoch_tlim}"
-                    # epoch_solution, cost = solutions[-1]
-                    # # Delete route without must-go
-                    # if del_must:
-                    #     new_epoch_solution = []
-                    #     if strategy == "new":
-                    #         for route in epoch_solution:
-                    #             if epoch_instance_dispatch_2['must_dispatch'][route].any():
-                    #                 new_epoch_solution.append(route)
-                    #     epoch_solution_id = new_epoch_solution
-                    # else:
-                    #     epoch_solution_id = epoch_solution
-                    # # record coords of solution
-                    # coords_solution = [epoch_instance_dispatch_2['coords'][route] for route in epoch_solution_id]
-                    # # record must-go of solution
-                    # must_solution = [epoch_instance_dispatch_2['must_dispatch'][route] for route in epoch_solution_id]
-                    # epoch_solution = epoch_solution_id
-
-                    # if num_requests_dispatched == 0:
-                    #     reward = 0
-                    # else:
-                    #     reward = tools.validate_dynamic_epoch_solution(epoch_instance, epoch_solution)
-                    # # Distance of Each node
-                    # num_requests_dispatched = sum([len(route) for route in epoch_solution])
-                    # each_node_dis = reward / num_requests_dispatched if num_requests_dispatched != 0 else 0
-                    # if each_node_dis < min_each_dis:
-                    #     # log_info(' |update route| ')
-                    #     best_sol = copy.copy(epoch_solution)
-                    #     best_coords_solution = coords_solution
-                    #     # for li in range(len(epoch_solution)):
-                    #     #     best_sol.append(epoch_solution[li].copy())
-                    #     min_each_dis = each_node_dis
-
 
                 else:
                     epoch_solution = [epoch_instance_dispatch['request_idx'][route] for route in epoch_solution]
