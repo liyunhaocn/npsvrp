@@ -914,7 +914,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                 if use_ortools:
                     #  test OR_tools
                     or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
-                    running_time = min(int(epoch_tlim/2 - (time.time()-start_time))-1, 8)
+                    running_time = int(epoch_tlim/2 - (time.time()-start_time))
                     # use lyh_solver
                     # weight_arg = [int(i) for i in or_epoch_instance['penalty']]
                     # weight_arg[0] = 0
@@ -997,7 +997,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     epoch_solution = [epoch_instance_dispatch['request_idx'][route] for route in epoch_solution_id]
                     strategy = 'new'
                     epoch_instance_dispatch_2 = STRATEGIES[strategy](epoch_instance, rng, epoch_solution_id)
-                    running_time = int(epoch_tlim - (time.time() - start_time)) - 1
+                    running_time = int(epoch_tlim - (time.time() - start_time))
 
                     # solutions = list(solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(running_time),seed=args.solver_seed,arg_call = "hgsAndSmart"))
 
