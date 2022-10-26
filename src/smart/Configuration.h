@@ -48,7 +48,8 @@ struct Configuration {
 	//int findBestPosForRuinPqSize = 10;
 	//int findBestPosInSolPqSize = 3;//64
 
-	int naEaxCh = 10;
+	int naEaxCh = 3;
+//	int naEaxCh = 10;
 	//int naEaxCh = 20;
 
 	//patternAdjustment²ÎÊý

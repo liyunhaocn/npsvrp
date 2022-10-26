@@ -573,12 +573,15 @@ double Population::getAverageCost(const SubPopulation& pop)
 		return -1.0;
 	}
 }
-void Population::updateBestSolutionOverall(Individual*indiv) {
+
+bool Population::updateBestSolutionOverall(Individual*indiv) {
 // Track best solution
     if (indiv-> isFeasible && indiv->myCostSol.penalizedCost
             < bestSolutionOverall.myCostSol.penalizedCost - MY_EPSILON) {
             bestSolutionOverall = *indiv;
+        return true;
     }
+    return false;
 }
 
 void Population::exportBKS(std::string fileName)

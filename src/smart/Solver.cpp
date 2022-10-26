@@ -6862,7 +6862,9 @@ int Solver::simulatedannealing(int iterMax, double temperature,int ruinNum) {
 
 	double j0 = temperature;
 	double jf = 1;
-	double c = pow(jf / j0, 1 / double(iterMax));
+	double c1 = pow(jf / j0, 1 / double(iterMax));
+    double c2 = 0.99;
+    double c = std::min<double>(c1,c2);
 	temperature = j0;
 
     if( dynamicEP.size() == input.custCnt || ruinNum <= 0){
@@ -6889,7 +6891,7 @@ int Solver::simulatedannealing(int iterMax, double temperature,int ruinNum) {
 
 		temperature *= c;
         if(temperature<1.0){
-            temperature = 100.0;
+            temperature = j0;
         }
 
 		if (sStar.RoutesCost < pBest.RoutesCost) {

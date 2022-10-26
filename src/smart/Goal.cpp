@@ -25,6 +25,7 @@ void DynamicGoal::test() {
         best = solver;
     }
 
+    int nbIter = 0;
     while (!params->isTimeLimitExceeded()){
         if(solver.dynamicEP.size()== globalInput->custCnt){
             break;
@@ -34,10 +35,15 @@ void DynamicGoal::test() {
             INFO("-solver.RoutesCost + solver.dynamicEP.sumCost:",solver.RoutesCost + solver.dynamicEP.sumCost,
             "dynamicEP.size():",solver.dynamicEP.size());
             best = solver;
+            nbIter=0;
         }else{
+            ++nbIter;
             INFO("+solver.RoutesCost + solver.dynamicEP.sumCost:",solver.RoutesCost + solver.dynamicEP.sumCost,
                  "dynamicEP.size():",solver.dynamicEP.size());
-        };
+        }
+        if(nbIter > 100 ){
+            break;
+        }
     }
     best.printDimacs();
 }

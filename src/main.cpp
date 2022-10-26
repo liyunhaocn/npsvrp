@@ -232,7 +232,7 @@ void smallInstance(CommandLine& commandline) {
 
     hust::Solver smartSolver;
     smartSolver.initSolution(1);
-    smartSolver.simulatedannealing(hust::IntInf,10.0,hust::globalCfg->ruinC_);
+    smartSolver.simulatedannealing(hust::IntInf,50.0,hust::globalCfg->ruinC_);
 
     hust::bks->bestSolFound.printDimacs();
 
@@ -378,7 +378,7 @@ void hgsAndSmart(CommandLine& commandline) {
     hust::globalInput->initInput();
     hust::Goal goal;
 
-    setParams(params);
+    // setParams(params);
 
     INFO("params.nbMustDispatch:",params.nbMustDispatch," params.nbClients:", params.nbClients);
     Split split(&params);
@@ -390,9 +390,17 @@ void hgsAndSmart(CommandLine& commandline) {
     Genetic solver(&params, &split, &population, &localSearch, &smartSolver);
 
     INFO("params.config.timeLimit:",params.config.timeLimit);
+
     solver.run(params.config.nbIter, params.config.timeLimit);
+//    solver.runMA();
+//    solver.runRuin();
     population.getBestFound()->printCVRPLibFormat();
     hust::deallocGlobalMem();
+}
+
+void setCommandLine(CommandLine& commandLine){
+    commandLine.config.nbIter = 5000;
+
 }
 
 int main(int argc, char* argv[])
@@ -402,6 +410,8 @@ int main(int argc, char* argv[])
 		// Reading the arguments of the program
 		CommandLine commandline(argc, argv);
         INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
+
+        //setCommandLine(commandline);
 
         if( commandline.config.call == "getWeight"){
             getWeight(commandline);

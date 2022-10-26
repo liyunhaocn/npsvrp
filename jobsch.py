@@ -105,31 +105,47 @@ if __name__ == "__main__":
     ]
 
     use_eax_ox_star = ["-useEaxAndOXStar", "1"]
-    ma_ruin_before_restart = ["-maRuinBeforeRestart", "1"]
+
+    nagatama_before_restart = ["-nagataMaBeforeRestart", "1"]
+    ruin_before_restart = ["-ruinBeforeRestart", "1"]
+    reset_with_random = ["-resetPopulationWithAllRandom", "1"]
 
     config_string_arr = [
+        # "--run_tag HGSDefault --config_str + ",
 
-        # "--run_tag nb20000InitDefault --config_str " + "+" + "+".join(["-nbIter", "20000"]),
-        # "--run_tag nb20000InitAllRandom --config_str " + "+" + "+".join(["-nbIter", "20000"] + fractions_all_random),
+        "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart),
+
+        "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeReset --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart + nagatama_before_restart),
+
+        "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"]),
+
+        "--run_tag nb5000InitAllRandom --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"] + fractions_all_random),
+
+        "--run_tag nb5000InitDefaultReset_with_random --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"] + reset_with_random),
+
+        # "--run_tag nb20000InitDefault --config_str " + "+" + "+".join(
+        #     ["-nbIter", "20000"]),
+        # "--run_tag nb20000InitAllRandom --config_str " + "+" + "+".join(
+        #     ["-nbIter", "20000"] + fractions_all_random),
         #
-        # "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(["-nbIter", "5000"]),
-        # "--run_tag nb5000InitAllRandom --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random),
-        #
-        # "--run_tag nb5000InitAllRandomEaxOSStar --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random + use_eax_ox_star),
-        # "--run_tag nb5000InitAllRandomMaRuinBeforeRestart --config_str " + "+" + "+".join(["-nbIter", "5000"] + fractions_all_random + ma_ruin_before_restart),
-        # "--run_tag nb5000InitAllRandomEAXOXStarMaRuinBeforeRestart --config_str " + "+" + "+".join(["-nbIter", "5000"]+fractions_all_random + use_eax_ox_star+ma_ruin_before_restart),
-        #
-        # "--run_tag nb2000InitDefault --config_str " + "+" + "+".join(["-nbIter", "2000"]),
-        # "--run_tag nb2000InitAllRandom --config_str " + "+" + "+".join(["-nbIter", "2000"] + fractions_all_random),
-        #
+        # "--run_tag nb2000InitDefault --config_str " + "+" + "+".join(
+        #     ["-nbIter", "2000"]),
+        # "--run_tag nb2000InitAllRandom --config_str " + "+" + "+".join(
+        #     ["-nbIter", "2000"] + fractions_all_random),
+
         # "--run_tag initSmallTolerate --config_str " + "+" + "+".join(init_small_tolerated),
-        #
+
         # "--run_tag smallNBGranular --config_str " + "+" + "+".join(["-nbGranular", "20"]),
         # "--run_tag smallTargetFeasible --config_str " + "+" + "+".join(["-targetFeasible", "0.2"]),
         # "--run_tag bigTargetFeasible --config_str " + "+" + "+".join(["-targetFeasible", "0.5"]),
         # "--run_tag growNbGranular --config_str " + "+" + "+".join(grow_nb_granular_argv),
         # "--run_tag growPopulation --config_str " + "+" + "+".join(grow_population_argv),
-        "--run_tag HGSDefault --config_str + ",
+
     ]
 
     jobs = []

@@ -169,8 +169,12 @@ public:
 					config.minCircleSectorSizeDegrees = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-useEaxAndOXStar")
 					config.useEaxAndOXStar = atoi(argv[i + 1]);
-				else if (std::string(argv[i]) == "-maRuinBeforeRestart")
-					config.maRuinBeforeRestart = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-nagataMaBeforeRestart")
+					config.nagataMaBeforeRestart = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-ruinBeforeRestart")
+					config.ruinBeforeRestart = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-resetPopulationWithAllRandom")
+					config.resetPopulationWithAllRandom = atoi(argv[i + 1]);
 				else
 				{
 					// Output error message and help menu to the command line

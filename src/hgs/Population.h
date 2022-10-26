@@ -66,7 +66,7 @@ public:
     // probability we try to repair it and add it if this succeeds.
     void doLocalSearchAndAddIndividual(Individual* indiv);
 
-    void updateBestSolutionOverall(Individual*indiv);
+    bool updateBestSolutionOverall(Individual*indiv);
 
 public:
 

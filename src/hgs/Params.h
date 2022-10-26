@@ -132,7 +132,9 @@ public:
 		bool useSymmetricCorrelatedVertices = false;		// When correlation matrix is symmetric
 		bool doRepeatUntilTimeLimit = true;					// When to repeat the algorithm when max nr of iter is reached, but time limit is not
         int useEaxAndOXStar = 0;
-        int maRuinBeforeRestart = 0;
+        int nagataMaBeforeRestart = 0;
+        int ruinBeforeRestart = 0;
+        int resetPopulationWithAllRandom = 0;
     };
 
 	Config config;						// Stores all the parameter values

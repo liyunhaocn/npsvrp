@@ -87,19 +87,29 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		{
 
             INFO("ReStart");
-            if(params->config.maRuinBeforeRestart==1) {
+            if(params->config.nagataMaBeforeRestart==1) {
                 runMA();
-                runRuin();
             }
+
             if(params->isTimeLimitExceeded()){
                 break;
             }
 
-            params->config.fractionGeneratedNearest = 0.00;	//0.05
-            params->config.fractionGeneratedSmart = 0.00; //0.0
-            params->config.fractionGeneratedFurthest = 0.00; // 0.05
-            params->config.fractionGeneratedSweep = 0.00; //0.05
-            params->config.fractionGeneratedRandomly = 1.00;
+            if(params->config.ruinBeforeRestart==1){
+                runRuin();
+            }
+
+            if(params->isTimeLimitExceeded()){
+                break;
+            }
+
+            if(params->config.resetPopulationWithAllRandom == 1) {
+                params->config.fractionGeneratedNearest = 0.00;    //0.05
+                params->config.fractionGeneratedSmart = 0.00; //0.0
+                params->config.fractionGeneratedFurthest = 0.00; // 0.05
+                params->config.fractionGeneratedSweep = 0.00; //0.05
+                params->config.fractionGeneratedRandomly = 1.00;
+            }
 
             population->restart();
 			nbIterNonProd = 1;
@@ -163,7 +173,7 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
 
     //TODO[-1]:naMA这里改10了
 
-    for (int ct = 0; ct < 10; ct++) {
+    for (int ct = 0; ct < 1; ct++) {
         if(params->isTimeLimitExceeded()){
             break;
         }
@@ -186,6 +196,8 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
                 continue;
             }
 
+            pc.exportIndividual(candidateOffsprings[7]);
+            population->updateBestSolutionOverall(candidateOffsprings[7]);
             int replace = EAX::updateWhichPaPbUsePc(pa,pb,pc);
             if( replace == 1 ){
                 pc.exportIndividual(pool[paIndex]);
@@ -194,17 +206,17 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
             }
         }
 
-        DisType curBest = getMinRtCostInPool();
-        if (curBest < bestSolInPool ) {
-            bestSolInPool = curBest;
-            ct = 0;
-        }
+//        DisType curBest = getMinRtCostInPool();
+//        if (curBest < bestSolInPool ) {
+//            bestSolInPool = curBest;
+//            ct = 0;
+//        }
     }
 
     //TODO[-1]:naMA这里改10了
     bestSolInPool = getMinRtCostInPool();
 
-    for (int ct = 0; ct < 10; ct++) {
+    for (int ct = 0; ct < 1; ct++) {
         if(params->isTimeLimitExceeded()){
             break;
         }
@@ -226,6 +238,9 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
                 continue;
             }
 
+            pc.exportIndividual(candidateOffsprings[7]);
+            population->updateBestSolutionOverall(candidateOffsprings[7]);
+
             int replace = EAX::updateWhichPaPbUsePc(pa,pb,pc);
             if( replace == 1 ){
                 pc.exportIndividual(pool[paIndex]);
@@ -234,11 +249,11 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
             }
         }
 //TODO[lyh][eaxup]
-        DisType curBest = getMinRtCostInPool();
-        if (curBest < bestSolInPool) {
-            bestSolInPool = curBest;
-            ct = 0;
-        }
+//        DisType curBest = getMinRtCostInPool();
+//        if (curBest < bestSolInPool) {
+//            bestSolInPool = curBest;
+//            ct = 0;
+//        }
     }
 
     bks->bestSolFound.exportIndividual(candidateOffsprings[7]);
@@ -251,9 +266,13 @@ void Genetic::runMA(){
 
     using namespace hust;
     std::map<int,std::vector<Individual*>> individualsGroupByRouterNum;
-    auto& feasibleIndividuals = population->feasibleSubpopulation;
 
-    for(auto& indiv:feasibleIndividuals){
+    for(auto& indiv:population->feasibleSubpopulation){
+        int nbRoutes = indiv->myCostSol.nbRoutes;
+        individualsGroupByRouterNum[nbRoutes].push_back(indiv);
+    }
+
+    for(auto& indiv:population->infeasibleSubpopulation){
         int nbRoutes = indiv->myCostSol.nbRoutes;
         individualsGroupByRouterNum[nbRoutes].push_back(indiv);
     }
@@ -290,26 +309,29 @@ void Genetic::runRuin(){
     hust::Solver s = *smartSolver;
 
     int iter = 1;
-    int iterMax = 1000;
-    double temperature = 20.0;
+    int iterMax = 100;
+    double temperature = 100.0;
     double j0 = temperature;
 	double jf = 1;
-	double c = pow(jf / j0, 1 / double(iterMax));
-//    double c = 0.999;
+	double c1 = pow(jf / j0, 1 / double(iterMax));
+    double c2 = 0.99;
+    double c = std::min<double>(c1,c2);
+
     temperature = j0;
 
     if( smartSolver->dynamicEP.size() == params->nbClients){
         return;
     }
-    int ruinNum = hust::myRand->pick(hust::globalCfg->ruinC_Min,
-                                     hust::globalCfg->ruinC_Max+1);
-        ruinNum = std::min(ruinNum,params->nbClients-1);
+//    int ruinNum = hust::myRand->pick(hust::globalCfg->ruinC_Min,
+//                                     hust::globalCfg->ruinC_Max+1);
+//        ruinNum = std::min(ruinNum,params->nbClients-1);
 
+    int ruinNum = hust::globalCfg->ruinC_;
     while (++iter <= iterMax && !params->isTimeLimitExceeded()){
 
-        ruinNum = hust::myRand->pick(hust::globalCfg->ruinC_Min,
-                                         hust::globalCfg->ruinC_Max+1);
-        ruinNum = std::min(ruinNum,params->nbClients-1);
+//        ruinNum = hust::myRand->pick(hust::globalCfg->ruinC_Min,
+//                                         hust::globalCfg->ruinC_Max+1);
+//        ruinNum = std::min(ruinNum,params->nbClients-1);
 
         auto sStar = s;
 
@@ -338,7 +360,11 @@ void Genetic::runRuin(){
     }
 
     pBest.exportIndividual(candidateOffsprings[7]);
-    population->updateBestSolutionOverall(candidateOffsprings[7]);
+    auto old = population->getBestFound()->myCostSol.penalizedCost;
+    bool updated = population->updateBestSolutionOverall(candidateOffsprings[7]);
+    if( updated == true ){
+        INFO("updated,delt:",population->getBestFound()->myCostSol.penalizedCost-old);
+    }
 }
 
 Individual* Genetic::crossoverOX(std::pair<const Individual*, const Individual*> parents)
