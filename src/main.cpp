@@ -402,7 +402,7 @@ void setCommandLine(CommandLine& commandLine){
     commandLine.config.nbIter = 5000;
     commandLine.config.resetPopulationWithAllRandom = 1;
     commandLine.config.ruinBeforeRestart = 1;
-    commandLine.config.ruinWhenGetBKS = 1;
+//    commandLine.config.ruinWhenGetBKS = 1;
     commandLine.config.nagataMaBeforeRestart = 1;
 }
 

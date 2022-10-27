@@ -28,10 +28,12 @@
 #include "Flag.h"
 #include "../hgs/xorshift128.h"
 
-#define LYH_FILELINEADDS(str) ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:" + str)
-#define LYH_FILELINE() ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]:")
+#define LYH_FILELINEADDS(str) ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]" + str)
+#define LYH_FILELINE() ("[" + std::string(__FILE__) + "]" + "[line:" + std::to_string(__LINE__) + "]")
 
-#if 0
+#define LOG_INFO 0
+
+#if LOG_INFO
 #define INFO(...) hust::println_("[INFO]" + LYH_FILELINE() + ":" ,## __VA_ARGS__)
 #else
 #define INFO(...);

@@ -190,7 +190,7 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
             pb.loadIndividual(pool[pbIndex]);
             pc = pa;
 
-            int eaxReturn = EAX::doTwoKindEAX(pa, pb, pc, 1);
+            int eaxReturn = EAX::doTwoKindEAX(pa, pb, pc, 0);
 
             if(eaxReturn==-1){
                 continue;
@@ -205,12 +205,6 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
                 pc.exportIndividual(pool[pbIndex]);
             }
         }
-
-//        DisType curBest = getMinRtCostInPool();
-//        if (curBest < bestSolInPool ) {
-//            bestSolInPool = curBest;
-//            ct = 0;
-//        }
     }
 
     //TODO[-1]:naMA这里改10了
@@ -248,16 +242,7 @@ void Genetic::runMAOfPopulation(std::vector<Individual*> pool){
                 pc.exportIndividual(pool[pbIndex]);
             }
         }
-//TODO[lyh][eaxup]
-//        DisType curBest = getMinRtCostInPool();
-//        if (curBest < bestSolInPool) {
-//            bestSolInPool = curBest;
-//            ct = 0;
-//        }
     }
-
-    bks->bestSolFound.exportIndividual(candidateOffsprings[7]);
-    population->updateBestSolutionOverall(candidateOffsprings[7]);
 
     INFO("getMinRtCostInPool():", getMinRtCostInPool());
 }
@@ -294,15 +279,11 @@ void Genetic::runMA(){
 
 void Genetic::runRuin(){
 
-//    auto& pop = population->feasibleSubpopulation;
-//    if(pop.size()==0){
-//        return;
-//    }
-//    auto best = pop[(params->rng()%pop.size())];
     auto best = population->getBestFound();
     if(best == nullptr){
         return;
     }
+
     smartSolver->loadIndividual(best);
 
     hust::Solver pBest = *smartSolver;
@@ -339,18 +320,15 @@ void Genetic::runRuin(){
 
         sStar.CVB2ruinLS(ruinNum);
 
-        hust::bks->updateBKSAndPrint(sStar,"from ruin sStart");
-
         hust::DisType delt = temperature * log(double(hust::myRand->pick(1, 1000000)) / (double)1000000);
 
         if (sStar.RoutesCost < s.RoutesCost - delt) {
             s = sStar;
-
         }
 
         temperature *= c;
         if(temperature<1.0){
-            temperature = 100.0;
+            temperature = j0;
         }
 
         if (sStar.RoutesCost < pBest.RoutesCost) {

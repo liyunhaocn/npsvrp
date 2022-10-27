@@ -1113,7 +1113,7 @@ if __name__ == "__main__":
     parser.add_argument("--avg", type=int, default=2000, help="sol_x3")
 
     # liyunhao argv
-    parser.add_argument("--config_str", default="", help="config_str is needed")
+    parser.add_argument("--config_str", default="+", help="config_str is needed")
     parser.add_argument("--run_tag", default="notag", help="run_tag")
 
     args = parser.parse_args()

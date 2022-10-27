@@ -112,7 +112,7 @@ if __name__ == "__main__":
     ruin_when_get_bks = ["-ruinWhenGetBKS", "1"]
 
     config_string_arr = [
-        # "--run_tag HGSDefault --config_str + ",
+        "--run_tag HGSDefault --config_str + ",
 
         # done
         "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
@@ -123,6 +123,9 @@ if __name__ == "__main__":
 
         "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeReset --config_str " + "+" + "+".join(
             ["-nbIter", "5000"] + reset_with_random + ruin_before_restart + nagatama_before_restart),
+
+        "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeResetRuinGetBKS --config_str " + "+" + "+".join(
+            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart + nagatama_before_restart + ruin_when_get_bks),
 
         "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(
             ["-nbIter", "5000"]),
@@ -142,9 +145,9 @@ if __name__ == "__main__":
         #     ["-nbIter", "2000"]),
         # "--run_tag nb2000InitAllRandom --config_str " + "+" + "+".join(
         #     ["-nbIter", "2000"] + fractions_all_random),
-
+        #
         # "--run_tag initSmallTolerate --config_str " + "+" + "+".join(init_small_tolerated),
-
+        #
         # "--run_tag smallNBGranular --config_str " + "+" + "+".join(["-nbGranular", "20"]),
         # "--run_tag smallTargetFeasible --config_str " + "+" + "+".join(["-targetFeasible", "0.2"]),
         # "--run_tag bigTargetFeasible --config_str " + "+" + "+".join(["-targetFeasible", "0.5"]),
@@ -153,6 +156,7 @@ if __name__ == "__main__":
 
     ]
 
+    config_string_arr = ["--run_tag todayReady --config_str + "]
     jobs = []
     for config_temp in config_string_arr:
         print(f"config_temp:{config_temp}")

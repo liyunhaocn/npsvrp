@@ -1024,7 +1024,6 @@ DisType EAX::doTwoKindEAX(Solver& pa, Solver& pb, Solver& pc, int kind) {
         auto newCus = EAX::getDiffCusofPb(pa, pcTemp);
 
         if (newCus.size() > 0) {
-//			pc.mRLLocalSearch(0, {});
             pcTemp.mRLLocalSearch(1, newCus);
         }
         else {

@@ -6262,7 +6262,6 @@ Vec<int> Solver::ruinGetRuinCusByRound(int ruinCusNum) {
 
 	//=======
 	//ruinCusNum = std::min<int>(ruinCusNum,input.custCnt-1);
-
 	int v = myRand->pick(input.custCnt) + 1;
 	while (customers[v].routeID == -1) {
 		v = myRand->pick(input.custCnt) + 1;
@@ -6801,7 +6800,6 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 	int perturbkind = pcRuKind.getIndexBasedData();
 
 	Vec<int> ruinCus = getRuinCustomers(perturbkind,ruinCusNum);
-
 	std::unordered_set<int> rIds;
 	for (int cus : ruinCus) {
 		Route& r = rts.getRouteByRid(customers[cus].routeID);
@@ -6837,19 +6835,21 @@ int Solver::CVB2ruinLS(int ruinCusNum) {
 	int clearKind = pcCLKind.getIndexBasedData();
 
 	CVB2BlinkClearEPAllowNewR(clearKind);
-	bks->updateBKSAndPrint(*this, "out and in");
+//	bks->updateBKSAndPrint(*this, "out and in");
 
 	auto changeCustomers = EAX::getDiffCusofPb(solClone, *this);
 	if (changeCustomers.size() > 0) {
 		mRLLocalSearch(1, changeCustomers);
 	}
-    bks->updateBKSAndPrint(*this, "local search");
+
+//    bks->updateBKSAndPrint(*this, "local search");
 
     if (RoutesCost < solClone.RoutesCost) {
 		++pcRuKind.data[perturbkind];
 		++pcCLKind.data[clearKind];
 	}
-	return true;
+
+    return true;
 }
 
 //0 表示不可以增加新路，1表示可以增加新路
