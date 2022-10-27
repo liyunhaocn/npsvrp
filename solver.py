@@ -26,7 +26,6 @@ global_log_info = True
 global_save_current_instance = False
 global_log_error = True
 
-f = open("log/hgs_solver.txt", 'wt')
 
 def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True, weight_arg=[]):
     # LKH/VRP does not take floats (HGS seems to do)
@@ -390,20 +389,17 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDyna
         hgs_cmd = [
             executable, instance_filename, str(max(time_limit, 1)),
             '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1',
-            '-useDynamicParameters', str(useDynamicParameters),
+            # , '-useDynamicParameters', str(useDynamicParameters),
             # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(20),
             # '-doRepeatUntilTimeLimit', '0',
             # '-it', '5000',  # 20000
             '-minimumPopulationSize', '10'
         ]
-    if initial_solution is None:
-        initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
     if initial_solution is not None:
         hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, text=True) as p:
         routes = []
         for line in p.stdout:
-            if global_log_info: print(line, file = f)
             line = line.strip()
             # Parse only lines which contain a route
             if line.startswith('Route'):
@@ -414,9 +410,8 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDyna
             elif line.startswith('Cost'):
                 # End of solution
                 solution = routes
-                # cost = int_func(line.split(" ")[-1].strip())
+                cost = int(line.split(" ")[-1].strip())
                 check_cost = tools.validate_static_solution(instance, solution)
-                cost = check_cost
                 assert cost == check_cost, "Cost of HGS VRPTW solution could not be validated"
                 yield solution, cost
                 # Start next solution
@@ -700,7 +695,9 @@ def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, gap=5
             new_intance['penalty'].append(1000000)
             continue
         # use delta of wxy
-        new_intance['penalty'].append(delta_wyx[i])
+        i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + delta_wyx[i] + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        new_intance['penalty'].append(i_delta)
+
         # # old version
         # i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
         # new_intance['penalty'].append(i_delta)
@@ -747,7 +744,6 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
         args.gap = 214
 
 # add by YxuanwKeith
-# f2 = open("log/predict_info.txt", 'wt')
 def predict_info(epoch_instance, current_epoch, rng, env_virtual):
     mask = np.copy(epoch_instance['must_dispatch'])
     mask[0] = True
@@ -765,18 +761,13 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
 
     cnt = 0
     while cnt < test_num:
-        seed = rng.integers(100000000)
+        seed = rng.integers(100000)
         # seed = 1
 
         env_virtual.import_info(epoch_instance = epoch_instance, virtual_epoch = current_epoch, seed = seed)
         ins = env_virtual.step_num(epoch_num)
-        # if global_log_info: print(ins, file = f2)
 
-        solutions = list(solve_static_vrptw(ins, time_limit = 10, seed = seed, useDynamicParameters=1))
-        if len(solutions) == 0:
-            if global_log_info: print('pass a predict sample')
-            continue
-
+        solutions = list(solve_static_vrptw(ins, time_limit = 15, seed = seed, useDynamicParameters=1))
         epoch_solution, cost = solutions[-1]
         route_dispatch_epoch_max = [max(ins['release_epochs'][route]) for route in epoch_solution]
 
@@ -788,6 +779,10 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
             current_num[route] += 1
 
         # distance_delta info
+        import math
+        def get_distance(a, b):
+            return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+
         distance_delta = np.zeros(origin_num)
         for route in epoch_solution:
             route.insert(0, 0)
@@ -796,7 +791,7 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
                 if idx >= origin_num or idx == 0: 
                     continue
                 idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
-                distance_delta[idx] = ins['duration_matrix'][idx_lst, idx] + ins['duration_matrix'][idx, idx_nxt] - ins['duration_matrix'][idx_lst, idx_nxt]
+                distance_delta[idx] = get_distance(ins['coords'][idx], ins['coords'][idx_lst]) + get_distance(ins['coords'][idx], ins['coords'][idx_nxt]) - get_distance(ins['coords'][idx_lst], ins['coords'][idx_nxt])
 
         distance_delta_ave += distance_delta
         distance_delta_all = np.array([distance_delta]) if distance_delta_all is None else np.vstack((distance_delta_all, distance_delta))
@@ -828,7 +823,7 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
                 if mask_num[idx] > 0:
                     continue
                 idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
-                delta = ins['duration_matrix'][idx_lst, idx] + ins['duration_matrix'][idx, idx_nxt] - ins['duration_matrix'][idx_lst, idx_nxt]
+                delta = get_distance(ins['coords'][idx], ins['coords'][idx_lst]) + get_distance(ins['coords'][idx], ins['coords'][idx_nxt]) - get_distance(ins['coords'][idx_lst], ins['coords'][idx_nxt])
                 if (delta > distance_delta_ave[idx]):
                     continue
                 mask_num[idx] = 1
