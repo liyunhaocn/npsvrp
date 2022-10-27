@@ -1,4 +1,3 @@
-
 import csv
 import functools
 import math
@@ -25,6 +24,8 @@ from environment_virtual import VRPEnvironmentVirtual
 global_log_info = True
 global_save_current_instance = False
 global_log_error = True
+
+# f = open("log/hgs_solver.txt", 'wt')
 
 
 def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True, weight_arg=[]):
@@ -127,8 +128,8 @@ def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_v
     my_stdin.write("EOF\n")
     my_stdin.flush()
 
-def get_cpp_base_cmd():
 
+def get_cpp_base_cmd():
     executable = os.path.join('dev', 'SmartRouter')
     if platform.system() == 'Windows' and os.path.isfile(executable + '.exe'):
         executable = executable + '.exe'
@@ -136,6 +137,7 @@ def get_cpp_base_cmd():
 
     cmd = [executable, "readstdin", '-veh', '-1', '-useWallClockTime', '1']
     return cmd
+
 
 def get_initial_weight(instance, seed=1):
     if instance['coords'].shape[0] <= 1:
@@ -156,8 +158,9 @@ def get_initial_weight(instance, seed=1):
             line = line.strip()
             if line.startswith('Weight'):
                 weight = [int(x) for x in line.split(" ")[1:]]
-                assert len(weight) == instance['coords'].shape[0] , "len(weight) == instance['coords'].shape[0]"
+                assert len(weight) == instance['coords'].shape[0], "len(weight) == instance['coords'].shape[0]"
                 yield weight
+
 
 # doDynamicWithEjection drop nodes, must_dispatch number
 # solve_static_vrptw_lyh(instance,weight_arg,arg_call="hgsAndSmart")
@@ -166,12 +169,12 @@ def get_initial_weight(instance, seed=1):
 # solve_static_vrptw_lyh(instance,weight_arg,arg_call="smallInstance")
 
 def solve_static_vrptw_lyh(instance,
-                       time_limit=3600,
-                       seed=1,
-                       initial_solution=None,
-                       weight_arg=[],
-                       config_str="",
-                       arg_call="hgsAndSmart"):
+                           time_limit=3600,
+                           seed=1,
+                           initial_solution=None,
+                           weight_arg=[],
+                           config_str="",
+                           arg_call="hgsAndSmart"):
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
 
@@ -226,7 +229,6 @@ def solve_static_vrptw_lyh(instance,
         assert len(routes) == 0, "HGS has terminated with imcomplete solution (is the line with Cost missing?)"
 
 
-
 def run_baseline_lyh(args, env, oracle_solution=None, strategy=None, seed=None):
     strategy = strategy or args.strategy
     strategy = STRATEGIES[strategy] if isinstance(strategy, str) else strategy
@@ -255,11 +257,13 @@ def run_baseline_lyh(args, env, oracle_solution=None, strategy=None, seed=None):
         epoch_instance = observation['epoch_instance']
 
         if global_log_info is True:
-            log_info(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
+            log_info(
+                f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
                 newline=False)
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_new_requests = num_requests_open - num_requests_postponed
-            log_info(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
+            log_info(
+                f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
                 newline=True, flush=True)
 
         if oracle_solution is not None:
@@ -287,12 +291,12 @@ def run_baseline_lyh(args, env, oracle_solution=None, strategy=None, seed=None):
                 request_weight = []
 
             solutions = list(solve_static_vrptw_lyh(instance=epoch_instance_dispatch,
-                                                time_limit=epoch_tlim-time_get_weight,
-                                                seed=args.solver_seed,
-                                                weight_arg=request_weight,
-                                                config_str=args.config_str,
-                                                arg_call="hgsAndSmart"
-                                                ))
+                                                    time_limit=epoch_tlim - time_get_weight,
+                                                    seed=args.solver_seed,
+                                                    weight_arg=request_weight,
+                                                    config_str=args.config_str,
+                                                    arg_call="hgsAndSmart"
+                                                    ))
             assert len(solutions) > 0, f"No solution found during epoch {observation['current_epoch']}"
             epoch_solution, cost = solutions[-1]
 
@@ -303,7 +307,8 @@ def run_baseline_lyh(args, env, oracle_solution=None, strategy=None, seed=None):
             num_requests_dispatched = sum([len(route) for route in epoch_solution])
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_requests_postponed = num_requests_open - num_requests_dispatched
-            log_info(f" {num_requests_dispatched:3d}/{num_requests_open:3d} dispatched and {num_requests_postponed:3d}/{num_requests_open:3d} postponed | Routes: {len(epoch_solution):2d} with cost {cost:6d}")
+            log_info(
+                f" {num_requests_dispatched:3d}/{num_requests_open:3d} dispatched and {num_requests_postponed:3d}/{num_requests_open:3d} postponed | Routes: {len(epoch_solution):2d} with cost {cost:6d}")
 
         # Submit solution to environment
         observation, reward, done, info = env.step(epoch_solution)
@@ -328,6 +333,7 @@ def log_info(obj, newline=True, flush=False):
     if flush:
         sys.stderr.flush()
 
+
 def log_error(obj, newline=True, flush=False):
     if global_log_error is False:
         return
@@ -338,9 +344,10 @@ def log_error(obj, newline=True, flush=False):
     if flush:
         sys.stderr.flush()
 
-def save_results_csv(csv_path, data_dic):
 
-    fieldnames = ["instance", "customers_num", "cost", "route_mum", "epoch_num", "strategy", "solver_seed", "static", "epoch_tlim", "solution"]
+def save_results_csv(csv_path, data_dic):
+    fieldnames = ["instance", "customers_num", "cost", "route_mum", "epoch_num", "strategy", "solver_seed", "static",
+                  "epoch_tlim", "solution"]
     file_exist = os.path.exists(csv_path)
     # print(f"fieldnames:{fieldnames}")
     with open(csv_path, 'a', encoding='UTF8', newline='') as f:
@@ -389,17 +396,20 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDyna
         hgs_cmd = [
             executable, instance_filename, str(max(time_limit, 1)),
             '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1',
-            # , '-useDynamicParameters', str(useDynamicParameters),
+            '-useDynamicParameters', str(useDynamicParameters),
             # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(20),
             # '-doRepeatUntilTimeLimit', '0',
             # '-it', '5000',  # 20000
             '-minimumPopulationSize', '10'
         ]
+    if initial_solution is None:
+        initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
     if initial_solution is not None:
         hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, text=True) as p:
         routes = []
         for line in p.stdout:
+            # if global_log_info: print(line, file=f)
             line = line.strip()
             # Parse only lines which contain a route
             if line.startswith('Route'):
@@ -410,8 +420,9 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDyna
             elif line.startswith('Cost'):
                 # End of solution
                 solution = routes
-                cost = int(line.split(" ")[-1].strip())
+                # cost = int_func(line.split(" ")[-1].strip())
                 check_cost = tools.validate_static_solution(instance, solution)
+                cost = check_cost
                 assert cost == check_cost, "Cost of HGS VRPTW solution could not be validated"
                 yield solution, cost
                 # Start next solution
@@ -504,7 +515,8 @@ def plt_vrp(observation, coords_solution, coords, save=0, args=None):
     # y_lists = [i[1] for i in coords_solution]
     # plt.plot(x_lists, y_lists)
     co_lists = []
-    w_time_windows = (observation['epoch_instance']['time_windows'][:, 1] - observation['epoch_instance']['duration_matrix'][0, :]) / 3600
+    w_time_windows = (observation['epoch_instance']['time_windows'][:, 1] - observation['epoch_instance'][
+                                                                                'duration_matrix'][0, :]) / 3600
     w_x = observation['epoch_instance']['coords'][:, 0]
     w_y = observation['epoch_instance']['coords'][:, 1]
     w_z = list(range(len(w_y)))
@@ -535,7 +547,7 @@ def plt_vrp(observation, coords_solution, coords, save=0, args=None):
             os.mkdir('plt')
         ints_name = args.instance.split('/')[1].split('.')[0]
         # ints_name = os.path.basename(args.instance)
-        ints_name = 'plt/'+ints_name
+        ints_name = 'plt/' + ints_name
         if not os.path.exists(ints_name):
             os.mkdir(ints_name)
         # os.makedirs(ints_name, exist_ok=True)
@@ -570,7 +582,8 @@ def cul_weight_sol(sol, instance, args, max_epoch=5):
             # test tmp
 
             # tw_all[i][j] = (x1 / max(tw_close[i][j] / 3, 0.3) + x2 * tw_dur[i][j]) / 2 + instance['duration_matrix'][sol[i][j], 0] / avg_dur * x3
-            tw_all[i][j] = x1 / (tw_dur[i][j] + 0.01) + x2 / max(tw_close[i][j], 0.9) + avg_dur / (instance['duration_matrix'][sol[i][j], 0] + 0.01) * x3
+            tw_all[i][j] = x1 / (tw_dur[i][j] + 0.01) + x2 / max(tw_close[i][j], 0.9) + avg_dur / (
+                        instance['duration_matrix'][sol[i][j], 0] + 0.01) * x3
             # tw_all[i][j] = x1/max(tw_open[i][j],0.9) + x2/max(tw_close[i][j],0.9) + instance['duration_matrix'][sol[i][j], 0] / avg_dur * x3
             tw_all[i][j] = 1 / max(tw_close[i][j] / 3, 0.3)
     return tw_all
@@ -679,38 +692,58 @@ def delta_weight_instance(epoch_instance, ndelta, args, gap=500):
             continue
         # i_delta = ndelta.cul_delta(epoch_instance['customer_idx'][i]) + gap
         # i_delta = cul_weight_i(i, epoch_instance, args) * ndelta.cul_delta(epoch_instance['customer_idx'][i]) + gap * epoch_instance['duration_matrix'][i, 0] + 0
-        i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        i_delta = cul_weight_i(i, epoch_instance, args) * gap_w - gap_w + ndelta.cul_delta(
+            epoch_instance['customer_idx'][i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
         # i_delta = cul_weight_i(i, epoch_instance, args) * ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 300
         new_intance['penalty'].append(i_delta)
     return new_intance
 
 
-def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, gap=500):
+def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, mask, delta_wyx, gap=500):
+    def _filter_instance(observation, mask):
+        res = {}
+
+        for key, value in observation.items():
+            if key == 'capacity':
+                res[key] = value
+                continue
+
+            if key == 'duration_matrix':
+                res[key] = value[mask]
+                res[key] = res[key][:, mask]
+                continue
+
+            res[key] = value[mask]
+
+        return res
     new_intance = copy.copy(epoch_instance)
+    # new_intance = _filter_instance(new_intance,mask)
     new_intance['penalty'] = []
     # gap = 500
     gap_w = args.gap
-    for i in range(len(epoch_instance['coords'])):
-        if epoch_instance['must_dispatch'][i]:
+    for i in range(len(new_intance['coords'])):
+        if new_intance['must_dispatch'][i]:
             new_intance['penalty'].append(1000000)
             continue
+        # if mask[i] == False:
+        #     new_intance['penalty'].append(-10000)
+        #     continue
         # use delta of wxy
-        i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + delta_wyx[i] + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + delta_wyx[i]*0.5 + 0 * epoch_instance['duration_matrix'][i, 0] + gap
         new_intance['penalty'].append(i_delta)
-
         # # old version
-        # i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        # i_delta = cul_weight_i(i, new_intance, args)*gap_w - gap_w + ndelta.cul_delta(new_intance['customer_idx'][i]) + 0 * new_intance['duration_matrix'][i, 0] + gap
         # new_intance['penalty'].append(i_delta)
     return new_intance
 
 
-def find_class(area_xy, ratioxy, dis_ratio,args):
+def find_class(area_xy, ratioxy, dis_ratio, args):
     # tmp params
 
     mean_area = 16243198.3
     mean_rarioxy = 2.710696626
     mean_dis_ratio = 2.242701354
-    class_1 = area_xy<10e8 and ratioxy<mean_rarioxy and mean_dis_ratio>mean_dis_ratio
+    class_1 = area_xy < 10e8 and ratioxy < mean_rarioxy and mean_dis_ratio > mean_dis_ratio
     class_2 = area_xy > mean_area and ratioxy > mean_rarioxy
     class_3 = area_xy > mean_area and ratioxy < mean_rarioxy and mean_dis_ratio > mean_dis_ratio
     # if class_1 or class_2 or class_3:
@@ -722,7 +755,7 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
     #     args.early_time2 = 2600
     #     args.gap = 550
     #     return
-    class_4 = area_xy<4e6 and ratioxy < 2
+    class_4 = area_xy < 4e6 and ratioxy < 2
     if class_4:
         args.or_gap = 109
         args.x1 = -4.68
@@ -743,7 +776,9 @@ def find_class(area_xy, ratioxy, dis_ratio,args):
         args.early_time2 = 2600
         args.gap = 214
 
+
 # add by YxuanwKeith
+# f2 = open("log/predict_info.txt", 'wt')
 def predict_info(epoch_instance, current_epoch, rng, env_virtual):
     mask = np.copy(epoch_instance['must_dispatch'])
     mask[0] = True
@@ -761,13 +796,20 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
 
     cnt = 0
     while cnt < test_num:
-        seed = rng.integers(100000)
+        seed = rng.integers(100000000)
         # seed = 1
 
-        env_virtual.import_info(epoch_instance = epoch_instance, virtual_epoch = current_epoch, seed = seed)
+        env_virtual.import_info(epoch_instance=epoch_instance, virtual_epoch=current_epoch, seed=seed)
         ins = env_virtual.step_num(epoch_num)
+        # if global_log_info: print(ins, file = f2)
 
-        solutions = list(solve_static_vrptw(ins, time_limit = 15, seed = seed, useDynamicParameters=1))
+        solutions = list(solve_static_vrptw(ins, time_limit=15, seed=seed, useDynamicParameters=1))
+        if len(solutions) == 0:
+            if global_log_info: print('pass a predict sample')
+            continue
+        with open('sol.txt','a') as f2:
+            print(solutions[-1], file = f2)
+
         epoch_solution, cost = solutions[-1]
         route_dispatch_epoch_max = [max(ins['release_epochs'][route]) for route in epoch_solution]
 
@@ -779,27 +821,25 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
             current_num[route] += 1
 
         # distance_delta info
-        import math
-        def get_distance(a, b):
-            return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
-
         distance_delta = np.zeros(origin_num)
         for route in epoch_solution:
             route.insert(0, 0)
             for i in range(1, len(route)):
                 idx = route[i]
-                if idx >= origin_num or idx == 0: 
+                if idx >= origin_num or idx == 0:
                     continue
                 idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
-                distance_delta[idx] = get_distance(ins['coords'][idx], ins['coords'][idx_lst]) + get_distance(ins['coords'][idx], ins['coords'][idx_nxt]) - get_distance(ins['coords'][idx_lst], ins['coords'][idx_nxt])
+                distance_delta[idx] = ins['duration_matrix'][idx_lst, idx] + ins['duration_matrix'][idx, idx_nxt] - \
+                                      ins['duration_matrix'][idx_lst, idx_nxt]
 
         distance_delta_ave += distance_delta
-        distance_delta_all = np.array([distance_delta]) if distance_delta_all is None else np.vstack((distance_delta_all, distance_delta))
+        distance_delta_all = np.array([distance_delta]) if distance_delta_all is None else np.vstack(
+            (distance_delta_all, distance_delta))
 
         cnt += 1
-    
+
     distance_delta_ave /= test_num
-    
+
     prob = per_5_cut[current_num]
     mask = (mask | rng.binomial(1, p=prob, size=len(mask)).astype(np.bool8))
     for idx in range(len(mask)):
@@ -823,12 +863,13 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
                 if mask_num[idx] > 0:
                     continue
                 idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
-                delta = get_distance(ins['coords'][idx], ins['coords'][idx_lst]) + get_distance(ins['coords'][idx], ins['coords'][idx_nxt]) - get_distance(ins['coords'][idx_lst], ins['coords'][idx_nxt])
+                delta = ins['duration_matrix'][idx_lst, idx] + ins['duration_matrix'][idx, idx_nxt] - \
+                        ins['duration_matrix'][idx_lst, idx_nxt]
                 if (delta > distance_delta_ave[idx]):
                     continue
                 mask_num[idx] = 1
                 mask[idx] = True
-    
+
     return mask, mask_num, distance_delta_ave, distance_delta_all
 
 
@@ -846,9 +887,9 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
 
     num_requests_postponed = 0
     if static_info['num_epochs'] > 1:
-
         # add by YxuanwKeith
-        env_virtual = VRPEnvironmentVirtual(seed=args.instance_seed, instance=static_info['dynamic_context'], epoch_tlim=args.epoch_tlim, is_static=args.static)
+        env_virtual = VRPEnvironmentVirtual(seed=args.instance_seed, instance=static_info['dynamic_context'],
+                                            epoch_tlim=args.epoch_tlim, is_static=args.static)
 
         ndelta = Mydelta(static_info['dynamic_context'], args.solver_seed, args.rand_num)
         bin_data_0 = static_info['dynamic_context']['coords'][:, 0]
@@ -867,14 +908,14 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
         #     args.sol_x2 = 3
         #     args.sol_x3 = 0.15
         # add find_class
-        find_class(area_xy, ratioxy, dis_ratio,args)
+        find_class(area_xy, ratioxy, dis_ratio, args)
 
     while not done:
         start_time = time.time()
         if static_info['num_epochs'] > 1:
             max_epoches = static_info['end_epoch'] - static_info['start_epoch'] + 1
             # tmp_k = max(115 - (observation['current_epoch'] - static_info['start_epoch'] - 1) * 20, 50)
-            tmp_k = max(150 - (observation['current_epoch'] - static_info['start_epoch']) * int(100/max_epoches), 30)
+            tmp_k = max(150 - (observation['current_epoch'] - static_info['start_epoch']) * int(100 / max_epoches), 30)
             # log_info(f" k = {tmp_k} ")
             ndelta.reset_rand_num(tmp_k)
         best_sol = list()
@@ -890,11 +931,13 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
         # log_info(f"mean = {args.avg}")
 
         if global_log_info is True:
-            log_info(f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
+            log_info(
+                f"Epoch {static_info['start_epoch']} <= {observation['current_epoch']} <= {static_info['end_epoch']}",
                 newline=False)
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_new_requests = num_requests_open - num_requests_postponed
-            log_info(f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
+            log_info(
+                f" | Requests: +{num_new_requests:3d} = {num_requests_open:3d}, {epoch_instance['must_dispatch'].sum():3d}/{num_requests_open:3d} must-go...",
                 newline=False, flush=True)
 
         if oracle_solution is not None:
@@ -926,19 +969,21 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
             if use_dyn == 0:
                 solutions = list(
                     solve_static_vrptw_lyh(epoch_instance, time_limit=int(epoch_tlim),
-                                            seed=args.solver_seed))
+                                           seed=args.solver_seed))
                 epoch_solution, cost = solutions[-1]
             else:
                 use_ortools = 1
                 if use_ortools:
                     #  test OR_tools
-                    # use delta of wxy
-                    mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
-                    or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args, distance_delta_ave, gap=args.or_gap)
-                    running_time = 10
-
-                    # or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
-                    # running_time = int(epoch_tlim/2 - (time.time()-start_time))
+                    # use delta of wyx
+                    use_my_delte = 1
+                    if use_my_delte == 0:
+                        mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
+                        or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args,mask, distance_delta_ave, gap=args.or_gap)
+                        running_time = 10
+                    else:
+                        or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
+                        running_time = int(epoch_tlim/2 - (time.time()-start_time))
                     # use lyh_solver
                     # weight_arg = [int(i) for i in or_epoch_instance['penalty']]
                     # weight_arg[0] = 0
@@ -1091,7 +1136,8 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
             num_requests_open = len(epoch_instance['request_idx']) - 1
             num_requests_postponed = num_requests_open - num_requests_dispatched
             each_node_dis = -reward / num_requests_dispatched if num_requests_dispatched != 0 else 0
-            log_info(f" {num_requests_dispatched:3d}/{num_requests_open:3d} dispatched and {num_requests_postponed:3d}/{num_requests_open:3d} postponed | Routes: {len(epoch_solution):2d} with cost {-reward:6d} "
+            log_info(
+                f" {num_requests_dispatched:3d}/{num_requests_open:3d} dispatched and {num_requests_postponed:3d}/{num_requests_open:3d} postponed | Routes: {len(epoch_solution):2d} with cost {-reward:6d} "
                 f"| Each node: {int(each_node_dis):4d}")
 
         # assert cost is None or reward == -cost, "Reward should be negative cost of solution"
@@ -1104,7 +1150,6 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
         # log_info(f"Cost of solution: {sum(env.final_costs.values())}")
 
     return total_reward
-
 
 
 if __name__ == "__main__":
@@ -1150,7 +1195,6 @@ if __name__ == "__main__":
         # If tmp dir is manually provided, don't clean it up (for debugging)
         cleanup_tmp_dir = False
 
-
     try:
         h = time.strftime("%H", time.localtime())
         m = time.strftime("%M", time.localtime())
@@ -1177,7 +1221,7 @@ if __name__ == "__main__":
             run_oracle(args, env)
         else:
             re_all = run_baseline(args, env)
-            #print(re_all)
+            # print(re_all)
         if args.instance is not None:
             log_info(tools.json_dumps_np(env.final_solutions))
 
