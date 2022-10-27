@@ -164,7 +164,8 @@ public:
 					// Output error message and help menu to the command line
 					std::cout << "----- ARGUMENT NOT RECOGNIZED: " << std::string(argv[i]) << std::endl;
 					display_help();
-					throw std::string("Incorrect line of command");
+					throw std::string("Incorrect line of command "+ std::string(argv[i]));
+
 				}
 			}
 		}

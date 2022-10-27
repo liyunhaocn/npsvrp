@@ -26,7 +26,7 @@ global_log_info = False
 global_save_current_instance = False
 global_log_error = True
 
-global_use_my_delta = 1
+global_use_my_delta = 0
 
 # f = open("log/hgs_solver.txt", 'wt')
 
@@ -344,7 +344,8 @@ if global_log_info:
 
 def log_file(obj, newline=True, flush=False):
     # Write logs to stderr since program uses stdout to communicate with controller
-    print(str(obj), file=f)
+    if global_log_info:
+        print(str(obj), file=f)
 
 
 def log_info(obj, newline=True, flush=False):

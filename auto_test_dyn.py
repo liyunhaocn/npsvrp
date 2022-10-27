@@ -6,14 +6,12 @@ import json
 import copy
 import sys
 import numpy as np
-import threading
 from environment import VRPEnvironment
 import os
 import re
 import random
 import threading
 from random import randrange
-# import numpy as np
 import csv
 from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED, FIRST_COMPLETED
 
@@ -48,6 +46,8 @@ cmd_test_g.append('solver.py')
 # cmd_test_g.append('solver.py')  # 0928
 cmd_test_g.append('--epoch_tlim')
 cmd_test_g.append('100')
+cmd_test_g.append('--run_tag')
+cmd_test_g.append('v1_only_delta')
 # cmd_test_g.append('--verbose')
 # cmd_test_g.append('--instance')
 # cmd_test_g.append('instances/ORTEC-VRPTW-ASYM-00c5356f-d1-n258-k12.txt')
@@ -91,18 +91,18 @@ def mult_process(instance,rand_num,or_gap,x1,x2,x3,early_time1,early_time2,gap,s
 
         for line in p.stdout:
             line = line.strip()
-            request = json.loads(line)
-
-            if line.startswith('zjj_re'):
-                request = float(request.split(',')[1])
-                date_dir = './results'
-                file = 'zjj_wxy.csv'
-                file = os.path.join(date_dir,file)
-                data = [instance.split('/')[1], -request]
-                threadlock.acquire()
-                write_csv(file, data)
-                threadlock.release()
-                return -request
+            # request = json.loads(line)
+            #
+            # if line.startswith('zjj_re'):
+            #     request = float(request.split(',')[1])
+            #     date_dir = './results'
+            #     file = 'zjj_wxy.csv'
+            #     file = os.path.join(date_dir,file)
+            #     data = [instance.split('/')[1], -request]
+            #     threadlock.acquire()
+            #     write_csv(file, data)
+            #     threadlock.release()
+            #     return -request
 
 threadlock = threading.Lock()
 threadlocks = []
@@ -110,7 +110,6 @@ threadlocks = []
 def geatpy_bench(rand_num,or_gap,x1,x2,x3,early_time1,early_time2,gap,sol_x1,sol_x2,sol_x3):
     random.seed(66)
     thread_list = []
-    seeds = [111, 1234, 2222, 465, 4567, 5555, 66666, 777777, 888888, 999999]
     # ###############=======================================##################
     instances_filters = "instances_bench_old"
     instances_filters = "instances_bench_7"
@@ -123,7 +122,8 @@ def geatpy_bench(rand_num,or_gap,x1,x2,x3,early_time1,early_time2,gap,sol_x1,sol
     instances_filters = "instances"
     root, dirs, files = file_name(instances_filters)
     # files = ['ORTEC-VRPTW-ASYM-b7ae3aa2-d1-n304-k23.txt',
-    #          'ORTEC-VRPTW-ASYM-f77bf975-d1-n342-k25.txt'
+    #          'ORTEC-VRPTW-ASYM-f77bf975-d1-n342-k25.txt',
+    #          'ORTEC-VRPTW-ASYM-6f54fdb4-d1-n392-k25.txt'
     # ]
     instances_names = [instances_filters+'/'+i for i in files]
     # print(instances_names)
@@ -157,15 +157,15 @@ def geatpy_bench(rand_num,or_gap,x1,x2,x3,early_time1,early_time2,gap,sol_x1,sol
         thread_list.append(pool.submit(mult_process, i,rand_num,or_gap,x1,x2,x3,early_time1,early_time2,gap,sol_x1,sol_x2,sol_x3))
     wait(thread_list, return_when=ALL_COMPLETED)
     result_all = 0
-    for i in range(len(instances_names)):
-        r = -111
-        # r = thread_list[i].result()
-        if r:   
-            result_all += thread_list[i].result()
-        else:
-            result_all += 500000
-        # print('thread ' + str(i) + ' = ' + str(thread_list[i].result()))
-        print(str(thread_list[i].result()))
+    # for i in range(len(instances_names)):
+    #     r = -111
+    #     # r = thread_list[i].result()
+    #     if r:
+    #         result_all += thread_list[i].result()
+    #     else:
+    #         result_all += 500000
+    #     # print('thread ' + str(i) + ' = ' + str(thread_list[i].result()))
+    #     print(str(thread_list[i].result()))
     #print(thread_list[0].result(),"++++",thread_list[1].result())
     pool.shutdown()
     print("========================"+str(result_all)+"==========================")
