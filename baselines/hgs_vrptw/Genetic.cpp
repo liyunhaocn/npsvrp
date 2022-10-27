@@ -19,6 +19,12 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 	}
 	// Do iterations of the Genetic Algorithm, until more then maxIterNonProd consecutive iterations without improvement or a time limit (in seconds) is reached
 	int nbIterNonProd = 1;
+
+    Individual best200 = *population->getBestFound();
+    double oldCost = best200.myCostSol.penalizedCost;
+
+//    std::cerr<<"params->getTimeElapsedSeconds():"<< params->getTimeElapsedSeconds()<<std::endl;
+
 	for (int nbIter = 0; nbIterNonProd <= maxIterNonProd && !params->isTimeLimitExceeded(); nbIter++)
 	{
 		/* SELECTION AND CROSSOVER */
@@ -58,6 +64,25 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 		{
 			population->managePenalties();
 		}
+
+        if(nbIter > 0 && nbIter % 100 ==0 && params->config.quickStop){
+
+            auto curBest = population->getBestFound()->myCostSol.penalizedCost;
+            auto best200cost = best200.myCostSol.penalizedCost;
+            double sub = oldCost - curBest;
+            bool upOneTime = std::abs(sub) > 1;
+//            std::cerr<<"(best200cost-curBest): " << (best200cost-curBest)
+//            << " best200cost: "<<best200cost<<std::endl;
+//            std::cerr<<"100iter getTimeElapsedSeconds():"<< params->getTimeElapsedSeconds()<<std::endl;
+
+            if( (best200cost-curBest) * 300 < best200cost && upOneTime){
+
+//                std::cerr<<"break" << "nbIter:"<<nbIter<<std::endl;
+                break;
+            }
+//            std::cerr<<"not break" << "nbIter:"<<nbIter<<std::endl;
+            best200 = *population->getBestFound();
+        }
 		// Print the state of the population every 500 iterations
 		if (nbIter % 500 == 0)
 		{

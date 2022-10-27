@@ -153,6 +153,12 @@ public:
 					config.circleSectorOverlapToleranceDegrees = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-minCircleSectorSizeDegrees")
 					config.minCircleSectorSizeDegrees = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-predictSample")
+					config.predictSample = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-fractionUse2opt")
+					config.fractionUse2opt = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-quickStop")
+					config.quickStop = atoi(argv[i + 1]);
 				else
 				{
 					// Output error message and help menu to the command line

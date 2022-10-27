@@ -1,4 +1,5 @@
 import csv
+import datetime
 import functools
 import math
 import time
@@ -21,12 +22,13 @@ import area_tool
 
 from environment_virtual import VRPEnvironmentVirtual
 
-global_log_info = True
+global_log_info = False
 global_save_current_instance = False
 global_log_error = True
 
-# f = open("log/hgs_solver.txt", 'wt')
+global_use_my_delta = 1
 
+# f = open("log/hgs_solver.txt", 'wt')
 
 def write_vrplib_stdin(my_stdin, instance, name="problem", euclidean=False, is_vrptw=True, weight_arg=[]):
     # LKH/VRP does not take floats (HGS seems to do)
@@ -323,6 +325,28 @@ def run_baseline_lyh(args, env, oracle_solution=None, strategy=None, seed=None):
     return total_reward
 
 
+def get_datetime_str(style='dt'):
+    cur_time = datetime.datetime.now()
+
+    date_str = cur_time.strftime('%y%m%d')
+    time_str = cur_time.strftime('%H%M%S')
+
+    if style == 'data':
+        return date_str
+    elif style == 'time':
+        return time_str
+    else:
+        return date_str + '_' + time_str
+
+
+if global_log_info:
+    f = open("stdcerr/log_" + get_datetime_str() + ".txt", 'wt')
+
+def log_file(obj, newline=True, flush=False):
+    # Write logs to stderr since program uses stdout to communicate with controller
+    print(str(obj), file=f)
+
+
 def log_info(obj, newline=True, flush=False):
     if global_log_info is False:
         return
@@ -349,7 +373,7 @@ def save_results_csv(csv_path, data_dic):
     fieldnames = ["instance", "customers_num", "cost", "route_mum", "epoch_num", "strategy", "solver_seed", "static",
                   "epoch_tlim", "solution"]
     file_exist = os.path.exists(csv_path)
-    # print(f"fieldnames:{fieldnames}")
+    # log_info(f"fieldnames:{fieldnames}")
     with open(csv_path, 'a', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
         if not file_exist:
@@ -357,9 +381,87 @@ def save_results_csv(csv_path, data_dic):
         data_replace_order = []
         for key in fieldnames:
             data_replace_order.append(data_dic[key])
-        # print(f"data_replace_order:{data_replace_order}")
+        # log_info(f"data_replace_order:{data_replace_order}")
         writer.writerow(data_replace_order)
 
+def solve_static_vrptw_wyx(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDynamicParameters=0, initial_solution=None):
+    # Prevent passing empty instances to the static solver, e.g. when
+    # strategy decides to not dispatch any requests for the current epoch
+    if instance['coords'].shape[0] <= 1:
+        yield [], 0
+        return
+
+    if instance['coords'].shape[0] <= 2:
+        solution = [[1]]
+        cost = tools.validate_static_solution(instance, solution)
+        yield solution, cost
+        return
+
+    os.makedirs(tmp_dir, exist_ok=True)
+    instance_filename = os.path.join(tmp_dir, "problem.vrptw")
+    tools.write_vrplib(instance_filename, instance, is_vrptw=True)
+
+    executable = os.path.join('baselines', 'hgs_vrptw', 'genvrp')
+    # On windows, we may have genvrp.exe
+    if platform.system() == 'Windows' and os.path.isfile(executable + '.exe'):
+        executable = executable + '.exe'
+    assert os.path.isfile(executable), f"HGS executable {executable} does not exist!"
+    # Call HGS solver with unlimited number of vehicles allowed and parse outputs
+    # Subtract two seconds from the time limit to account for writing of the instance and delay in enforcing the time limit by HGS
+    hgs_cmd = [
+        executable, instance_filename, str(max(time_limit, 1)),
+        '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1'
+        # ,'-useDynamicParameters', str(useDynamicParameters),
+        # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(5000),
+        # '-minimumPopulationSize','100'
+    ]
+    if useDynamicParameters == 1:
+        hgs_cmd = [
+            executable, instance_filename, str(max(time_limit, 1)),
+            '-seed', str(seed), '-veh', '-1', '-useWallClockTime', '1',
+            '-useDynamicParameters', str(useDynamicParameters),
+            # '-nbGranular', '40', '-doRepeatUntilTimeLimit', '0', '-growPopulationAfterIterations', str(20),
+            # '-doRepeatUntilTimeLimit', '0',
+            # '-it', '5000',  # 20000
+            '-minimumPopulationSize', '10',
+            '-predictSample', '1',
+            '-fractionUse2opt', '10',
+            '-quickStop', '1'
+        ]
+    if initial_solution is None:
+        initial_solution = [[i] for i in range(1, instance['coords'].shape[0])]
+    if initial_solution is not None:
+        hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
+
+    log_info(" ".join(hgs_cmd))
+    with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, text=True) as p:
+        routes = []
+        for line in p.stdout:
+            # if global_log_info: log_info(line, file=f)
+            line = line.strip()
+            # Parse only lines which contain a route
+            if line.startswith('Route'):
+                label, route = line.split(": ")
+                route_nr = int(label.split("#")[-1])
+                assert route_nr == len(routes) + 1, "Route number should be strictly increasing"
+                routes.append([int(node) for node in route.split(" ")])
+            elif line.startswith('Cost'):
+                log_file(f"wyx:line:{line}")
+                # End of solution
+                solution = routes
+                # cost = int_func(line.split(" ")[-1].strip())
+                check_cost = tools.validate_static_solution(instance, solution)
+                cost = check_cost
+                assert cost == check_cost, "Cost of HGS VRPTW solution could not be validated"
+                yield solution, cost
+                # Start next solution
+                routes = []
+            elif line.startswith("Time"):
+                log_file(f"wyx:line:{line}")
+            elif "EXCEPTION" in line:
+                raise Exception("HGS failed with exception: " + line)
+
+        assert len(routes) == 0, "HGS has terminated with imcomplete solution (is the line with Cost missing?)"
 
 def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDynamicParameters=0, initial_solution=None):
     # Prevent passing empty instances to the static solver, e.g. when
@@ -409,7 +511,7 @@ def solve_static_vrptw(instance, time_limit=3600, tmp_dir="tmp", seed=1, useDyna
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, text=True) as p:
         routes = []
         for line in p.stdout:
-            # if global_log_info: print(line, file=f)
+            # if global_log_info: log_info(line, file=f)
             line = line.strip()
             # Parse only lines which contain a route
             if line.startswith('Route'):
@@ -735,8 +837,8 @@ def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, mask, delta_wyx,
         # i_delta = cul_weight_i(i, new_intance, args)*gap_w - gap_w + ndelta.cul_delta(new_intance['customer_idx'][i]) + 0 * new_intance['duration_matrix'][i, 0] + gap
         # new_intance['penalty'].append(i_delta)
     # with open('diff_delta.txt', 'a') as f2:
-    #     print(new_intance['penalty'], file=f2)
-    #     print(delta_wyx, file=f2)
+    #     log_info(new_intance['penalty'], file=f2)
+    #     log_info(delta_wyx, file=f2)
     return new_intance
 
 
@@ -804,12 +906,12 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp):
 
         env_virtual.import_info(epoch_instance=epoch_instance, virtual_epoch=current_epoch, seed=seed)
         ins = env_virtual.step_num(epoch_num)
-        with open('ins.txt','a') as f2:
-            print(ins, file = f2)
+        # with open('ins.txt','a') as f2:
+        #     log_info(ins, file = f2)
 
-        solutions = list(solve_static_vrptw(ins, time_limit=15,tmp_dir=tmp, seed=seed, useDynamicParameters=1))
+        solutions = list(solve_static_vrptw_wyx(ins, time_limit=15, tmp_dir=tmp, seed=seed, useDynamicParameters=1))
         if len(solutions) == 0:
-            if global_log_info: print('pass a predict sample')
+            if global_log_info: log_info('pass a predict sample')
             continue
 
         epoch_solution, cost = solutions[-1]
@@ -943,13 +1045,13 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
             if static_info['end_epoch'] < 2:
                 use_dyn = 0
             repeat_time = 1
-            # # print("Time ", i)
+            # # log_info("Time ", i)
             epoch_instance = observation['epoch_instance']
             max_epoch = static_info['end_epoch']
 
             # add by YxuanwKeith
             # a, b, c, d = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
-            # print(a, '\n\n', b, '\n\n', c, '\n\n', d)
+            # log_info(a, '\n\n', b, '\n\n', c, '\n\n', d)
 
             if strategy == "weight":
                 epoch_instance_dispatch = STRATEGIES[strategy](epoch_instance, rng, max_epoch)
@@ -966,8 +1068,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                 if use_ortools:
                     #  test OR_tools
                     # use delta of wyx
-                    use_my_delte = 0
-                    if use_my_delte == 0:
+                    if global_use_my_delta == 0:
                         mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual, args.tmp_dir)
                         or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args,mask, distance_delta_ave, gap=args.or_gap)
                         running_time = 10
@@ -1021,7 +1122,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                             continue
                         # early_time = epoch_instance['time_windows'][route[0], 0]/2+epoch_instance['time_windows'][route[0], 1]/2-epoch_instance['duration_matrix'][0, route[0]]
                         new_earlyest_time = cul_early_time(route, epoch_instance)
-                        # print(f"early_time = {early_time}, new_earlyest_time = {new_earlyest_time} ")
+                        # log_info(f"early_time = {early_time}, new_earlyest_time = {new_earlyest_time} ")
                         if new_earlyest_time < args.early_time1:
                             new_epoch_solution.append(route)
                             if global_log_info is True:
@@ -1078,7 +1179,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                                     continue
 
                                 new_earlyest_time = cul_early_time(route, epoch_instance_dispatch_2)
-                                # print(early_time)
+                                # log_info(early_time)
                                 if new_earlyest_time < args.early_time2:
                                     new_epoch_solution.append(route)
                                     if global_log_info is True:
@@ -1180,7 +1281,7 @@ if __name__ == "__main__":
     if args.tmp_dir is None:
         # Generate random tmp directory
         args.tmp_dir = os.path.join("tmp", str(uuid.uuid4()))
-        print(args.tmp_dir)
+        log_info(args.tmp_dir)
         cleanup_tmp_dir = True
     else:
         # If tmp dir is manually provided, don't clean it up (for debugging)
@@ -1212,7 +1313,7 @@ if __name__ == "__main__":
             run_oracle(args, env)
         else:
             re_all = run_baseline(args, env)
-            print('zjj_re,'+str(re_all))
+            log_info('zjj_re,'+str(re_all))
         if args.instance is not None:
             log_info(tools.json_dumps_np(env.final_solutions))
 
@@ -1220,7 +1321,7 @@ if __name__ == "__main__":
 
             result_dic = args_dic
             ymd = time.strftime("%m_%d", time.localtime())
-            # print(f"ymd:{ymd}")
+            # log_info(f"ymd:{ymd}")
             result_dic["cost"] = -re_all
             result_dic["route_mum"] = 0
             for key, value in env.final_solutions.items():

@@ -114,7 +114,10 @@ public:
 		std::string pathInstance;							// Instance path
 		bool useSymmetricCorrelatedVertices = false;		// When correlation matrix is symmetric
 		bool doRepeatUntilTimeLimit = true;					// When to repeat the algorithm when max nr of iter is reached, but time limit is not
-	};
+	    int predictSample = 1;
+	    int fractionUse2opt = 100;
+	    int quickStop = 0;
+    };
 
 	Config config;						// Stores all the parameter values
 	XorShift128 rng;					// Fast random number generator

@@ -335,7 +335,8 @@ void LocalSearch::run(Individual* indiv, double penaltyCapacityLS, double penalt
 		}
 
 		/* CLASSICAL ROUTE IMPROVEMENT (RI) MOVES SUBJECT TO A PROXIMITY RESTRICTION */
-		for (int posU = 0; posU < params->nbClients; posU++)
+        int x = params->config.predictSample;
+		for (int posU = 0; posU < params->nbClients; posU+=x)
 		{
 			nodeU = &clients[orderNodes[posU]];
 			int lastTestRINodeU = nodeU->whenLastTestedRI;
@@ -353,12 +354,14 @@ void LocalSearch::run(Individual* indiv, double penaltyCapacityLS, double penalt
 					setLocalVariablesRouteV();
 					if (MoveSingleClient()) continue; // RELOCATE
 					if (MoveTwoClients()) continue; // RELOCATE
-					if (MoveTwoClientsReversed()) continue; // RELOCATE
-					if (nodeUIndex < nodeVIndex && SwapTwoSingleClients()) continue; // SWAP
-					if (SwapTwoClientsForOne()) continue; // SWAP
-					if (nodeUIndex < nodeVIndex && SwapTwoClientPairs()) continue; // SWAP
-					if (routeU->cour < routeV->cour && TwoOptBetweenTrips()) continue; // 2-OPT*
-					if (routeU == routeV && TwoOptWithinTrip()) continue; // 2-OPT
+                    if(params->rng()%100 < params->config.fractionUse2opt) {
+                        if (MoveTwoClientsReversed()) continue; // RELOCATE
+                        if (nodeUIndex < nodeVIndex && SwapTwoSingleClients()) continue; // SWAP
+                        if (SwapTwoClientsForOne()) continue; // SWAP
+                        if (nodeUIndex < nodeVIndex && SwapTwoClientPairs()) continue; // SWAP
+                        if (routeU->cour < routeV->cour && TwoOptBetweenTrips()) continue; // 2-OPT*
+                        if (routeU == routeV && TwoOptWithinTrip()) continue; // 2-OPT
+                    }
 
 				   // Trying moves that insert nodeU directly after the depot
 					if (nodeV->prev->isDepot)

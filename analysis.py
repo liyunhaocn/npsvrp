@@ -72,7 +72,7 @@ if __name__ == "__main__":
     #         sort_csv(r"results/" + file)
     # exit(0)
 
-    sort_csv(r"results/[10_27][static][nb5000InitDefaultResetRandomRuinNaMABeforeResetRuinGetBKS].csv")
+    sort_csv(r"results/[10_27][static][todayReady].csv")
     exit(0)
 
     # get_more_than_one_times_in_one_run(r"results/[10_08][dynamic][greedy][smartonly].csv")
