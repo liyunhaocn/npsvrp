@@ -734,6 +734,9 @@ def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, mask, delta_wyx,
         # # old version
         # i_delta = cul_weight_i(i, new_intance, args)*gap_w - gap_w + ndelta.cul_delta(new_intance['customer_idx'][i]) + 0 * new_intance['duration_matrix'][i, 0] + gap
         # new_intance['penalty'].append(i_delta)
+    # with open('diff_delta.txt', 'a') as f2:
+    #     print(new_intance['penalty'], file=f2)
+    #     print(delta_wyx, file=f2)
     return new_intance
 
 
@@ -807,8 +810,6 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
         if len(solutions) == 0:
             if global_log_info: print('pass a predict sample')
             continue
-        with open('sol.txt','a') as f2:
-            print(solutions[-1], file = f2)
 
         epoch_solution, cost = solutions[-1]
         route_dispatch_epoch_max = [max(ins['release_epochs'][route]) for route in epoch_solution]
@@ -895,19 +896,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
         bin_data_0 = static_info['dynamic_context']['coords'][:, 0]
         bin_data_1 = static_info['dynamic_context']['coords'][:, 1]
         area_xy, ratioxy, dis_ratio = area_tool.get_classes(static_info['dynamic_context'])
-        # if ratioxy<2 and dis_ratio<2:
-        #     # PRAMS = '150	101    -4.68	9.64	-0.6	-26000	-26000	550	0	3	0.15'  # for 0_0_0 and its remain_ins :prams3
-        #     args.or_gap = 109
-        #     args.x1 = -4.68
-        #     args.x2 = 9.64
-        #     args.x3 = -0.6
-        #     args.early_time1 = 1200
-        #     args.early_time2 = -2000
-        #     args.gap = 550
-        #     args.sol_x1 = 0
-        #     args.sol_x2 = 3
-        #     args.sol_x3 = 0.15
-        # add find_class
+
         find_class(area_xy, ratioxy, dis_ratio, args)
 
     while not done:
@@ -976,7 +965,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                 if use_ortools:
                     #  test OR_tools
                     # use delta of wyx
-                    use_my_delte = 1
+                    use_my_delte = 0
                     if use_my_delte == 0:
                         mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
                         or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args,mask, distance_delta_ave, gap=args.or_gap)

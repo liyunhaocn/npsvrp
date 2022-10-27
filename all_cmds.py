@@ -29,8 +29,8 @@ def get_tlim_of_static(path_path):
 
 
 def get_tlim_of_dynamic():
-    # return 5
-    return int(60 * 1807 / 1981)
+    return 100
+    # return int(60 * 1807 / 1981)
 
 
 def get_all_instances_paths():
