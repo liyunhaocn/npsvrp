@@ -782,7 +782,7 @@ def find_class(area_xy, ratioxy, dis_ratio, args):
 
 # add by YxuanwKeith
 # f2 = open("log/predict_info.txt", 'wt')
-def predict_info(epoch_instance, current_epoch, rng, env_virtual):
+def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp):
     mask = np.copy(epoch_instance['must_dispatch'])
     mask[0] = True
 
@@ -804,9 +804,10 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual):
 
         env_virtual.import_info(epoch_instance=epoch_instance, virtual_epoch=current_epoch, seed=seed)
         ins = env_virtual.step_num(epoch_num)
-        # if global_log_info: print(ins, file = f2)
+        with open('ins.txt','a') as f2:
+            print(ins, file = f2)
 
-        solutions = list(solve_static_vrptw(ins, time_limit=15, seed=seed, useDynamicParameters=1))
+        solutions = list(solve_static_vrptw(ins, time_limit=15,tmp_dir=tmp, seed=seed, useDynamicParameters=1))
         if len(solutions) == 0:
             if global_log_info: print('pass a predict sample')
             continue
@@ -967,7 +968,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     # use delta of wyx
                     use_my_delte = 0
                     if use_my_delte == 0:
-                        mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
+                        mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual, args.tmp_dir)
                         or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args,mask, distance_delta_ave, gap=args.or_gap)
                         running_time = 10
                     else:
@@ -1179,6 +1180,7 @@ if __name__ == "__main__":
     if args.tmp_dir is None:
         # Generate random tmp directory
         args.tmp_dir = os.path.join("tmp", str(uuid.uuid4()))
+        print(args.tmp_dir)
         cleanup_tmp_dir = True
     else:
         # If tmp dir is manually provided, don't clean it up (for debugging)
@@ -1210,7 +1212,7 @@ if __name__ == "__main__":
             run_oracle(args, env)
         else:
             re_all = run_baseline(args, env)
-            # print(re_all)
+            print('zjj_re,'+str(re_all))
         if args.instance is not None:
             log_info(tools.json_dumps_np(env.final_solutions))
 
