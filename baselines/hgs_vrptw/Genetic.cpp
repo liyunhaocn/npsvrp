@@ -75,7 +75,7 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
 //            << " best200cost: "<<best200cost<<std::endl;
 //            std::cerr<<"100iter getTimeElapsedSeconds():"<< params->getTimeElapsedSeconds()<<std::endl;
 
-            if( (best200cost-curBest) * 30 < best200cost && upOneTime){
+            if( (best200cost-curBest) * 100 < best200cost && upOneTime){
 
 //                std::cerr<<"break" << "nbIter:"<<nbIter<<std::endl;
                 break;
