@@ -881,7 +881,7 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp, tlim):
     distance_delta_ave = np.zeros(origin_num)
     mask_num = np.zeros(origin_num)
     route_pass = []
-    max_time_once = 12
+    max_time_once = 15
 
     cnt = 0
     while time.time() - predict_start_time + max_time_once < tlim:
@@ -918,6 +918,7 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp, tlim):
 
         cnt += 1
 
+    log_info(f"predict cnt : {cnt}")
     distance_delta_ave /= cnt
 
     return distance_delta_ave, distance_delta_all
