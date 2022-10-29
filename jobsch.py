@@ -87,6 +87,14 @@ if __name__ == "__main__":
         "-fractionGeneratedRandomly", "1.00",
     ]
 
+    fractions_default_and_smart = [
+        "-fractionGeneratedNearest", "0.05",
+        "-fractionGeneratedSmart", "0.05",
+        "-fractionGeneratedFurthest", "0.05",
+        "-fractionGeneratedSweep", "0.05",
+        "-fractionGeneratedRandomly", "0.80",
+    ]
+
     grow_population_argv = [
         "-minimumPopulationSize", "10",
         "-growPopulationSize", "5",
@@ -110,31 +118,51 @@ if __name__ == "__main__":
     ruin_before_restart = ["-ruinBeforeRestart", "1"]
     reset_with_random = ["-resetPopulationWithAllRandom", "1"]
     ruin_when_get_bks = ["-ruinWhenGetBKS", "1"]
+    nb5k = ["-nbIter", "5000"]
+    nb1w = ["-nbIter", "10000"]
+
+    pop30 = [
+        "-minimumPopulationSize", "30",
+    ]
 
     config_string_arr = [
-        "--run_tag HGSDefault --config_str + ",
+        # "--run_tag HGSDefault --config_str + ",
 
-        # done
-        "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart),
+        # "--run_tag nb5000InitDefaultResetWithRandom --config_str " + "+" + "+".join(
+        #      nb5000 + reset_with_random),
 
-        "--run_tag nb5000InitDefaultResetRandomRuinGetBKS --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"] + reset_with_random + ruin_when_get_bks),
+        "--run_tag nb1wPop30InitDefAndSmartRuinBeforeReset --config_str " + "+" + "+".join(
+            nb1w + pop30 + fractions_default_and_smart + ruin_before_restart),
 
-        "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeReset --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart + nagatama_before_restart),
+        "--run_tag nb1wPop30InitDefAndSmart --config_str " + "+" + "+".join(
+            nb1w + pop30 + fractions_default_and_smart),
 
-        "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeResetRuinGetBKS --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"] + reset_with_random + ruin_before_restart + nagatama_before_restart + ruin_when_get_bks),
+        # "--run_tag nb1wInitDefaultAndSmartResetRandomRuinGetBKS --config_str " + "+" + "+".join(
+        #     nb1w + pop30 + reset_with_random + ruin_when_get_bks + fractions_default_and_smart),
+        #
+        # "--run_tag nb1wInitDefaultAndSmart30PopRuinBeforeReset --config_str " + "+" + "+".join(
+        #     nb1w + pop30 + ruin_before_restart + fractions_default_and_smart),
 
-        "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"]),
+        # "--run_tag nb1wInitDefault30Pop --config_str " + "+" + "+".join(
+        #     nb1w + pop30),
 
-        "--run_tag nb5000InitAllRandom --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"] + fractions_all_random),
+        # "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(
+        #     nb5k),
+        #
+        # "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
+        #     nb5k + reset_with_random + ruin_before_restart),
+        #
+        # "--run_tag nb5000InitDefaultResetRandomRuinGetBKS --config_str " + "+" + "+".join(
+        #     nb5k + reset_with_random + ruin_when_get_bks),
 
-        "--run_tag nb5000InitDefaultReset_with_random --config_str " + "+" + "+".join(
-            ["-nbIter", "5000"] + reset_with_random),
+        # "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeReset --config_str " + "+" + "+".join(
+        #     nb5k + reset_with_random + ruin_before_restart + nagatama_before_restart),
+
+        # "--run_tag nb5000InitAllRandom --config_str " + "+" + "+".join(
+        #     nb5k + fractions_all_random),
+
+        # "--run_tag nb5000InitDefaultResetRandomRuinNaMABeforeResetRuinGetBKS --config_str " + "+" + "+".join(
+        #     nb5k + reset_with_random + ruin_before_restart + nagatama_before_restart + ruin_when_get_bks),
 
         # "--run_tag nb20000InitDefault --config_str " + "+" + "+".join(
         #     ["-nbIter", "20000"]),
@@ -156,7 +184,6 @@ if __name__ == "__main__":
 
     ]
 
-    config_string_arr = ["--run_tag todayReady --config_str + "]
     jobs = []
     for config_temp in config_string_arr:
         print(f"config_temp:{config_temp}")
@@ -164,6 +191,7 @@ if __name__ == "__main__":
         # jobs += [all_cmds.get_all_static_my_cmds(opt_str=config_temp)[0]]
         jobs += all_cmds.get_all_static_my_cmds(opt_str=config_temp)
 
+    jobs = jobs * 5
     print(len(jobs))
     run(jobs, True)
 

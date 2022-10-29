@@ -399,11 +399,14 @@ void hgsAndSmart(CommandLine& commandline) {
 }
 
 void setCommandLine(CommandLine& commandLine){
-    commandLine.config.nbIter = 5000;
-    commandLine.config.resetPopulationWithAllRandom = 1;
-    commandLine.config.ruinBeforeRestart = 1;
+    commandLine.config.nbIter = 10000;
+    commandLine.config.minimumPopulationSize = 30;
+
+//    commandLine.config.resetPopulationWithAllRandom = 1;
+//    commandLine.config.ruinBeforeRestart = 1;
 //    commandLine.config.ruinWhenGetBKS = 1;
-    commandLine.config.nagataMaBeforeRestart = 1;
+//    commandLine.config.nagataMaBeforeRestart = 1;
+//    commandLine.config.ruinBeforeRestart = 1;
 }
 
 int main(int argc, char* argv[])

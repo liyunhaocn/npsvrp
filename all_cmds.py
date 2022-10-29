@@ -6,6 +6,8 @@
 import os
 import glob
 
+import numpy as np
+
 static_cmds = []
 
 
@@ -39,6 +41,7 @@ def get_all_instances_paths():
     for file_path in glob.glob(path + r"*.txt"):
         file_path = file_path.replace("\\", "/")
         ret.append(file_path)
+    print(f"ret:{ret}")
     return ret
 
 
@@ -58,8 +61,25 @@ def get_all_static_nps_cmds():
     return cmds
 
 
+def get_select_10_instances_path():
+    arr = [
+        "./instances/ORTEC-VRPTW-ASYM-16b82253-d1-n457-k30.txt",
+        "./instances/ORTEC-VRPTW-ASYM-2e0a30ff-d1-n491-k36.txt",
+        "./instances/ORTEC-VRPTW-ASYM-3709cf41-d1-n287-k19.txt",
+        "./instances/ORTEC-VRPTW-ASYM-798171b0-d1-n273-k21.txt",
+        "./instances/ORTEC-VRPTW-ASYM-937b2edc-d1-n234-k15.txt",
+        "./instances/ORTEC-VRPTW-ASYM-93ee144d-d1-n688-k38.txt",
+        "./instances/ORTEC-VRPTW-ASYM-b384a276-d1-n219-k17.txt",
+        "./instances/ORTEC-VRPTW-ASYM-b7ae3aa2-d1-n304-k23.txt",
+        "./instances/ORTEC-VRPTW-ASYM-e159d033-d1-n363-k27.txt",
+        "./instances/ORTEC-VRPTW-ASYM-e92a0b44-d1-n501-k33.txt",
+    ]
+    return np.array(arr)
+
+
 def get_all_static_my_cmds(opt_str="#"):
     all_paths = get_all_instances_paths()
+    all_paths = get_select_10_instances_path()
     cmds = []
     for instance_path in all_paths:
         cmds.append(f"python solver.py --instance {instance_path} "

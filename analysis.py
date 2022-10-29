@@ -65,12 +65,12 @@ def get_customers_num_from_instance_name(instance_name):
 
 if __name__ == "__main__":
 
-    # for root, dirs, files in os.walk(r"results/"):
-    #     print(files)
-    #     for file in files:
-    #         print(r"results/" + file)
-    #         sort_csv(r"results/" + file)
-    # exit(0)
+    for root, dirs, files in os.walk(r"results/"):
+        print(files)
+        for file in files:
+            print(r"results/" + file)
+            sort_csv(r"results/" + file)
+    exit(0)
 
     sort_csv(r"results/[10_27][static][todayReady].csv")
     exit(0)

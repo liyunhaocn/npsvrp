@@ -9,7 +9,6 @@
 // It generates the next number in the sequence by repeatedly taking the 'exclusive or' (the ^ operator) of a number with a bit-shifted version of itself.
 // For more information, see: https://en.wikipedia.org/wiki/Xorshift
 
-using SmartRandomGenerator = std::mt19937;
 class XorShift128_HGS
 {
     // This random number generator uses 4 numbers.
@@ -59,5 +58,7 @@ public:
         return state_[0] = t ^ s ^ (s >> 19);
     }
 };
+using SmartRandomGenerator = std::mt19937;
+//using SmartRandomGenerator = XorShift128_HGS;
 
 #endif

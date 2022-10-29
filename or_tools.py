@@ -228,7 +228,7 @@ def or_main(data,run_time = 10, prt = 0):
     """Solve the CVRP problem."""
     # Instantiate the data problem.
     # data = create_data_model()
-    data['num_vehicles'] = 300
+    data['num_vehicles'] = 100
     data['vehicle_capacities'] = [data['capacity'] for i in range(data['num_vehicles'])]
     data['depot'] = 0
     # Create the routing index manager.

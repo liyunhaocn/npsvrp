@@ -23,6 +23,7 @@ import area_tool
 from environment_virtual import VRPEnvironmentVirtual
 
 global_log_info = False
+global_log_file = False
 global_save_current_instance = False
 global_log_error = True
 
@@ -171,11 +172,11 @@ def get_initial_weight(instance, seed=1):
 # solve_static_vrptw_lyh(instance,weight_arg,arg_call="smallInstance")
 
 def solve_static_vrptw_lyh(instance,
+                           config_str,
                            time_limit=3600,
                            seed=1,
                            initial_solution=None,
                            weight_arg=[],
-                           config_str="",
                            arg_call="hgsAndSmart"):
     # Prevent passing empty instances to the static solver, e.g. when
     # strategy decides to not dispatch any requests for the current epoch
@@ -193,7 +194,7 @@ def solve_static_vrptw_lyh(instance,
     cmd = get_cpp_base_cmd() + ["-t", str(max(time_limit - 2, 1)), '-seed', str(seed)]
 
     cmd += ["-call", arg_call]
-
+    log_info(f"config_str:{config_str}")
     cmd += [x for x in config_str.split("+") if len(x) > 0]
     cmd_str = " ".join(cmd)
     log_info(f"cmd_str:{cmd_str}")
@@ -339,7 +340,7 @@ def get_datetime_str(style='dt'):
         return date_str + '_' + time_str
 
 
-if global_log_info:
+if global_log_file:
     f = open("stdcerr/log_" + get_datetime_str() + ".txt", 'wt')
 
 def log_file(obj, newline=True, flush=False):
@@ -1060,8 +1061,11 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
 
             if use_dyn == 0:
                 solutions = list(
-                    solve_static_vrptw_lyh(epoch_instance, time_limit=int(epoch_tlim),
-                                           seed=args.solver_seed))
+                    solve_static_vrptw_lyh(epoch_instance,
+                                           time_limit=int(epoch_tlim),
+                                           seed=args.solver_seed,
+                                           config_str=args.config_str
+                                           ))
                 epoch_solution, cost = solutions[-1]
             else:
                 use_ortools = 1

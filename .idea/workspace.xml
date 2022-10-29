@@ -20,11 +20,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="experiment 1026">
+    <list default="true" id="84729b05-ad2e-4f54-95ae-8c4e13480863" name="Changes" comment="[codalab] 1027 merge3">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/all_cmds.py" beforeDir="false" afterPath="$PROJECT_DIR$/all_cmds.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/jobsch.py" beforeDir="false" afterPath="$PROJECT_DIR$/jobsch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/or_tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/or_tools.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/Genetic.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/Genetic.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hgs/xorshift128.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/hgs/xorshift128.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -78,7 +82,7 @@
       <recent name="$PROJECT_DIR$/dev" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.solver">
+  <component name="RunManager" selected="Python.analysis">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -217,7 +221,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/solver.py" />
-      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-6656ccd2-d1-n310-k20.txt --epoch_tlim 20" />
+      <option name="PARAMETERS" value="--instance ./instances/ORTEC-VRPTW-ASYM-6f389522-d1-n253-k23.txt --run_tag wyxTest --static --epoch_tlim 100 --verbose" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -361,7 +365,28 @@
       <option name="project" value="LOCAL" />
       <updated>1666790657320</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="[codelab 1026]v1">
+      <created>1666795146195</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1666795146195</updated>
+    </task>
+    <task id="LOCAL-00017" summary="bugFix update bks">
+      <created>1666873278382</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1666873278382</updated>
+    </task>
+    <task id="LOCAL-00018" summary="[codalab] 1027 merge3">
+      <created>1666882198602</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1666882198602</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -423,7 +448,10 @@
     <MESSAGE value="[codelab] 1025 zjj" />
     <MESSAGE value="[codelab] 1026 new paramters zjj" />
     <MESSAGE value="experiment 1026" />
-    <option name="LAST_COMMIT_MESSAGE" value="experiment 1026" />
+    <MESSAGE value="[codelab 1026]v1" />
+    <MESSAGE value="bugFix update bks" />
+    <MESSAGE value="[codalab] 1027 merge3" />
+    <option name="LAST_COMMIT_MESSAGE" value="[codalab] 1027 merge3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -440,7 +468,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/solver.py</url>
-          <line>175</line>
+          <line>181</line>
           <option name="timeStamp" value="54" />
         </line-breakpoint>
       </breakpoints>

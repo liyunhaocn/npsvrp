@@ -348,28 +348,28 @@ void Genetic::runRuin(){
 Individual* Genetic::crossoverOX(std::pair<const Individual*, const Individual*> parents)
 {
 	// Picking the start and end of the crossover zone
-//	int start = params->rng() % params->nbClients;
-//	int end = params->rng() % params->nbClients;
-//	while (end == start)
-//	{
-//		end = params->rng() % params->nbClients;
-//	}
+	int start = params->rng() % params->nbClients;
+	int end = params->rng() % params->nbClients;
+	while (end == start)
+	{
+		end = params->rng() % params->nbClients;
+	}
 
 // TODO[lyh][ox]:
-    int start = params->rng() % params->nbClients;
-    int minWidth = params->nbClients*0.10;
-    int maxWidth = params->nbClients*0.90;
-
-    minWidth = std::max<int>(minWidth,1);
-    maxWidth = std::min<int>(maxWidth,params->nbClients-1);
-
-    int end = (start + (params->rng() % maxWidth)) % params->nbClients;
-    int width = end>=start?end-start+1:end+params->nbClients-start+1;
-
-    while (width>maxWidth || width<minWidth){
-        end = (start + (params->rng() % maxWidth)) % params->nbClients;
-        width = end>=start?end-start+1:end+params->nbClients-start+1;
-    }
+//    int start = params->rng() % params->nbClients;
+//    int minWidth = params->nbClients*0.10;
+//    int maxWidth = params->nbClients*0.90;
+//
+//    minWidth = std::max<int>(minWidth,1);
+//    maxWidth = std::min<int>(maxWidth,params->nbClients-1);
+//
+//    int end = (start + (params->rng() % maxWidth)) % params->nbClients;
+//    int width = end>=start?end-start+1:end+params->nbClients-start+1;
+//
+//    while (width>maxWidth || width<minWidth){
+//        end = (start + (params->rng() % maxWidth)) % params->nbClients;
+//        width = end>=start?end-start+1:end+params->nbClients-start+1;
+//    }
 
 	doOXcrossover(candidateOffsprings[2], parents, start, end);
 	doOXcrossover(candidateOffsprings[3], parents, start, end);
