@@ -785,21 +785,36 @@ def choose_nodes_new_iter(ndelta, sol, instance, args, max_epoch=5, gap=600):
     return sol_copy
 
 
-def delta_weight_instance(epoch_instance, ndelta, args, gap=500):
+def delta_weight_instance(epoch_instance, ndelta, args, gap=500, rest_epoch=1):
     new_intance = copy.copy(epoch_instance)
     new_intance['penalty'] = []
     # gap = 500
     gap_w = args.gap
+    record_delta = []
+    fix_delta = []
+    # find max delta
+    for i in range(len(epoch_instance['coords'])):
+        record_delta.append(ndelta.cul_delta(epoch_instance['customer_idx'][i]))
+        i_delta = (cul_weight_i(i, epoch_instance, args) * gap_w - gap_w + 0 * epoch_instance['duration_matrix'][i, 0] + gap)
+        fix_delta.append(i_delta)
+    max_delta = max(record_delta)
     for i in range(len(epoch_instance['coords'])):
         if epoch_instance['must_dispatch'][i]:
             new_intance['penalty'].append(1000000)
             continue
-        # i_delta = ndelta.cul_delta(epoch_instance['customer_idx'][i]) + gap
-        # i_delta = cul_weight_i(i, epoch_instance, args) * ndelta.cul_delta(epoch_instance['customer_idx'][i]) + gap * epoch_instance['duration_matrix'][i, 0] + 0
-        i_delta = cul_weight_i(i, epoch_instance, args) * gap_w - gap_w + ndelta.cul_delta(
-            epoch_instance['customer_idx'][i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
-        # i_delta = cul_weight_i(i, epoch_instance, args) * ndelta.cul_delta(epoch_instance['customer_idx'][i]) + 300
+        # i_delta = fix_delta[i] - std_record_delta[i]*100
+        i_delta = fix_delta[i] * (rest_epoch * args.sol_x1 + args.sol_x2) + record_delta[i] * args.sol_x3 + args.rand_num
+        # i_delta = fix_delta[i] + record_delta[i]
         new_intance['penalty'].append(i_delta)
+    # with open('delta_record.txt', 'a') as f:
+    #     for i in range(len(new_intance['penalty'])):
+    #         print(f'{record_delta[i]} and {new_intance["penalty"][i]}', file=f)
+    #     # print(record_delta, file=f)
+    #     # print(new_intance['penalty'], file=f)
+    #     record_delta = np.array(record_delta)
+    #     new_delta = np.array(new_intance['penalty'])
+    #     print(f'mean : {np.mean(record_delta)} and {np.mean(new_delta)}', file=f)
+    #     print('#'*20, file=f)
     return new_intance
 
 
@@ -959,7 +974,7 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
         env_virtual = VRPEnvironmentVirtual(seed=args.instance_seed, instance=static_info['dynamic_context'],
                                             epoch_tlim=args.epoch_tlim, is_static=args.static)
 
-        ndelta = Mydelta(static_info['dynamic_context'], args.solver_seed, args.rand_num)
+        ndelta = Mydelta(static_info['dynamic_context'], args.solver_seed, 50)
         bin_data_0 = static_info['dynamic_context']['coords'][:, 0]
         bin_data_1 = static_info['dynamic_context']['coords'][:, 1]
         area_xy, ratioxy, dis_ratio = area_tool.get_classes(static_info['dynamic_context'])
@@ -1036,7 +1051,8 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                         or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args, distance_delta_ave, gap=args.or_gap)
                         running_time = 11
                     else:
-                        or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
+                        rest_epoch = static_info['end_epoch'] - observation['current_epoch']
+                        or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap, rest_epoch=rest_epoch)
                         running_time = int(epoch_tlim/2 - (time.time()-start_time))
                     # use lyh_solver
                     # weight_arg = [int(i) for i in or_epoch_instance['penalty']]
