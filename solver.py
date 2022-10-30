@@ -345,7 +345,8 @@ if global_log_file:
 
 def log_file(obj, newline=True, flush=False):
     # Write logs to stderr since program uses stdout to communicate with controller
-    print(str(obj), file=f)
+    if global_log_file:
+        print(str(obj), file=f)
 
 
 def log_info(obj, newline=True, flush=False):
@@ -434,7 +435,7 @@ def solve_static_vrptw_wyx(instance, time_limit=3600, tmp_dir="tmp", seed=1, use
     if initial_solution is not None:
         hgs_cmd += ['-initialSolution', " ".join(map(str, tools.to_giant_tour(initial_solution)))]
 
-    log_info(" ".join(hgs_cmd))
+    # log_info(" ".join(hgs_cmd))
     with subprocess.Popen(hgs_cmd, stdout=subprocess.PIPE, text=True) as p:
         routes = []
         for line in p.stdout:
@@ -802,7 +803,7 @@ def delta_weight_instance(epoch_instance, ndelta, args, gap=500):
     return new_intance
 
 
-def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, mask, delta_wyx, gap=500):
+def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, gap=500):
     def _filter_instance(observation, mask):
         res = {}
 
@@ -885,9 +886,8 @@ def find_class(area_xy, ratioxy, dis_ratio, args):
 
 # add by YxuanwKeith
 # f2 = open("log/predict_info.txt", 'wt')
-def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp):
-    mask = np.copy(epoch_instance['must_dispatch'])
-    mask[0] = True
+def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp, tlim):
+    predict_start_time = time.time()
 
     epoch_num = 2
     test_num = 5
@@ -899,9 +899,10 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp):
     distance_delta_ave = np.zeros(origin_num)
     mask_num = np.zeros(origin_num)
     route_pass = []
+    max_time_once = 12
 
     cnt = 0
-    while cnt < test_num:
+    while time.time() - predict_start_time + max_time_once < tlim:
         seed = rng.integers(100000000)
         # seed = 1
 
@@ -910,20 +911,12 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp):
         # with open('ins.txt','a') as f2:
         #     log_info(ins, file = f2)
 
-        solutions = list(solve_static_vrptw_wyx(ins, time_limit=15, tmp_dir=tmp, seed=seed, useDynamicParameters=1))
+        solutions = list(solve_static_vrptw_wyx(ins, time_limit=max_time_once, tmp_dir=tmp, seed=seed, useDynamicParameters=1))
         if len(solutions) == 0:
             if global_log_info: log_info('pass a predict sample')
             continue
 
         epoch_solution, cost = solutions[-1]
-        route_dispatch_epoch_max = [max(ins['release_epochs'][route]) for route in epoch_solution]
-
-        # delay judge
-        for route, route_epoch in zip(epoch_solution, route_dispatch_epoch_max):
-            if (route_epoch > current_epoch):
-                continue
-            route_pass.append(route)
-            current_num[route] += 1
 
         # distance_delta info
         distance_delta = np.zeros(origin_num)
@@ -943,40 +936,10 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp):
 
         cnt += 1
 
-    distance_delta_ave /= test_num
+    log_info(f"predict cnt : {cnt}")
+    distance_delta_ave /= cnt
 
-    prob = per_5_cut[current_num]
-    mask = (mask | rng.binomial(1, p=prob, size=len(mask)).astype(np.bool8))
-    for idx in range(len(mask)):
-        mask_num[idx] = 2 if mask[idx] == True else 0
-
-    if len(route_pass) > 0:
-        route_value = [current_num[route].sum() / len(route) for route in route_pass]
-        value_order = np.array(route_value).argsort()[::-1]
-        flag = np.zeros(origin_num)
-
-        for order_idx in value_order:
-            value, route = route_value[order_idx], route_pass[order_idx]
-            if value < 3.5:
-                break
-            if flag[route].any():
-                continue
-            route.insert(0, 0)
-            for i in range(1, len(route)):
-                idx = route[i]
-                # flag[idx] = True
-                if mask_num[idx] > 0:
-                    continue
-                idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
-                delta = ins['duration_matrix'][idx_lst, idx] + ins['duration_matrix'][idx, idx_nxt] - \
-                        ins['duration_matrix'][idx_lst, idx_nxt]
-                if (delta > distance_delta_ave[idx]):
-                    continue
-                mask_num[idx] = 1
-                mask[idx] = True
-
-    return mask, mask_num, distance_delta_ave, distance_delta_all
-
+    return distance_delta_ave, distance_delta_all
 
 def run_baseline(args, env, oracle_solution=None, strategy=None):
     strategy = strategy or args.strategy
@@ -1050,10 +1013,6 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
             epoch_instance = observation['epoch_instance']
             max_epoch = static_info['end_epoch']
 
-            # add by YxuanwKeith
-            # a, b, c, d = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual)
-            # log_info(a, '\n\n', b, '\n\n', c, '\n\n', d)
-
             if strategy == "weight":
                 epoch_instance_dispatch = STRATEGIES[strategy](epoch_instance, rng, max_epoch)
             if strategy == "greedy":
@@ -1073,9 +1032,9 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     #  test OR_tools
                     # use delta of wyx
                     if global_use_my_delta == 0:
-                        mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual, args.tmp_dir)
-                        or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args,mask, distance_delta_ave, gap=args.or_gap)
-                        running_time = 10
+                        distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual, args.tmp_dir, epoch_tlim - 22)
+                        or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args, distance_delta_ave, gap=args.or_gap)
+                        running_time = 11
                     else:
                         or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap)
                         running_time = int(epoch_tlim/2 - (time.time()-start_time))

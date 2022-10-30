@@ -70,12 +70,12 @@ void Genetic::run(int maxIterNonProd, int timeLimit)
             auto curBest = population->getBestFound()->myCostSol.penalizedCost;
             auto best200cost = best200.myCostSol.penalizedCost;
             double sub = oldCost - curBest;
-            bool upOneTime = std::abs(sub) > 1;
+            bool upOneTime = (sub > 1) || (sub<-1);
 //            std::cerr<<"(best200cost-curBest): " << (best200cost-curBest)
 //            << " best200cost: "<<best200cost<<std::endl;
 //            std::cerr<<"100iter getTimeElapsedSeconds():"<< params->getTimeElapsedSeconds()<<std::endl;
 
-            if( (best200cost-curBest) * 300 < best200cost && upOneTime){
+            if( (best200cost-curBest) * 100 < best200cost && upOneTime){
 
 //                std::cerr<<"break" << "nbIter:"<<nbIter<<std::endl;
                 break;

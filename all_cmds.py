@@ -31,8 +31,8 @@ def get_tlim_of_static(path_path):
 
 
 def get_tlim_of_dynamic():
-    return 100
-    # return int(60 * 1807 / 1981)
+    # return 100
+    return int(60 * 1807 / 1981)
 
 
 def get_all_instances_paths():
@@ -77,8 +77,8 @@ def get_select_10_instances_path():
     return np.array(arr)
 
 
-def get_all_static_my_cmds(opt_str="#"):
-    all_paths = get_all_instances_paths()
+def get_all_static_my_cmds(opt_str="+"):
+    # all_paths = get_all_instances_paths()
     all_paths = get_select_10_instances_path()
     cmds = []
     for instance_path in all_paths:
@@ -90,7 +90,8 @@ def get_all_static_my_cmds(opt_str="#"):
 
 
 def get_all_dynamic_my_cmds(tag="notag"):
-    all_paths = get_all_instances_paths()
+    # all_paths = get_all_instances_paths()
+    all_paths = get_select_10_instances_path()
     cmds = []
     for instance_path in all_paths:
         cmds.append(f"python solver.py --instance {instance_path} "

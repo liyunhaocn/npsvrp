@@ -137,14 +137,14 @@ if __name__ == "__main__":
         "--run_tag nb1wPop30InitDefAndSmart --config_str " + "+" + "+".join(
             nb1w + pop30 + fractions_default_and_smart),
 
+        "--run_tag nb1wInitDefault30Pop --config_str " + "+" + "+".join(
+            nb1w + pop30),
+
         # "--run_tag nb1wInitDefaultAndSmartResetRandomRuinGetBKS --config_str " + "+" + "+".join(
         #     nb1w + pop30 + reset_with_random + ruin_when_get_bks + fractions_default_and_smart),
         #
         # "--run_tag nb1wInitDefaultAndSmart30PopRuinBeforeReset --config_str " + "+" + "+".join(
         #     nb1w + pop30 + ruin_before_restart + fractions_default_and_smart),
-
-        # "--run_tag nb1wInitDefault30Pop --config_str " + "+" + "+".join(
-        #     nb1w + pop30),
 
         # "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(
         #     nb5k),
@@ -185,11 +185,12 @@ if __name__ == "__main__":
     ]
 
     jobs = []
-    for config_temp in config_string_arr:
-        print(f"config_temp:{config_temp}")
+    # for config_temp in config_string_arr:
+    #     print(f"config_temp:{config_temp}")
+    #     # jobs += [all_cmds.get_all_static_my_cmds(opt_str=config_temp)[0]]
+    #     jobs += all_cmds.get_all_static_my_cmds(opt_str=config_temp)
 
-        # jobs += [all_cmds.get_all_static_my_cmds(opt_str=config_temp)[0]]
-        jobs += all_cmds.get_all_static_my_cmds(opt_str=config_temp)
+    jobs += all_cmds.get_all_dynamic_my_cmds()
 
     jobs = jobs * 5
     print(len(jobs))
