@@ -152,7 +152,8 @@ if __name__ == "__main__":
 
     ]
 
-    jobs = all_cmds.get_all_dynamic_my_cmds()
+    jobs = all_cmds.get_all_dynamic_my_cmds("new_param")
+    jobs = jobs * 2
     print(len(jobs))
     run(jobs, True)
 

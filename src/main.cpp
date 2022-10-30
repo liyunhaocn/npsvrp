@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
 		CommandLine commandline(argc, argv);
         INFO("----- READING DATA SET FROM: ", commandline.config.pathInstance);
 
-//        setCommandLine(commandline);
+        setCommandLine(commandline);
 
         if( commandline.config.call == "getWeight"){
             getWeight(commandline);
