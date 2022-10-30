@@ -356,20 +356,19 @@ Individual* Genetic::crossoverOX(std::pair<const Individual*, const Individual*>
 	}
 
 // TODO[lyh][ox]:
-//    int start = params->rng() % params->nbClients;
-//    int minWidth = params->nbClients*0.10;
-//    int maxWidth = params->nbClients*0.90;
-//
-//    minWidth = std::max<int>(minWidth,1);
-//    maxWidth = std::min<int>(maxWidth,params->nbClients-1);
-//
-//    int end = (start + (params->rng() % maxWidth)) % params->nbClients;
-//    int width = end>=start?end-start+1:end+params->nbClients-start+1;
-//
-//    while (width>maxWidth || width<minWidth){
-//        end = (start + (params->rng() % maxWidth)) % params->nbClients;
-//        width = end>=start?end-start+1:end+params->nbClients-start+1;
-//    }
+    if(params->config.oxWidthRepair == 1 && params->rng()%100 < 80) {
+        int minWidth = params->nbClients * 0.10;
+        int maxWidth = params->nbClients * 0.90;
+        minWidth = std::max<int>(minWidth, 1);
+        maxWidth = std::min<int>(maxWidth, params->nbClients - 1);
+
+        int width = end >= start ? end - start + 1 : end + params->nbClients - start + 1;
+
+        while (width > maxWidth || width < minWidth) {
+            end = (start + (params->rng() % maxWidth)) % params->nbClients;
+            width = end >= start ? end - start + 1 : end + params->nbClients - start + 1;
+        }
+    }
 
 	doOXcrossover(candidateOffsprings[2], parents, start, end);
 	doOXcrossover(candidateOffsprings[3], parents, start, end);
@@ -753,14 +752,12 @@ Individual* Genetic::bestOfSREXAndOXCrossovers(std::pair<const Individual*, cons
     offsprings[0] = crossoverSREX(parents);
     offsprings[1] = crossoverOX(parents);
 
-    if(level==1 && params->config.useEaxAndOXStar==1){
+    if(level==1 && params->config.useOXStar==1) {
         offsprings[2] = crossoverOXStar(parents);
+    }
+
+    if(level==1 && params->config.useEax == 1) {
         offsprings[3] = hust::EAX::doEaxWithoutRepair(parents, candidateOffsprings[6]);
-//        smartSolver->loadIndividual(parents.first);
-//        smartSolver->perturbBaseRuin(hust::globalCfg->ruinC_*2);
-//        smartSolver->exportIndividual(candidateOffsprings[7]);
-//        split->generalSplit(candidateOffsprings[7],params->nbClients);
-//        offsprings[4] = candidateOffsprings[7];
     }
 
     Individual* best = nullptr;

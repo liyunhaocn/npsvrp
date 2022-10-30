@@ -131,12 +131,13 @@ public:
 		std::string pathInstance;							// Instance path
 		bool useSymmetricCorrelatedVertices = false;		// When correlation matrix is symmetric
 		bool doRepeatUntilTimeLimit = true;					// When to repeat the algorithm when max nr of iter is reached, but time limit is not
-        int useEaxAndOXStar = 0;
         int nagataMaBeforeRestart = 0;
         int ruinBeforeRestart = 0;
         int resetPopulationWithAllRandom = 0;
         int ruinWhenGetBKS = 0;
-
+        int oxWidthRepair = 0;
+        int useEax = 0;
+        int useOXStar = 0;
     };
 
 	Config config;						// Stores all the parameter values

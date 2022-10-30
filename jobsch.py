@@ -112,18 +112,27 @@ if __name__ == "__main__":
         "-maxToleratedTimeWarp", "20"
     ]
 
-    use_eax_ox_star = ["-useEaxAndOXStar", "1"]
+    use_eax = ["-useEax", "1"]
+    use_oxstar =["-useOXStar", "1"]
 
     nagatama_before_restart = ["-nagataMaBeforeRestart", "1"]
     ruin_before_restart = ["-ruinBeforeRestart", "1"]
     reset_with_random = ["-resetPopulationWithAllRandom", "1"]
     ruin_when_get_bks = ["-ruinWhenGetBKS", "1"]
+
+    nb2k = ["-nbIter", "2000"]
     nb5k = ["-nbIter", "5000"]
     nb1w = ["-nbIter", "10000"]
 
     pop30 = [
         "-minimumPopulationSize", "30",
     ]
+
+    pop40 = [
+        "-minimumPopulationSize", "40",
+    ]
+
+    ox_repair = ["oxWidthRepair", "1"]
 
     config_string_arr = [
         # "--run_tag HGSDefault --config_str + ",
@@ -137,8 +146,32 @@ if __name__ == "__main__":
         # "--run_tag nb1wPop30InitDefAndSmart --config_str " + "+" + "+".join(
         #     nb1w + pop30 + fractions_default_and_smart),
 
-        "--run_tag nb1wInitDefault30Pop --config_str " + "+" + "+".join(
-            nb1w + pop30),
+        # "--run_tag nb1wInitDefault30Pop --config_str " + "+" + "+".join(
+        #     nb1w + pop30),
+
+        "--run_tag nb2kInitDefault30Pop --config_str " + "+" + "+".join(
+            nb2k + pop30),
+
+        "--run_tag nb2kInitDefault40Pop --config_str " + "+" + "+".join(
+            nb2k + pop40),
+
+        "--run_tag nb1wInitDefault40Pop --config_str " + "+" + "+".join(
+            nb1w + pop40),
+
+        "--run_tag nb1wInitDefault30PopUseEax --config_str " + "+" + "+".join(
+            nb1w + pop30 + use_eax),
+
+        "--run_tag nb1wInitDefault30PopUseOxStar --config_str " + "+" + "+".join(
+            nb1w + pop30 + use_oxstar),
+
+        "--run_tag nb1wInitDefault30PopOxRepair --config_str " + "+" + "+".join(
+            nb1w + pop30 + ox_repair),
+
+        "--run_tag nb1wInitDefault30PopOxRepairOxStar --config_str " + "+" + "+".join(
+            nb1w + pop30 + ox_repair + use_oxstar),
+
+        "--run_tag nb1wInitDefault30PopRuinBeforeRestart --config_str " + "+" + "+".join(
+            nb1w + pop30 + ruin_before_restart),
 
         # "--run_tag nb1wInitDefaultAndSmartResetRandomRuinGetBKS --config_str " + "+" + "+".join(
         #     nb1w + pop30 + reset_with_random + ruin_when_get_bks + fractions_default_and_smart),
@@ -148,7 +181,7 @@ if __name__ == "__main__":
 
         # "--run_tag nb5000InitDefault --config_str " + "+" + "+".join(
         #     nb5k),
-        #
+
         # "--run_tag nb5000InitDefaultResetRandomRuinBeforeReset --config_str " + "+" + "+".join(
         #     nb5k + reset_with_random + ruin_before_restart),
         #
@@ -197,7 +230,7 @@ if __name__ == "__main__":
     # jobs += all_cmds.get_all_dynamic_my_cmds(run_tag="delta_weight_para_1",
     #                                          option_arg="--delta_weight_para 1")
 
-    jobs = jobs * 2
+    jobs = jobs * 5
     print(len(jobs))
     run(jobs, True)
 

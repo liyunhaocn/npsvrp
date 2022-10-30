@@ -167,8 +167,8 @@ public:
 					config.circleSectorOverlapToleranceDegrees = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-minCircleSectorSizeDegrees")
 					config.minCircleSectorSizeDegrees = atoi(argv[i + 1]);
-				else if (std::string(argv[i]) == "-useEaxAndOXStar")
-					config.useEaxAndOXStar = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-useOXStar")
+					config.useOXStar = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-nagataMaBeforeRestart")
 					config.nagataMaBeforeRestart = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-ruinBeforeRestart")
@@ -177,6 +177,10 @@ public:
 					config.resetPopulationWithAllRandom = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-ruinWhenGetBKS")
 					config.ruinWhenGetBKS = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-oxWidthRepair")
+					config.oxWidthRepair = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-useEax")
+					config.useEax = atoi(argv[i + 1]);
 				else
 				{
 					// Output error message and help menu to the command line
