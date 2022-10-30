@@ -807,6 +807,7 @@ def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, gap=5
     new_intance['penalty'] = []
     # gap = 500
     gap_w = args.gap
+    delta_max = delta_wyx.max()
     for i in range(len(new_intance['coords'])):
         if new_intance['must_dispatch'][i]:
             new_intance['penalty'].append(1000000)
@@ -815,7 +816,8 @@ def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, gap=5
         #     new_intance['penalty'].append(-10000)
         #     continue
         # use delta of wxy
-        i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + delta_wyx[i]*0.5 + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + 0.2 * (delta_max - delta_wyx[i]) + 0 * epoch_instance['duration_matrix'][i, 0] + gap
+        # i_delta = 0.5 * (delta_max - delta_wyx[i])
         new_intance['penalty'].append(i_delta)
         # # old version
         # i_delta = cul_weight_i(i, new_intance, args)*gap_w - gap_w + ndelta.cul_delta(new_intance['customer_idx'][i]) + 0 * new_intance['duration_matrix'][i, 0] + gap
@@ -881,7 +883,7 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp, tlim):
     distance_delta_ave = np.zeros(origin_num)
     mask_num = np.zeros(origin_num)
     route_pass = []
-    max_time_once = 15
+    max_time_once = 12
 
     cnt = 0
     while time.time() - predict_start_time + max_time_once < tlim:
