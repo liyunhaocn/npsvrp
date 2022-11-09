@@ -21,8 +21,9 @@ from or_tools import or_main
 import area_tool
 
 from environment_virtual import VRPEnvironmentVirtual
+from save_load_obj import save_variable, load_variavle
 
-global_log_info = False
+global_log_info = True
 global_log_file = False
 global_save_current_instance = False
 global_log_error = True
@@ -726,7 +727,7 @@ def delta_weight_instance(epoch_instance, ndelta, args, gap=500, rest_epoch=1):
     return new_intance
 
 
-def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, res_epoch, gap=500):
+def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, mask, mask_num, delta_wyx, res_epoch, gap=500):
     def _filter_instance(observation, mask):
         res = {}
 
@@ -743,31 +744,47 @@ def delta_weight_instance_add_wyx(epoch_instance, ndelta, args, delta_wyx, res_e
             res[key] = value[mask]
 
         return res
-    new_intance = copy.copy(epoch_instance)
-    # new_intance = _filter_instance(new_intance,mask)
+    new_intance = copy.deepcopy(epoch_instance)
+    new_intance = _filter_instance(new_intance,mask)
     delta_max = delta_wyx.max()
     new_intance['penalty'] = []
     # gap = 500
     gap_w = args.gap
     for i in range(len(new_intance['coords'])):
+
+        new_intance['penalty'].append(1000000)
+        continue
+
         if new_intance['must_dispatch'][i]:
             new_intance['penalty'].append(1000000)
             continue
         # if mask[i] == False:
         #     new_intance['penalty'].append(-10000)
         #     continue
+
+        if mask_num[i] == 2:
+            mask_weight = args.sol_x1
+        if mask_num[i] == 1:
+            mask_weight = args.sol_x2
+        if mask_num[i] == 0:
+            mask_weight = args.sol_x3
         # use delta of wxy
         delta = cul_weight_i(i, epoch_instance, args) * gap_w - gap_w +gap
-        i_delta = delta *(0.125 * res_epoch + 0.8) - 0.1 * delta_wyx[i] + 432
+        # i_delta = delta * (0.125 * res_epoch + 0.8) + mask_weight * delta_wyx[i] + 432
+        i_delta = delta + mask_weight * delta_wyx[i] + args.rand_num
+
+        # use delta of wxy
+        # delta = cul_weight_i(i, epoch_instance, args) * gap_w - gap_w +gap
+        # i_delta = delta * (0.125 * res_epoch + 0.8) - 0.1 * delta_wyx[i] + 432
         # i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + 0.2 * (delta_max - delta_wyx[i]) + gap
         # i_delta = cul_weight_i(i, epoch_instance, args)*gap_w - gap_w + delta_wyx[i]*0.5 + 0 * epoch_instance['duration_matrix'][i, 0] + gap
         new_intance['penalty'].append(i_delta)
+
         # # old version
         # i_delta = cul_weight_i(i, new_intance, args)*gap_w - gap_w + ndelta.cul_delta(new_intance['customer_idx'][i]) + 0 * new_intance['duration_matrix'][i, 0] + gap
         # new_intance['penalty'].append(i_delta)
-    # with open('diff_delta.txt', 'a') as f2:
-    #     log_info(new_intance['penalty'], file=f2)
-    #     log_info(delta_wyx, file=f2)
+    with open('wyx_ins.txt', 'a') as f2:
+        print(f"Node num = {len(new_intance['penalty'])}", file=f2)
     return new_intance
 
 
@@ -810,11 +827,18 @@ def find_class(area_xy, ratioxy, dis_ratio, args):
         args.early_time2 = 2600
         args.gap = 214
 
+    if 1:
+        args.early_time1 = 100000
+        args.early_time2 = 100000
+        return
 
 # add by YxuanwKeith
 # f2 = open("log/predict_info.txt", 'wt')
 def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp, tlim):
     predict_start_time = time.time()
+
+    mask = np.copy(epoch_instance['must_dispatch'])
+    mask[0] = True
 
     epoch_num = 2
     test_num = 5
@@ -837,13 +861,21 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp, tlim):
         ins = env_virtual.step_num(epoch_num)
         # with open('ins.txt','a') as f2:
         #     log_info(ins, file = f2)
-
+        # sys.path.insert(0, os.getcwd())
         solutions = list(solve_static_vrptw_wyx(ins, time_limit=max_time_once, tmp_dir=tmp, seed=seed, useDynamicParameters=1))
         if len(solutions) == 0:
             if global_log_info: log_info('pass a predict sample')
             continue
 
         epoch_solution, cost = solutions[-1]
+
+        route_dispatch_epoch_max = [max(ins['release_epochs'][route]) for route in epoch_solution]
+        # delay judge
+        for route, route_epoch in zip(epoch_solution, route_dispatch_epoch_max):
+            if (route_epoch > current_epoch):
+                continue
+            route_pass.append(route)
+            current_num[route] += 1
 
         # distance_delta info
         distance_delta = np.zeros(origin_num)
@@ -863,10 +895,71 @@ def predict_info(epoch_instance, current_epoch, rng, env_virtual, tmp, tlim):
 
         cnt += 1
 
-    log_info(f"predict cnt : {cnt}")
+    # log_info(f"predict cnt : {cnt}")
     distance_delta_ave /= cnt
 
-    return distance_delta_ave, distance_delta_all
+    # return distance_delta_ave, distance_delta_all
+
+    # add mask and mask_num
+    # prob = per_5_cut[current_num]
+    # select mask with prob
+    prob = current_num/cnt
+    mask = (mask | rng.binomial(1, p=prob, size=len(mask)).astype(np.bool8))
+    for idx in range(len(mask)):
+        mask_num[idx] = 2 if mask[idx] == True else 0
+
+    if len(route_pass) > 0:
+        route_value = [current_num[route].sum() / len(route) for route in route_pass]
+        value_order = np.array(route_value).argsort()[::-1]
+        flag = np.zeros(origin_num)
+
+        for order_idx in value_order:
+            value, route = route_value[order_idx], route_pass[order_idx]
+            if value < 3.5:
+                break
+            if flag[route].any():
+                continue
+            route.insert(0, 0)
+            for i in range(1, len(route)):
+                idx = route[i]
+                # flag[idx] = True
+                if mask_num[idx] > 0:
+                    continue
+                idx_lst, idx_nxt = route[i - 1], route[(i + 1) % len(route)]
+                delta = ins['duration_matrix'][idx_lst, idx] + ins['duration_matrix'][idx, idx_nxt] - \
+                        ins['duration_matrix'][idx_lst, idx_nxt]
+                if delta > distance_delta_ave[idx]:
+                    continue
+                mask_num[idx] = 1
+                # mask[idx] = True
+
+    return mask, mask_num, distance_delta_ave, distance_delta_all
+
+
+def exists_data(ins_name, epoch):
+    ins_name = ins_name.split('/')[-1].split('.')[0]
+    file_save = os.path.join('wyx_data', ins_name + '_' + str(epoch) + '.pkl')
+    if not os.path.exists(file_save):
+        return False
+    return True
+
+
+def save_data_wyx(data, ins_name, epoch):
+    # save info
+    # data_save = [mask, mask_num, distance_delta_ave, distance_delta_all]
+    ins_name = ins_name.split('/')[-1].split('.')[0]
+    file_save = os.path.join('wyx_data', ins_name+'_'+str(epoch)+'.pkl')
+    # make dir
+    if not os.path.exists('wyx_data/'):  # 判断所在目录下是否有该文件名的文件夹
+        os.mkdir('wyx_data')  # 创建多级目录用mkdirs，单击目录mkdir
+    save_variable(data, file_save)
+
+
+def load_data_wyx(ins_name, epoch):
+    ins_name = ins_name.split('/')[-1].split('.')[0]
+    file_save = os.path.join('wyx_data', ins_name+'_'+str(epoch)+'.pkl')
+    return load_variavle(file_save)
+
 
 def run_baseline(args, env, oracle_solution=None, strategy=None):
     strategy = strategy or args.strategy
@@ -961,9 +1054,14 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
                     #  test OR_tools
                     # use delta of wyx
                     if global_use_my_delta == 0:
-                        distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual, args.tmp_dir, epoch_tlim - 22)
-                        or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args, distance_delta_ave, epoch_res, gap=args.or_gap)
-                        running_time = 11
+                        mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance,observation['current_epoch'], rng, env_virtual, args.tmp_dir,epoch_tlim - 22)
+                        # if not exists_data(args.instance, observation['current_epoch']):
+                        #     mask, mask_num, distance_delta_ave, distance_delta_all = predict_info(epoch_instance, observation['current_epoch'], rng, env_virtual, args.tmp_dir, epoch_tlim - 22)
+                        #     save_data_wyx([mask, mask_num, distance_delta_ave, distance_delta_all], args.instance, observation['current_epoch'])
+                        # else:
+                        #     mask, mask_num, distance_delta_ave, distance_delta_all = load_data_wyx(args.instance, observation['current_epoch'])
+                        or_epoch_instance = delta_weight_instance_add_wyx(epoch_instance, ndelta, args, mask, mask_num, distance_delta_ave, epoch_res, gap=args.or_gap)
+                        running_time = 1
                     else:
                         rest_epoch = static_info['end_epoch'] - observation['current_epoch']
                         or_epoch_instance = delta_weight_instance(epoch_instance, ndelta, args, gap=args.or_gap, rest_epoch=rest_epoch)
@@ -1054,9 +1152,11 @@ def run_baseline(args, env, oracle_solution=None, strategy=None):
 
                     # solutions = list(solve_static_vrptw_lyh(epoch_instance_dispatch_2, time_limit=int(running_time),seed=args.solver_seed,arg_call = "hgsAndSmart"))
 
+                    epoch_instance_dispatch_2 = or_epoch_instance
                     solutions = list(
-                        solve_static_vrptw(epoch_instance_dispatch_2, time_limit=int(running_time),
+                        solve_static_vrptw(or_epoch_instance, time_limit=int(running_time),
                                            tmp_dir=args.tmp_dir, seed=args.solver_seed, useDynamicParameters=use_dyn))
+
                     assert len(
                         solutions) > 0, f"No solution found during epoch {observation['current_epoch']} and time_lim={epoch_tlim}"
                     epoch_solution, cost = solutions[-1]
@@ -1143,8 +1243,8 @@ if __name__ == "__main__":
                         help="Baseline strategy used to decide whether to dispatch routes")
     # Note: these arguments are only for convenience during development, during testing you should use controller.py
     parser.add_argument("--instance", help="Instance to solve")
-    parser.add_argument("--instance_seed", type=int, default=1, help="Seed to use for the dynamic instance")
-    parser.add_argument("--solver_seed", type=int, default=1, help="Seed to use for the solver")
+    parser.add_argument("--instance_seed", type=int, default=2, help="Seed to use for the dynamic instance")
+    parser.add_argument("--solver_seed", type=int, default=2, help="Seed to use for the solver")
     parser.add_argument("--solver_seed_lyh", type=int, default=1, help="Seed to use for the solver")
     parser.add_argument("--static", action='store_true',
                         help="Add this flag to solve the static variant of the problem (by default dynamic)")
@@ -1153,7 +1253,7 @@ if __name__ == "__main__":
     parser.add_argument("--tmp_dir", type=str, default=None,
                         help="Provide a specific directory to use as tmp directory (useful for debugging)")
     parser.add_argument("--verbose", action='store_true', help="Show verbose output")
-    parser.add_argument("--rand_num", type=int, default=432, help="rand_num")
+    parser.add_argument("--rand_num", type=int, default=1, help="rand_num")
     parser.add_argument("--or_gap", type=float, default=94, help="or_gap")
     parser.add_argument("--x1", type=float, default=-7.018, help="x1")
     parser.add_argument("--x2", type=float, default=14.887, help="x2")
@@ -1161,9 +1261,9 @@ if __name__ == "__main__":
     parser.add_argument("--early_time1", type=int, default=1200, help="early_time1")
     parser.add_argument("--early_time2", type=int, default=-2000, help="early_time2")
     parser.add_argument("--gap", type=float, default=214, help="gap")
-    parser.add_argument("--sol_x1", type=float, default=0.125, help="sol_x1")
-    parser.add_argument("--sol_x2", type=float, default=0.8, help="sol_x2")
-    parser.add_argument("--sol_x3", type=float, default=-0.1, help="sol_x3")
+    parser.add_argument("--sol_x1", type=float, default=1.76, help="sol_x1")
+    parser.add_argument("--sol_x2", type=float, default=1.46, help="sol_x2")
+    parser.add_argument("--sol_x3", type=float, default=0.01, help="sol_x3")
     parser.add_argument("--avg", type=int, default=2000, help="sol_x3")
     parser.add_argument("--delta_weight_para", type=int, default=0, help="delta_weight_para")
 
@@ -1202,7 +1302,7 @@ if __name__ == "__main__":
             args_dic = {}
 
         # Make sure these parameters are not used by your solver
-        args.instance = None
+        # args.instance = None
         args.instance_seed = None
         args.static = None
         args.epoch_tlim = None
@@ -1210,8 +1310,9 @@ if __name__ == "__main__":
         if args.strategy == 'oracle':
             run_oracle(args, env)
         else:
+            # print('Start Running. ')
             re_all = run_baseline(args, env)
-            log_info('zjj_re,'+str(re_all))
+            print(re_all)
         if args.instance is not None:
             log_info(tools.json_dumps_np(env.final_solutions))
 
