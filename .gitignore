@@ -1,0 +1,9 @@
+.vscode
+.flake8
+tmp
+draws
+/cmake-build-release/
+/cmake-build-debug/
+/CMakeFiles/
+/stdcerr/
+!/.idea/workspace.xml

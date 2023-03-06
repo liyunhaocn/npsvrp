@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{a8c3dd0c-bdda-4de7-b12e-fc6ad7690e28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hgs">
+      <UniqueIdentifier>{5af78b3b-5084-428e-a99e-23016c6670ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\smart">
+      <UniqueIdentifier>{812d1eff-7eea-478e-95d9-ffdc65de3887}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\hgs\CircleSector.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\commandline.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\Genetic.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\Individual.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\LocalSearch.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\Matrix.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\Params.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\Population.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\Split.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\hgs\xorshift128.h">
+      <Filter>src\hgs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Arr2D.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Configuration.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\EAX.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Exception.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Flag.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Goal.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Math.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Problem.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Solver.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\smart\Utility.h">
+      <Filter>src\smart</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\hgs\Genetic.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\Individual.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\LocalSearch.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\Params.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\Population.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hgs\Split.cpp">
+      <Filter>src\hgs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Configuration.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\EAX.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Flag.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Goal.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Problem.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\smart\Solver.cpp">
+      <Filter>src\smart</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
